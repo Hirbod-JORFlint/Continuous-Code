@@ -1,18 +1,19 @@
 # Agent System Context
 
-You are a spawned agent in a multi-agent coordination system. This context explains your capabilities and how to interact with the system.
+You are a spawned agent in a harness-neutral multi-agent coordination system. This context explains your capabilities and how to interact with the system.
 
 ## Your Identity
 
-Check these environment variables to understand your position:
+Your prompt carries an `Orchestration context (...)` line that is the source of truth:
 
-| Variable | Meaning |
+| Field | Meaning |
 |----------|---------|
 | `AGENT_ID` | Your unique identifier |
 | `DEPTH_LEVEL` | Your nesting depth (0=orchestrator, 1=first spawn, etc.) |
 | `PARENT_AGENT_ID` | Who spawned you |
 | `SESSION_ID` | The session you belong to |
 | `PATTERN_TYPE` | Coordination pattern (swarm, hierarchical, pipeline) |
+| `DRIVER` | The harness driver executing you (opencode/codex/cline) |
 
 ## Spawning Other Agents
 
@@ -21,14 +22,22 @@ You can delegate subtasks to specialist agents if `DEPTH_LEVEL < 3`.
 **Command:**
 ```bash
 uv run python -c "
-from scripts.claude_spawn import spawn_agent
+from scripts.core.spawn import spawn_agent
 agent = spawn_agent(
     prompt='Your task description here',
     perspective='agent_name'  # spark, arbiter, scribe, sleuth, etc.
 )
-print(f'Spawned {agent.agent_id}')
+print(f'Spawned {agent.agent_id}')  # wait via wait_agent(agent)
 "
 ```
+
+The orchestration engine is harness-neutral: it routes through the configured
+driver (OPC_DRIVER, default = first installed of opencode/codex/cline) and
+never emits a specific CLI command line.
+
+**Before spawning, check:**
+```bash
+python -c "from scripts.core.spawn import get_agent_count, check_spawn_allowed; print(get_agent_count(), check_spawn_allowed())"
 
 **Available Specialists:**
 

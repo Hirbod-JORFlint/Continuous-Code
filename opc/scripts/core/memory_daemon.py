@@ -19,7 +19,7 @@ ARCHITECTURE:
     - Single global instance (PID file at ~/.claude/memory-daemon.pid)
     - Works with PostgreSQL or SQLite
     - Polls every 60 seconds for stale sessions (heartbeat > 5 min)
-    - Runs headless `claude -p` for memory extraction
+    - Runs headless memory extraction through the harness driver registry (OPC_DRIVER)
     - Marks sessions as extracted to prevent re-processing
 
 The session_start hook ensures this daemon is running.
@@ -31,6 +31,7 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -57,7 +58,8 @@ PID_FILE = Path.home() / ".claude" / "memory-daemon.pid"
 LOG_FILE = Path.home() / ".claude" / "memory-daemon.log"
 
 # Worker queue state (module-level for daemon process)
-active_extractions: dict[int, str] = {}  # pid -> session_id
+active_extractions: dict[int, str] = {}  # thread ident -> session_id
+_extraction_threads: dict[int, threading.Thread] = {}  # thread ident -> thread
 pending_queue: list[tuple[str, str]] = []  # [(session_id, project), ...]
 
 
@@ -249,8 +251,11 @@ def extract_memories(session_id: str, project_dir: str):
         log(f"No JSONL found for session {session_id}, skipping")
         return
 
-    # Run headless memory extraction
+    # Run headless memory extraction through the harness driver registry
+    # (HARNESS-ADAPTER §9: adapters never construct `claude -p` command lines)
     try:
+        from scripts.core.spawn import select_driver
+
         # Read agent prompt from memory-extractor.md (strip YAML frontmatter)
         config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
         agent_file = config_dir / "agents" / "memory-extractor.md"
@@ -266,46 +271,58 @@ def extract_memories(session_id: str, project_dir: str):
                 agent_prompt = content
         else:
             # Fallback minimal prompt
-            agent_prompt = """Extract learnings from this Claude Code session.
+            agent_prompt = """Extract learnings from this session.
 Look for decisions, what worked, what failed, and patterns discovered.
 Store each learning using store_learning.py with appropriate type and tags."""
 
-        proc = subprocess.Popen(
-            [
-                "claude", "-p",
-                "--model", "sonnet",  # Better extraction quality
-                "--dangerously-skip-permissions",
-                "--max-turns", "15",
-                "--append-system-prompt", agent_prompt,
-                f"Extract learnings from session {session_id}. JSONL path: {jsonl_path}"
-            ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True  # Detach from parent
+        driver = select_driver()
+
+        def _run_extraction():
+            try:
+                task = (
+                    f"{agent_prompt}\n\n"
+                    f"Extract learnings from session {session_id}. JSONL path: {jsonl_path}"
+                )
+                output = driver.run_prompt(
+                    task,
+                    cwd=project_dir or None,
+                    model="sonnet",  # Better extraction quality
+                    timeout=None,
+                )
+                log(
+                    f"Extraction for {session_id} finished "
+                    f"(driver={driver.name}, exit={output.exit_code})"
+                )
+            except Exception as e:
+                log(f"Extraction for {session_id} failed: {e}")
+
+        thread = threading.Thread(
+            target=_run_extraction, name=f"memory-extract-{session_id}", daemon=True
         )
-        active_extractions[proc.pid] = session_id
-        log(f"Started extraction for {session_id} (pid={proc.pid}, active={len(active_extractions)})")
+        thread.start()
+        ident = thread.ident or 0
+        active_extractions[ident] = session_id
+        _extraction_threads[ident] = thread
+        msg = (
+            f"Started extraction for {session_id} "
+            f"(thread={ident}, active={len(active_extractions)})"
+        )
+        log(msg)
     except Exception as e:
         log(f"Failed to start extraction: {e}")
 
 
 def reap_completed_extractions():
-    """Check for completed extraction processes and remove from active set."""
+    """Check for completed extraction threads and remove from active set."""
     completed = []
-    for pid, session_id in active_extractions.items():
-        try:
-            # Check if process is still running (signal 0 = check existence)
-            os.kill(pid, 0)
-        except ProcessLookupError:
-            # Process finished
-            completed.append(pid)
-            log(f"Extraction completed for {session_id} (pid={pid})")
-        except PermissionError:
-            # Process exists but we can't signal it - assume still running
-            pass
+    for ident, thread in list(_extraction_threads.items()):
+        if not thread.is_alive():
+            completed.append(ident)
+            log(f"Extraction completed for {active_extractions.get(ident)} (thread={ident})")
 
-    for pid in completed:
-        del active_extractions[pid]
+    for ident in completed:
+        _extraction_threads.pop(ident, None)
+        active_extractions.pop(ident, None)
 
     return len(completed)
 
@@ -404,12 +421,12 @@ def start_daemon():
         # Windows: spawn as detached subprocess
         # Uses DETACHED_PROCESS flag to run independently of parent
         # Reference: MongoDB pymongo/daemon.py pattern
-        DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
+        detached_process = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
         try:
             with open(os.devnull, "r+b") as devnull:
                 subprocess.Popen(
                     [sys.executable, __file__, "--daemon-subprocess"],
-                    creationflags=DETACHED_PROCESS,
+                    creationflags=detached_process,
                     stdin=devnull,
                     stdout=devnull,
                     stderr=devnull,
@@ -457,7 +474,7 @@ def status_daemon():
     running, pid = is_running()
     db_type = "PostgreSQL" if use_postgres() else "SQLite"
 
-    print(f"Memory Daemon Status")
+    print("Memory Daemon Status")
     print(f"  Running: {'Yes' if running else 'No'}")
     if running:
         print(f"  PID: {pid}")
@@ -467,7 +484,7 @@ def status_daemon():
 
     # Show recent log
     if LOG_FILE.exists():
-        print(f"\nRecent log:")
+        print("\nRecent log:")
         lines = LOG_FILE.read_text().strip().split("\n")[-5:]
         for line in lines:
             print(f"  {line}")
