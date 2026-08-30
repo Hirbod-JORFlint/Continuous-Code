@@ -44,7 +44,7 @@ $ claude                         ← Main Claude Code (your terminal)
 ## What OPC IS
 
 - OPC IS hooks that Claude Code loads from `.claude/hooks/`
-- OPC IS skills that Claude Code loads from `.claude/skills/`
+- OPC IS skills that Claude Code loads from `harness/skills/`
 - OPC IS scripts that hooks/skills call for coordination
 - OPC IS a database backend for state across Claude Code instances
 

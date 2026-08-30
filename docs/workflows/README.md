@@ -47,7 +47,7 @@ arbiter (verification)
 
 **Why pre-mortem?** Imagine the fix failed - what went wrong? This catches integration risks, missing tests, and edge cases before implementation.
 
-See [/premortem skill]($OPC_PROJECT_DIR/.claude/skills/premortem/SKILL.md) for details.
+See [/premortem skill]($OPC_PROJECT_DIR/harness/skills/premortem/SKILL.md) for details.
 
 ### Agent Consolidation (2026-01-08)
 
@@ -983,10 +983,10 @@ Use handoffs to:
 
 ## Extending Workflows
 
-Workflows are defined in `.claude/skills/<workflow>/SKILL.md`. Each workflow has:
+Workflows are defined in `harness/skills/<workflow>/SKILL.md`. Each workflow has:
 
 ```
-.claude/skills/
+harness/skills/
 └── workflow-name/
     └── SKILL.md          # Workflow definition
 ```
@@ -1029,7 +1029,7 @@ See existing workflows for patterns and conventions.
 - [Hooks]($OPC_PROJECT_DIR/docs/hooks/README.md) - Lifecycle extensions
 - [Skills]($OPC_PROJECT_DIR/docs/skills/help.md) - Skill system overview
 - [TLDR-code]($OPC_PROJECT_DIR/docs/tools/tldr.md) - Token-efficient code analysis
-- [Pre-mortem]($OPC_PROJECT_DIR/.claude/skills/premortem/SKILL.md) - Risk analysis technique
+- [Pre-mortem]($OPC_PROJECT_DIR/harness/skills/premortem/SKILL.md) - Risk analysis technique
 
 ## Getting Help
 

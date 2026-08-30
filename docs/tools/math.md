@@ -784,7 +784,7 @@ All commands return JSON with:
 
 ## Unified Entry Point
 
-The `/math` skill provides automatic routing to the right tool.
+The `math-unified` skill (invocable as `/math`) provides automatic routing to the right tool.
 
 ### Usage
 
@@ -918,7 +918,7 @@ Phase 5: Verify
 
 ### Computation vs Verification
 
-**Computation** (`/math`, SymPy, Z3, Pint, Shapely):
+**Computation** (`math-unified`, SymPy, Z3, Pint, Shapely):
 - Get numeric/symbolic results
 - Solve equations
 - Calculate values
@@ -930,7 +930,7 @@ Phase 5: Verify
 - Build on Mathlib theorems
 - Export to other proof systems
 
-Use `/math` for calculations. Use `/prove` for rigorous verification.
+Use `math-unified` for calculations. Use `/prove` for rigorous verification.
 
 ---
 

@@ -66,4 +66,4 @@ uv run python scripts/cc_math/math_router.py list --category sympy
 
 If the router returns `{"command": null}`, the intent wasn't recognized. Then:
 1. Ask user to clarify
-2. Or use individual skills: /sympy-compute, /z3-solve, /pint-compute, etc.
+2. Or use individual scripts via `math-unified`: sympy_compute.py, z3_solve.py, pint_compute.py, etc.

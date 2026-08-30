@@ -6,7 +6,7 @@ user-invocable: false
 
 # Skill Development Rules
 
-When working with files in `.claude/skills/`:
+When working with files in `harness/skills/`:
 
 ## SKILL.md Structure
 

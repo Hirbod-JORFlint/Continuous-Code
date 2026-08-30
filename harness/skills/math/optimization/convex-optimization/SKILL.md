@@ -73,4 +73,4 @@ uv run python -m runtime.harness scripts/z3_solve.py prove "kkt_conditions"
 
 ## Cognitive Tools Reference
 
-See `.claude/skills/math-mode/SKILL.md` for full tool documentation.
+See `harness/skills/math-unified/SKILL.md` for full tool documentation.

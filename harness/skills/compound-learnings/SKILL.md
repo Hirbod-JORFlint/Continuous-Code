@@ -135,7 +135,7 @@ Present each proposal in this format:
 [Actual content that would be written to file]
 \`\`\`
 
-**File:** `.claude/rules/[name].md` or `.claude/skills/[name]/SKILL.md`
+**File:** `harness/rules/[name].md` or `harness/skills/[name]/SKILL.md`
 
 ---
 ```
@@ -147,7 +147,7 @@ Use `AskUserQuestion` to get approval for each artifact (or batch approval).
 #### For Rules:
 ```bash
 # Write to rules directory
-cat > $OPC_PROJECT_DIR/.claude/rules/<name>.md << 'EOF'
+cat > $OPC_PROJECT_DIR/harness/rules/<name>.md << 'EOF'
 # Rule Name
 
 [Context: why this rule exists, based on N sessions]
@@ -168,7 +168,7 @@ EOF
 ```
 
 #### For Skills:
-Create `.claude/skills/<name>/SKILL.md` with:
+Create `harness/skills/<name>/SKILL.md` with:
 - Frontmatter (name, description, allowed-tools)
 - When to Use
 - Step-by-step instructions (executable)
@@ -206,7 +206,7 @@ Then create `src/<name>.ts`, build with esbuild, and register in `settings.json`
 ```
 
 #### For Agent Updates:
-Edit existing agent in `.claude/agents/<name>.md` to add the learned capability.
+Edit existing agent in `harness/agents/<name>.md` to add the learned capability.
 
 ### Step 8: Summary Report
 
@@ -233,15 +233,15 @@ Before creating any artifact:
 
 1. **Is it general enough?** Would it apply in other projects?
 2. **Is it specific enough?** Does it give concrete guidance?
-3. **Does it already exist?** Check `.claude/rules/` and `.claude/skills/` first
+3. **Does it already exist?** Check `harness/rules/` and `harness/skills/` first
 4. **Is it the right type?** Sequences → skills, heuristics → rules
 
 ## Files Reference
 
 - Learnings: `.claude/cache/learnings/*.md`
-- Skills: `.claude/skills/<name>/SKILL.md`
-- Rules: `.claude/rules/<name>.md`
+- Skills: `harness/skills/<name>/SKILL.md`
+- Rules: `harness/rules/<name>.md`
 - Hooks: `.claude/hooks/<name>.sh` + `src/<name>.ts` + `dist/<name>.mjs`
-- Agents: `.claude/agents/<name>.md`
-- Skill triggers: `.claude/skills/skill-rules.json`
+- Agents: `harness/agents/<name>.md`
+- Skill triggers: `harness/skills/skill-rules.json`
 - Hook registration: `.claude/settings.json` → `hooks` section

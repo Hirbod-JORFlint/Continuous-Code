@@ -65,4 +65,4 @@ uv run python -m runtime.harness scripts/sympy_compute.py simplify "phi(a*b) - p
 
 ## Cognitive Tools Reference
 
-See `.claude/skills/math-mode/SKILL.md` for full tool documentation.
+See `harness/skills/math-unified/SKILL.md` for full tool documentation.

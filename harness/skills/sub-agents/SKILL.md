@@ -28,7 +28,7 @@ Opens menu to create, edit, and manage agents.
 ### Manual Creation
 ```bash
 mkdir -p .claude/agents
-cat > .claude/agents/reviewer.md << 'EOF'
+cat > harness/agents/reviewer.md << 'EOF'
 ---
 name: reviewer
 description: Code review specialist. Use proactively after code changes.
@@ -150,7 +150,7 @@ Debugging process:
 
 | Type | Location | Priority |
 |------|----------|----------|
-| Project | `.claude/agents/` | Highest |
+| Project | `harness/agents/` | Highest |
 | User | `~/.claude/agents/` | Lower |
 
 ## Advanced Patterns
@@ -174,4 +174,4 @@ then use optimizer to fix them
 1. **Single responsibility** - One clear purpose per agent
 2. **Restrict tools** - Only grant what's needed
 3. **Clear descriptions** - Action-oriented, include "proactively"
-4. **Version control** - Check `.claude/agents/` into git
+4. **Version control** - Check `harness/agents/` into git

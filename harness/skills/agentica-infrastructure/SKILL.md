@@ -90,5 +90,5 @@ verdict = await jury.decide(bool, "Is this code production ready?")
 
 ## Location
 
-API spec: `.claude/skills/agentica-infrastructure/API_SPEC.md`
+API spec: `harness/skills/agentica-infrastructure/API_SPEC.md`
 Source: `scripts/agentica_patterns/`

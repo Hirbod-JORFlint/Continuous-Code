@@ -24,7 +24,7 @@ cd Continuous-Claude-v3/opc
 # Install Python dependencies
 uv sync
 
-# Install hook dependencies (TypeScript)
+# Install hook dependencies (TypeScript; legacy transport, see notes)
 cd ../.claude/hooks && npm install && npm run build && cd ../../opc
 
 # Verify installation
@@ -36,12 +36,12 @@ claude
 
 ## Adding Skills
 
-Skills are modular capabilities defined in `.claude/skills/<skill-name>/SKILL.md`.
+Skills are modular capabilities defined in `harness/skills/<skill-name>/SKILL.md`.
 
 ### Skill Structure
 
 ```
-.claude/skills/my-skill/
+harness/skills/my-skill/
 ├── SKILL.md          # Main skill definition (required)
 └── templates/        # Optional templates
 ```
@@ -79,7 +79,7 @@ Claude: [executes skill workflow]
 
 ### Registering Skill Triggers
 
-Add to `.claude/skills/skill-rules.json`:
+Add to `harness/skills/skill-rules.json`:
 
 ```json
 {
@@ -102,7 +102,7 @@ This interactive skill walks you through creating new skills.
 
 ## Creating Agents
 
-Agents are specialized AI workers defined in `.claude/agents/<agent-name>.md`.
+Agents are specialized AI workers defined in `harness/agents/<agent-name>.md`.
 
 ### Agent Structure
 
@@ -162,7 +162,7 @@ Task({
 
 ## Developing Hooks
 
-Hooks intercept Claude Code at lifecycle points. Located in `.claude/hooks/`.
+Hooks intercept Claude Code at lifecycle points. Canonical manifest: `harness/lifecycle/hooks.toml`; implementations in `harness/lifecycle/hooks/`.
 
 ### Hook Types
 
@@ -182,7 +182,7 @@ Hooks intercept Claude Code at lifecycle points. Located in `.claude/hooks/`.
 
 ```bash
 #!/bin/bash
-# .claude/hooks/my-hook.sh
+# harness/lifecycle/hooks/my-hook.sh
 
 # Read input from stdin (JSON)
 INPUT=$(cat)
@@ -231,25 +231,16 @@ hook(input).then(output => console.log(JSON.stringify(output)));
 
 ### Registering Hooks
 
-Add to `.claude/settings.json`:
+Add a handler to `harness/lifecycle/hooks.toml`:
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "command": ".claude/hooks/my-hook.sh",
-            "timeout": 5000
-          }
-        ]
-      }
-    ]
-  }
-}
+```toml
+[[hooks.pre_tool_use]]
+id = "my-hook"
+description = "My custom hook"
+command = "bash $HOME/.opc/hooks/hook_launcher.py my-hook"
 ```
+
+The three generators then emit the driver-native config: Claude Code `settings.json`, Codex `config.toml`, and opencode's auto-loaded plugin.
 
 ### Hook Development Workflow
 
@@ -343,7 +334,7 @@ python -m pytest tests/ -v
 # TLDR tests
 cd opc/packages/tldr-code && pytest tests/ -v
 
-# Hook tests (TypeScript)
+# Hook tests (TypeScript; legacy transport until dist re-home)
 cd .claude/hooks && npm test
 ```
 
@@ -361,7 +352,7 @@ cd .claude/hooks && npm test
 
 ```bash
 # Test hook directly
-echo '{"tool_name": "Read", "tool_input": {"file_path": "test.py"}}' | .claude/hooks/my-hook.sh
+echo '{"tool_name": "Read", "tool_input": {"file_path": "test.py"}}' | harness/lifecycle/hooks/my-hook.sh
 ```
 
 ---

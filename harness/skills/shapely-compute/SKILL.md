@@ -229,5 +229,5 @@ All commands return JSON with:
 | Simplify path | `op simplify` |
 
 ## Related Skills
-- `/math-mode` - Full math orchestration (SymPy, Z3)
-- `/math-plot` - Visualization with matplotlib
+- `math-unified` - Full math orchestration (SymPy, Z3)
+- `math-help` - Full tool documentation (incl. math_plot.py visualization)

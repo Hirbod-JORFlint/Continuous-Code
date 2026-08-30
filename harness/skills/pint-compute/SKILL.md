@@ -124,5 +124,5 @@ uv run python -m runtime.harness scripts/pint_compute.py \
 
 ## Related Skills
 
-- /math-mode - Full math orchestration (SymPy + Z3)
-- /sympy-compute - Symbolic computation
+- math-unified - Full math orchestration (SymPy + Z3)
+- math-help - Full tool documentation and routing

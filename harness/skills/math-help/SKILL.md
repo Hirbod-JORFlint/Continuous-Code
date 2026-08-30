@@ -27,7 +27,7 @@ Cognitive prosthetics for exact mathematical computation. This guide helps you c
 | Plot 2D/3D functions | math_plot.py | `plot2d "sin(x)" --range -10 10` |
 | Arbitrary precision | mpmath_compute.py | `pi --dps 100` |
 | Numerical optimization | scipy_compute.py | `minimize "x**2 + 2*x" "5"` |
-| Formal machine proof | Lean 4 (lean4 skill) | `/lean4` |
+| Formal machine proof | Lean 4 (prove skill) | `/prove` |
 
 ## The Five Layers
 
@@ -137,7 +137,7 @@ uv run python scripts/cc_math/math_tutor.py generate --topic algebra --difficult
 
 **When:** Rigorous machine-verified mathematical proofs, category theory, type theory.
 
-**Access:** Use `/lean4` skill for full documentation.
+**Access:** Use the `prove` skill for full documentation.
 
 **Best For:** Publication-grade proofs, dependent types, category theory.
 
@@ -274,7 +274,7 @@ uv run python scripts/cc_math/math_tutor.py steps "..." --operation integrate
 uv run python -m runtime.harness scripts/cc_math/z3_solve.py \
     prove "x*y == y*x" --vars x y --type int
 
-# For formal proof, use /lean4 skill
+# For formal proof, use the prove skill
 ```
 
 ## Choosing the Right Tool
@@ -309,16 +309,16 @@ Want to LEARN/PRACTICE?
       └─ Practice → math_tutor.py generate
 
 Need MACHINE-VERIFIED formal proof?
-  └─ Yes → Use Lean 4 (see /lean4 skill)
+  └─ Yes → Use Lean 4 (see prove skill)
 ```
 
 ## Related Skills
 
 - `math-unified` - Unified math orchestration skill
-- `/lean4` - Formal theorem proving with Lean 4
-- `/lean4-functors` - Category theory functors
-- `/lean4-nat-trans` - Natural transformations
-- `/lean4-limits` - Limits and colimits
+- `prove` - Formal theorem proving with Lean 4
+- `categories-functors` - Category theory functors (math/category-theory/)
+- `natural-transformations` - Natural transformations (math/category-theory/)
+- `limits-colimits` - Limits and colimits (math/category-theory/)
 
 ## Requirements
 

@@ -39,7 +39,7 @@ Use this skill when working on natural-transformations problems in category theo
    - Nat(Hom(A, -), F) ~ F(A) naturally in A
    - Lean 4: `CategoryTheory.yonedaEquiv`
    - Fully embeds C into [C^op, Set]
-   - See: `.claude/skills/lean4-nat-trans/SKILL.md` for exact syntax
+   - See: `harness/skills/prove/SKILL.md` for exact Lean 4 syntax
 
 
 ## Tool Commands
@@ -66,4 +66,4 @@ lake build  # Compiler-in-the-loop verification
 
 ## Cognitive Tools Reference
 
-See `.claude/skills/math-mode/SKILL.md` for full tool documentation.
+See `harness/skills/math-unified/SKILL.md` for full tool documentation.

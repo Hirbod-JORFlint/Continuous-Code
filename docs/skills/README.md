@@ -190,7 +190,7 @@ Specialized capabilities organized by domain.
 - Discrete math, algebra, calculus, statistics
 - Linear algebra, differential equations
 - Category theory, topology
-- (See `.claude/skills/math-*` for full list)
+- (See `harness/skills/math/` for full list)
 
 ### Search & Navigation
 
@@ -580,7 +580,7 @@ New skills should follow:
 
 ## Appendix: Skill Directory Structure
 
-All skills are located in: `.claude/skills/<skill-name>/SKILL.md`
+All skills are located in: `harness/skills/<skill-name>/SKILL.md`
 
 Categories by directory prefix:
 - **Workflows**: `build/`, `fix/`, `tdd/`, `review/`, `refactor/`, `explore/`, `test/`, `security/`, `release/`, `migrate/`
@@ -594,6 +594,6 @@ Categories by directory prefix:
 
 ---
 
-**Document Version**: 2026-01-09
-**Total Skills Documented**: 111+
-**Skills Path**: `.claude/skills/`
+**Document Version**: 2026-08-30
+**Total Skills Documented**: 108+
+**Skills Path**: `harness/skills/`

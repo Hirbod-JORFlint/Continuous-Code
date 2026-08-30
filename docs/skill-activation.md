@@ -107,7 +107,7 @@ You don't need to know that `/premortem` exists. Just say "what could go wrong?"
 The system knows when you're 90% through context and **blocks** to require a handoff. Guardrails prevent state loss.
 
 ### Reduces Cognitive Load
-Instead of remembering 109 skills:
+Instead of remembering 108 skills:
 - Describe intent naturally
 - Get curated suggestions
 - Confirm or adjust
@@ -127,7 +127,7 @@ The activation system suggests all three based on your intent.
 
 ## Configuration
 
-Skills and agents are defined in `.claude/skills/skill-rules.json`:
+Skills and agents are defined in `harness/skills/skill-rules.json`:
 
 ```json
 {
@@ -150,7 +150,7 @@ Skills and agents are defined in `.claude/skills/skill-rules.json`:
 
 To make a skill activate on custom phrases:
 
-1. Edit `.claude/skills/skill-rules.json`
+1. Edit `harness/skills/skill-rules.json`
 2. Add keywords or regex patterns to `promptTriggers`
 3. The hook picks them up automatically (no restart needed)
 
@@ -215,7 +215,7 @@ The complete flow:
 
 1. **You type**: "Fix the broken login"
 2. **UserPromptSubmit hook fires**: Reads your message before Claude sees it
-3. **Pattern matching**: Checks 109 skills + 49 agents against keywords/intent
+3. **Pattern matching**: Checks 108 skills + 32 agents against keywords/intent
 4. **Validation**: Filters ambiguous matches (e.g., "test" in casual speech)
 5. **Priority sorting**: Groups by CRITICAL → RECOMMENDED → SUGGESTED → OPTIONAL
 6. **Context check**: Reads temp file from status.py for usage %

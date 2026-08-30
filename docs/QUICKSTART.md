@@ -26,7 +26,7 @@ uv run python scripts/setup/wizard.py
 The wizard walks you through 12 configuration steps including:
 - Database setup (PostgreSQL via Docker)
 - Optional API keys (Braintrust, Perplexity, Nia)
-- Claude Code integration (49 agents, 109 skills, 30 hooks)
+- Claude Code integration (32 agents, 108 skills, 36 hooks)
 
 ## 3. Verify Installation (1 min)
 
@@ -52,8 +52,8 @@ Claude Code now has:
 
 - **Persistent Memory**: Learnings stored in PostgreSQL with vector search
 - **Handoff System**: Transfer context between sessions
-- **Skills Library**: 109 built-in capabilities
-- **Sub-agents**: 49 specialized agents for complex tasks
+- **Skills Library**: 108 built-in capabilities
+- **Sub-agents**: 32 specialized agents for complex tasks
 
 ### Natural Language Commands
 
@@ -70,9 +70,9 @@ Just say these phrases to Claude:
 
 ```
 ~/.claude/
-├── agents/           # 49 specialized agents
-├── skills/           # 109 skills
-├── hooks/            # 30 lifecycle hooks
+├── agents/           # 32 specialized agents
+├── skills/           # 108 skills
+├── hooks/            # 36 lifecycle hooks
 ├── rules/            # System policies
 └── settings.json     # Hook configuration
 

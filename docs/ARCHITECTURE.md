@@ -40,7 +40,7 @@ The system has four main layers: **Skills** (what users can trigger), **Hooks** 
                                         |
                                         v
 +-----------------------------------------------------------------------------------+
-|                              AGENT LAYER (41 agents)                               |
+|                              AGENT LAYER (32 agents)                               |
 |                                                                                    |
 |  ORCHESTRATORS          IMPLEMENTERS         EXPLORERS          REVIEWERS         |
 |  +----------+           +----------+         +----------+       +----------+      |
@@ -183,7 +183,7 @@ Hooks fire automatically at specific lifecycle points. Users don't invoke them d
 
 ## 3. Agent Layer
 
-41 specialized agents, each with a defined role, model preference, and tool access.
+32 specialized agents, each with a defined role, model preference, and tool access.
 
 ### Orchestration Agents
 
@@ -483,7 +483,7 @@ Claude calls Grep("validateToken")
 | File | Purpose |
 |------|---------|
 | `.claude/settings.json` | Hook registration, tool configuration |
-| `.claude/skills/skill-rules.json` | Skill triggers and keywords |
+| `harness/skills/skill-rules.json` | Skill triggers and keywords |
 | `opc/pyproject.toml` | Python dependencies |
 
 ### Hook Implementations
@@ -500,10 +500,10 @@ Claude calls Grep("validateToken")
 
 | File | Purpose |
 |------|---------|
-| `.claude/agents/kraken.md` | TDD implementation agent |
-| `.claude/agents/maestro.md` | Multi-agent orchestrator |
-| `.claude/agents/architect.md` | Feature planning agent |
-| `.claude/agents/scout.md` | Codebase exploration |
+| `harness/agents/kraken.md` | TDD implementation agent |
+| `harness/agents/maestro.md` | Multi-agent orchestrator |
+| `harness/agents/architect.md` | Feature planning agent |
+| `harness/agents/scout.md` | Codebase exploration |
 
 ### Core Libraries
 
@@ -526,10 +526,10 @@ Claude calls Grep("validateToken")
 
 ### For Developers
 
-1. **Add skills** in `.claude/skills/<skill-name>/SKILL.md`
-2. **Register triggers** in `.claude/skills/skill-rules.json`
+1. **Add skills** in `harness/skills/<skill-name>/SKILL.md`
+2. **Register triggers** in `harness/skills/skill-rules.json`
 3. **Add hooks** in `.claude/hooks/src/*.ts`, register in `.claude/settings.json`
-4. **Add agents** in `.claude/agents/<agent>.md`
+4. **Add agents** in `harness/agents/<agent>.md`
 
 ### Key Invariants
 
@@ -781,8 +781,8 @@ Location: `.claude/hooks/src/`
 |--------|-------|-------|
 | Python functions | 2,328 | Across all `opc/scripts/` |
 | TypeScript hooks | 34 | Active in `.claude/hooks/src/` |
-| Skills | 123 | In `.claude/skills/` |
-| Agents | 41 | Defined in system prompt |
+| Skills | 108 | In `harness/skills/` |
+| Agents | 32 | Defined in `harness/agents/` |
 | Tests | 265+ | TLDR-code alone |
 | Entry layer functions | 1,057 | Called from outside |
 | Leaf functions | 729 | Utility/helper code |

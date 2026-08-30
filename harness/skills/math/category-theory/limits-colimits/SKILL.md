@@ -43,7 +43,7 @@ Use this skill when working on limits-colimits problems in category theory.
    - Left adjoint preserves colimits
    - Representable functors preserve limits
    - Lean 4: `Adjunction.rightAdjointPreservesLimits`
-   - See: `.claude/skills/lean4-limits/SKILL.md` for exact syntax
+   - See: `harness/skills/prove/SKILL.md` for exact Lean 4 syntax
 
 
 ## Tool Commands
@@ -70,4 +70,4 @@ lake build  # Compiler-in-the-loop verification
 
 ## Cognitive Tools Reference
 
-See `.claude/skills/math-mode/SKILL.md` for full tool documentation.
+See `harness/skills/math-unified/SKILL.md` for full tool documentation.

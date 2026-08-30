@@ -17,10 +17,10 @@ Meta-skill for creating new Claude Code skills, including skills that wrap MCP p
 
 ## Skill Structure
 
-Skills live in `.claude/skills/<skill-name>/`:
+Skills live in `harness/skills/<skill-name>/`:
 
 ```
-.claude/skills/my-skill/
+harness/skills/my-skill/
 ├── SKILL.md          # Required: Main skill definition
 ├── scripts/          # Optional: Supporting scripts
 └── templates/        # Optional: Templates, examples
@@ -62,7 +62,7 @@ cp $OPC_PROJECT_DIR/scripts/multi_tool_pipeline.py $OPC_PROJECT_DIR/scripts/my_p
 Reference the template pattern:
 
 ```bash
-cat $OPC_PROJECT_DIR/.claude/skills/multi-tool-pipeline/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/multi-tool-pipeline/SKILL.md
 cat $OPC_PROJECT_DIR/scripts/multi_tool_pipeline.py
 ```
 
@@ -84,7 +84,7 @@ async def main():
 
 ### Step 2: Create the Skill
 
-Create `.claude/skills/my-pipeline/SKILL.md`:
+Create `harness/skills/my-pipeline/SKILL.md`:
 
 ```markdown
 ---
@@ -116,7 +116,7 @@ uv run python -m runtime.harness scripts/my_pipeline.py --arg1 "value"
 
 ### Step 3: Add Triggers (Optional)
 
-Add to `.claude/skills/skill-rules.json`:
+Add to `harness/skills/skill-rules.json`:
 
 ```json
 {
@@ -140,8 +140,8 @@ Add to `.claude/skills/skill-rules.json`:
 For full details, read:
 
 ```bash
-cat $OPC_PROJECT_DIR/.claude/rules/skill-development.md
-cat $OPC_PROJECT_DIR/.claude/rules/mcp-scripts.md
+cat $OPC_PROJECT_DIR/harness/rules/skill-development.md
+cat $OPC_PROJECT_DIR/harness/rules/mcp-scripts.md
 ```
 
 ## Quick Checklist
@@ -157,7 +157,7 @@ cat $OPC_PROJECT_DIR/.claude/rules/mcp-scripts.md
 Look at existing skills for patterns:
 
 ```bash
-ls $OPC_PROJECT_DIR/.claude/skills/
-cat $OPC_PROJECT_DIR/.claude/skills/commit/SKILL.md
-cat $OPC_PROJECT_DIR/.claude/skills/firecrawl-scrape/SKILL.md
+ls $OPC_PROJECT_DIR/harness/skills/
+cat $OPC_PROJECT_DIR/harness/skills/commit/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/firecrawl-scrape/SKILL.md
 ```

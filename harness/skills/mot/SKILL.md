@@ -56,12 +56,12 @@ echo "Name consistency: $((SKILL_COUNT - FAIL)) pass, $FAIL fail"
 ### Phase 2: Agents Audit
 ```bash
 echo "=== AGENTS ==="
-AGENT_COUNT=$(ls .claude/agents/*.md 2>/dev/null | wc -l | xargs)
+AGENT_COUNT=$(ls harness/agents/*.md 2>/dev/null | wc -l | xargs)
 echo "Found $AGENT_COUNT agent files"
 
 # Check required fields
 FAIL=0
-for agent in .claude/agents/*.md; do
+for agent in harness/agents/*.md; do
   [ -f "$agent" ] || continue
 
   # Check name field exists
@@ -82,12 +82,12 @@ echo "Agent validation: $((AGENT_COUNT - FAIL)) pass, $FAIL fail"
 
 # Check for dangling references (agents that reference non-existent agents)
 echo "Checking agent cross-references..."
-for agent in .claude/agents/*.md; do
+for agent in harness/agents/*.md; do
   [ -f "$agent" ] || continue
   # Find subagent_type references
   refs=$(grep -oE 'subagent_type[=:]["'\'']*([a-z-]+)' "$agent" 2>/dev/null | sed 's/.*["'\'']//' | sed 's/["'\'']$//')
   for ref in $refs; do
-    if [ ! -f ".claude/agents/$ref.md" ]; then
+    if [ ! -f "harness/agents/$ref.md" ]; then
       echo "WARN: $agent references non-existent agent: $ref"
     fi
   done
@@ -188,7 +188,7 @@ FAIL=0
 for skill in $(find .claude/skills -name "SKILL.md"); do
   refs=$(grep -oE 'subagent_type[=:]["'\'']*([a-z-]+)' "$skill" 2>/dev/null | sed 's/.*["'\'']//' | sed 's/["'\'']$//')
   for ref in $refs; do
-    if [ -n "$ref" ] && [ ! -f ".claude/agents/$ref.md" ]; then
+    if [ -n "$ref" ] && [ ! -f "harness/agents/$ref.md" ]; then
       echo "FAIL: $skill references missing agent: $ref"
       FAIL=$((FAIL+1))
     fi

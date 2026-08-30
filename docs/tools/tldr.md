@@ -856,7 +856,7 @@ This design allows adding new languages without changing the analysis algorithms
 
 - PyPI: [pypi.org/project/llm-tldr](https://pypi.org/project/llm-tldr/)
 - Source: [github.com/parcadei/tldr-code](https://github.com/parcadei/tldr-code)
-- Skills: `.claude/skills/tldr-code/SKILL.md`
+- Skills: `harness/skills/tldr-code/SKILL.md`
 - Hooks: `.claude/hooks/dist/tldr-*.mjs`
 
 ## License

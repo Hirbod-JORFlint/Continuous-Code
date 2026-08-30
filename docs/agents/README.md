@@ -718,11 +718,11 @@ kraken (implement) → review-agent (verify) → arbiter (test)
 
 ### Agent produces inaccurate results
 - **Cause:** Using wrong model (e.g., Explore instead of Scout)
-- **Fix:** Check agent model in `.claude/agents/<agent>.md`
+- **Fix:** Check agent model in `harness/agents/<agent>.md`
 
 ### Agent doesn't have access to tool
 - **Cause:** Agent definition missing tool in tools list
-- **Fix:** Update agent prompt in `.claude/agents/<agent>.md`
+- **Fix:** Update agent prompt in `harness/agents/<agent>.md`
 
 ### Kraken checkpoint not found
 - **Cause:** Checkpoint file moved or renamed

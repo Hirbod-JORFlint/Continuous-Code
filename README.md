@@ -4,9 +4,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude-Code-orange.svg)](https://claude.ai/code)
-[![Skills](https://img.shields.io/badge/Skills-109-green.svg)](#skills-system)
+[![Skills](https://img.shields.io/badge/Skills-108-green.svg)](#skills-system)
 [![Agents](https://img.shields.io/badge/Agents-32-purple.svg)](#agents-system)
-[![Hooks](https://img.shields.io/badge/Hooks-30-blue.svg)](#hooks-system)
+[![Hooks](https://img.shields.io/badge/Hooks-36-blue.svg)](#hooks-system)
 
 **Continuous Claude** transforms Claude Code into a continuously learning system that maintains context across sessions, orchestrates specialized agents, and eliminates wasting tokens through intelligent code analysis.
 
@@ -18,9 +18,9 @@
 - [Quick Start](#quick-start)
 - [Architecture](#architecture)
 - [Core Systems](#core-systems)
-  - [Skills (109)](#skills-system)
+  - [Skills (108)](#skills-system)
   - [Agents (32)](#agents-system)
-  - [Hooks (30)](#hooks-system)
+  - [Hooks (36)](#hooks-system)
   - [TLDR Code Analysis](#tldr-code-analysis)
   - [Memory System](#memory-system)
   - [Continuity System](#continuity-system)
@@ -46,7 +46,7 @@ Claude Code has a **compaction problem**: when context fills up, the system comp
 | Starting fresh each session | Memory system recalls + daemon auto-extracts learnings |
 | Reading entire files burns tokens | 5-layer code analysis + semantic index |
 | Complex tasks need coordination | Meta-skills orchestrate agent workflows |
-| Repeating workflows manually | 109 skills with natural language triggers |
+| Repeating workflows manually | 108 skills with natural language triggers |
 
 **The mantra: Compound, don't compact.** Extract learnings automatically, then start fresh with full context.
 
@@ -184,7 +184,7 @@ uv run python -m scripts.setup.wizard
 | 2 | Check prerequisites (Docker, Python, uv) |
 | 3-5 | Database + API key configuration |
 | 6-7 | Start Docker stack, run migrations |
-| 8 | Install Claude Code integration (32 agents, 109 skills, 30 hooks) |
+| 8 | Install Claude Code integration (32 agents, 108 skills, 36 hooks) |
 | 9 | Math features (SymPy, Z3, Pint - optional) |
 | 10 | TLDR code analysis tool |
 | 11-12 | Diagnostics tools + Loogle (optional) |
@@ -294,7 +294,7 @@ claude
 │                                                                     │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐             │
 │  │   Skills    │    │   Agents    │    │    Hooks    │             │
-│  │   (109)     │───▶│    (32)     │◀───│    (30)     │             │
+│  │   (108)     │───▶│    (32)     │◀───│    (36)     │             │
 │  └─────────────┘    └─────────────┘    └─────────────┘             │
 │         │                  │                  │                     │
 │         ▼                  ▼                  ▼                     │
@@ -480,7 +480,7 @@ SessionStart                    Working                      SessionEnd
 
 ### Skills System
 
-Skills are modular capabilities triggered by natural language. Located in `.claude/skills/`.
+Skills are modular capabilities triggered by natural language. Canonical source: `harness/skills/`.
 
 #### Meta-Skills (Workflow Orchestrators)
 
@@ -584,7 +584,7 @@ These follow their defined chains without mode flags. Just run:
 - **braintrust-analyze**: Session analysis, replay, and debugging failed sessions
 
 **Math & Formal Proofs**
-- **math**: Unified computation (SymPy, Z3, Pint) — one entry point for all math
+- **math-unified**: Unified computation (SymPy, Z3, Pint) — one entry point for all math
 - **prove**: Lean4 theorem proving with 5-phase workflow (Research → Design → Test → Implement → Verify)
 - **pint-compute**: Unit-aware arithmetic and conversions
 - **shapely-compute**: Computational geometry
@@ -603,7 +603,7 @@ What do I want to do?
 ├── Researching → oracle or perplexity-search
 ├── Reviewing → /review
 ├── Proving → /prove (Lean4 formal verification)
-├── Computing → /math (SymPy, Z3, Pint)
+├── Computing → math-unified (SymPy, Z3, Pint)
 └── Shipping → /release
 ```
 
@@ -613,7 +613,7 @@ What do I want to do?
 
 ### Agents System
 
-Agents are specialized AI workers spawned via the Task tool. Located in `.claude/agents/`.
+Agents are specialized AI workers spawned via the Task tool. Canonical source: `harness/agents/`.
 
 #### Agent Categories (32 active)
 
@@ -665,9 +665,9 @@ Agents are specialized AI workers spawned via the Task tool. Located in `.claude
 
 ### Hooks System
 
-Hooks intercept Claude Code at lifecycle points. Located in `.claude/hooks/`.
+Hooks intercept the harness at lifecycle points. Canonical source: `harness/lifecycle/` (manifest: `harness/lifecycle/hooks.toml`).
 
-#### Hook Events (30 hooks total)
+#### Hook Events (36 hooks total)
 
 | Event | Key Hooks | Purpose |
 |-------|-----------|---------|
@@ -688,7 +688,7 @@ Hooks intercept Claude Code at lifecycle points. Located in `.claude/hooks/`.
 | **post-edit-diagnostics** | Runs pyright/ruff after edits |
 | **memory-awareness** | Surfaces relevant learnings |
 
-[See all 30 hooks →](docs/hooks/)
+[See all 36 hooks →](docs/hooks/)
 
 ---
 
@@ -897,10 +897,10 @@ Two capabilities: **computation** (SymPy, Z3, Pint) and **formal verification** 
 
 | Skill | Use When |
 |-------|----------|
-| `/math` | Computing, solving, calculating |
+| `math-unified` | Computing, solving, calculating |
 | `/prove` | Formal verification, machine-checked proofs |
 
-#### /math Examples
+#### math-unified Examples
 
 ```bash
 # Solve equation
@@ -1044,8 +1044,8 @@ This will:
 | Component | Location |
 |-----------|----------|
 | Agents (32) | ~/.claude/agents/ |
-| Skills (109) | ~/.claude/skills/ |
-| Hooks (30) | ~/.claude/hooks/ |
+| Skills (108) | ~/.claude/skills/ |
+| Hooks (36) | ~/.claude/hooks/ |
 | Rules | ~/.claude/rules/ |
 | Scripts | ~/.claude/scripts/ |
 | PostgreSQL | Docker container |
@@ -1053,6 +1053,8 @@ This will:
 ### Installation Mode: Copy vs Symlink
 
 The wizard offers two installation modes:
+
+> **Note:** Canonical source moved to `harness/` (skills, agents, rules, lifecycle). The Step 9 installer re-work re-targets these paths; until then, source references below (`.claude/...`) reflect the legacy Claude Code wiring.
 
 | Mode | How It Works | Best For |
 |------|--------------|----------|
@@ -1173,7 +1175,7 @@ Central configuration for hooks, tools, and workflows.
 }
 ```
 
-### .claude/skills/skill-rules.json
+### harness/skills/skill-rules.json
 
 Skill activation triggers.
 
@@ -1211,30 +1213,32 @@ Services without API keys still work:
 ## Directory Structure
 
 ```
-continuous-claude/
-├── .claude/
-│   ├── agents/           # 32 specialized AI agents
-│   ├── hooks/            # 30 lifecycle hooks
-│   │   ├── src/          # TypeScript source
-│   │   └── dist/         # Compiled JavaScript
-│   ├── skills/           # 109 modular capabilities
-│   ├── rules/            # System policies
-│   ├── scripts/          # Python utilities
-│   └── settings.json     # Hook configuration
+continuous-code/
+├── harness/               # Canonical source of truth (tool-agnostic)
+│   ├── agents/            # 32 specialized AI agents
+│   ├── skills/            # 108 modular capabilities (SKILL.md per dir)
+│   ├── lifecycle/         # Hook manifest (hooks.toml) + hook implementations
+│   ├── rules/             # System policies
+│   ├── mcp/               # MCP registry + reference server implementations
+│   └── spec/              # Harness adapter spec (HARNESS-ADAPTER.md)
+├── .opencode/             # Generated opencode config (agents, skills, hooks)
+├── .codex/                # Generated codex config (config.toml, AGENTS.md)
+├── .clinerules/           # Generated cline config (rules + hooks)
 ├── opc/
 │   ├── packages/
-│   │   └── tldr-code/    # 5-layer code analysis
+│   │   └── tldr-code/     # 5-layer code analysis
 │   ├── scripts/
-│   │   ├── setup/        # Wizard, Docker, integration
-│   │   └── core/         # recall_learnings, store_learning
+│   │   ├── harness/       # Generators: gen_opencode, gen_codex, gen_cline
+│   │   ├── setup/         # Wizard, Docker, integration
+│   │   └── core/          # recall_learnings, store_learning
 │   └── docker/
 │       └── init-schema.sql  # 4-table PostgreSQL schema
 ├── thoughts/
-│   ├── ledgers/          # Continuity ledgers (CONTINUITY_*.md)
+│   ├── ledgers/           # Continuity ledgers (CONTINUITY_*.md)
 │   └── shared/
-│       ├── handoffs/     # Session handoffs (*.yaml)
-│       └── plans/        # Implementation plans
-└── docs/                 # Documentation
+│       ├── handoffs/      # Session handoffs (*.yaml)
+│       └── plans/         # Implementation plans
+└── docs/                  # Documentation
 ```
 
 ---

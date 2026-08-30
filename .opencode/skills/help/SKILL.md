@@ -49,7 +49,7 @@ Based on response, show relevant tools:
 | Explore codebase | scout agent, tldr CLI, /explore workflow |
 | Fix a bug | /fix workflow, sleuth agent, debug-agent |
 | Build feature | /build workflow, architect agent, kraken agent |
-| Prove math | /prove skill, lean4 skill, Godel-Prover |
+| Prove math | /prove skill, Godel-Prover |
 | Research docs | oracle agent, nia-docs, perplexity |
 | Configure workspace | hooks, rules, settings, frontmatter |
 
@@ -269,7 +269,7 @@ External tool integrations:
 | nia | Documentation search |
 | perplexity | AI-powered web research |
 
-### Rules (.claude/rules/*.md)
+### Rules (harness/rules/*.md)
 Always-on instructions injected into context:
 
 - `claim-verification.md` - Verify before asserting
@@ -278,13 +278,13 @@ Always-on instructions injected into context:
 
 ### Creating Custom Skills
 ```bash
-mkdir -p .claude/skills/my-skill
-# Create .claude/skills/my-skill/SKILL.md with frontmatter
+mkdir -p harness/skills/my-skill
+# Create harness/skills/my-skill/SKILL.md with frontmatter
 ```
 
 ### Creating Custom Agents
 ```bash
-# Create .claude/agents/my-agent.md with frontmatter
+# Create harness/agents/my-agent.md with frontmatter
 ```
 ```
 
@@ -292,8 +292,8 @@ mkdir -p .claude/skills/my-skill
 
 For specific skill/agent lookup:
 
-1. Search for matching skill: `.claude/skills/<name>/SKILL.md`
-2. Search for matching agent: `.claude/agents/<name>.md`
+1. Search for matching skill: `harness/skills/<name>/SKILL.md`
+2. Search for matching agent: `harness/agents/<name>.md`
 3. Read the file and display:
    - Description
    - Usage examples
@@ -306,12 +306,12 @@ To keep help current, dynamically read frontmatter:
 
 ```bash
 # List all skills with descriptions
-for f in .claude/skills/*/SKILL.md; do
+for f in harness/skills/*/SKILL.md; do
   head -10 "$f" | grep -E "^(name|description):"
 done
 
 # List all agents
-for f in .claude/agents/*.md; do
+for f in harness/agents/*.md; do
   head -10 "$f" | grep -E "^(name|description):"
 done
 ```

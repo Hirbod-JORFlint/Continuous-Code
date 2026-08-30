@@ -42,7 +42,7 @@ lake build  # Compiler-in-the-loop
 ## Skill Hierarchy
 
 ```
-.claude/skills/
+harness/skills/
 ├── math/                    # Domain skills by topic
 │   ├── abstract-algebra/    # Groups, rings, fields
 │   ├── category-theory/     # Functors, nat trans, limits
@@ -53,12 +53,18 @@ lake build  # Compiler-in-the-loop
 │   ├── measure-theory/      # Lebesgue, sigma-algebras
 │   ├── real-analysis/       # Limits, continuity, convergence
 │   ├── topology/            # Open sets, compactness
+│   ├── math-intuition-builder/   # Examples, visualization, analogy
+│   ├── math-model-selector/      # Routes problems to frameworks
+│   ├── math-progress-monitor/    # Metacognitive check-ins
+│   ├── rudin-real-complex-analysis/  # Textbook problem-solving
 │   └── ...
-├── lean4/                   # Base Lean 4 setup
-├── lean4-functors/          # Functor syntax
-├── lean4-nat-trans/         # Natural transformations
-├── lean4-limits/            # Products, coproducts
-└── math-mode/               # SymPy + Z3 integration
+├── math-unified/            # Unified entry point (SymPy, Z3, Pint)
+├── math-help/               # Guide to the math cognitive stack
+├── math-router/             # Maps intent to exact CLI commands
+├── prove/                   # Lean4 formal theorem proving
+├── loogle-search/           # Mathlib lemma search
+├── pint-compute/            # Unit-aware computation
+└── shapely-compute/         # Computational geometry
 ```
 
 ## Domain Skills
@@ -76,7 +82,7 @@ Agents can query past reasoning:
 
 ## Related Skills
 
-- `/math-mode` - SymPy + Z3 cognitive prosthetics
-- `/lean4` - Formal theorem proving with APOLLO repair
+- **math-unified** - SymPy + Z3 cognitive prosthetics (entry point)
+- **prove** - Formal theorem proving (Lean4)
 
 See `WORKFLOW.md` for the full development workflow.

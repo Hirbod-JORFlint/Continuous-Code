@@ -726,4 +726,4 @@ else:
 ## See Also
 
 - `/debug-hooks` - Systematic debugging workflow
-- `.claude/rules/hooks.md` - Hook development rules
+- `harness/rules/hooks.md` - Hook development rules
