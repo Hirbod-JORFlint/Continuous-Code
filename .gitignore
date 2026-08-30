@@ -172,6 +172,9 @@ opc/tests/
 opc/docs/
 opc/src/*
 !opc/src/runtime/
+!opc/src/harness/
+!opc/src/harness/**
+opc/src/harness/__pycache__/
 opc/spec/
 opc/packages/
 opc/migrations/

@@ -1,0 +1,119 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "harness/rules/agent-memory-recall.md",
+    "harness/rules/agent-model-selection.md",
+    "harness/rules/claim-verification.md",
+    "harness/rules/cross-terminal-db.md",
+    "harness/rules/destructive-commands.md",
+    "harness/rules/dynamic-recall.md",
+    "harness/rules/hook-auto-execute.md",
+    "harness/rules/no-haiku.md",
+    "harness/rules/proactive-delegation.md",
+    "harness/rules/proactive-memory-disclosure.md",
+    "harness/rules/tldr-cli.md",
+    "harness/rules/use-scout-not-explore.md"
+  ],
+  "mcp": {
+    "ast-grep": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@anthropic/mcp-ast-grep"
+      ],
+      "enabled": false
+    },
+    "fetch": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-fetch"
+      ],
+      "enabled": true
+    },
+    "firecrawl": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "enabled": false,
+      "environment": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "git": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-server-git",
+        "--repository",
+        "."
+      ],
+      "enabled": true
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": false,
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "morph": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@morphllm/morphmcp"
+      ],
+      "enabled": false,
+      "environment": {
+        "MORPH_API_KEY": "${MORPH_API_KEY}"
+      }
+    },
+    "nia": {
+      "type": "local",
+      "command": [
+        "pipx",
+        "run",
+        "--no-cache",
+        "nia-mcp-server"
+      ],
+      "enabled": false,
+      "environment": {
+        "NIA_API_KEY": "${NIA_API_KEY}",
+        "NIA_API_URL": "https://apigcp.trynia.ai/"
+      }
+    },
+    "perplexity": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
+      "enabled": false,
+      "environment": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      }
+    },
+    "qlty": {
+      "type": "local",
+      "command": [
+        "$HOME/.claude/venv/bin/python",
+        "$HOME/.claude/servers/qlty/server.py"
+      ],
+      "enabled": true
+    },
+    "repoprompt": {
+      "type": "local",
+      "command": [
+        "repoprompt_cli"
+      ],
+      "enabled": false
+    }
+  }
+}
