@@ -163,3 +163,12 @@ opc/README.md
 opc/LICENSE
 opc/.git/
 opc/.python-version
+
+#Agent dev-only
+graphify-out/
+
+# Migration WIP tracker (do not share)
+instructions.md
+
+# IDE
+.idea/
