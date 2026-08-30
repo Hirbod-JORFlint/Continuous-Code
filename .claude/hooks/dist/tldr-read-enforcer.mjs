@@ -345,7 +345,7 @@ function chooseTldrMode(target, layers, contextSource) {
   return { mode: "structure", reason: "navigation" };
 }
 function getTldrContext(filePath, language, layers = ["ast", "call_graph"], target = null, sessionId = null, contextSource = "default") {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const fileName = basename(filePath);
   const results = [];
   const { mode, reason } = chooseTldrMode(target, layers, contextSource);
@@ -594,7 +594,7 @@ ${callerLines.join("\n")}${searchContext.callers.length > 10 ? `
 \u{1F4CD} Defined at: ${searchContext.definitionLocation}
 `;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   trackHookActivitySync("tldr-read-enforcer", projectDir, true, {
     reads_intercepted: 1,
     layers_returned: layers.length

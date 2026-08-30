@@ -216,7 +216,7 @@ Any stdout text is added to context for Claude.
 }
 ```
 
-**Environment variable:** `CLAUDE_ENV_FILE` - write `export VAR=value` to persist env vars.
+**Environment variable:** `OPC_ENV_FILE` - write `export VAR=value` to persist env vars.
 
 **Output (Plain text or JSON):**
 ```json
@@ -395,7 +395,7 @@ Plain text stdout is added as context.
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/my-hook.sh",
+            "command": "$OPC_PROJECT_DIR/.claude/hooks/my-hook.sh",
             "timeout": 60
           }
         ]
@@ -451,7 +451,7 @@ Default type. Executes bash commands or scripts.
 ```json
 {
   "type": "command",
-  "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/my-hook.sh",
+  "command": "$OPC_PROJECT_DIR/.claude/hooks/my-hook.sh",
   "timeout": 60
 }
 ```
@@ -497,20 +497,20 @@ MCP tools use pattern `mcp__<server>__<tool>`:
 
 | Variable | Description |
 |----------|-------------|
-| `CLAUDE_PROJECT_DIR` | Absolute path to project root |
-| `CLAUDE_CODE_REMOTE` | "true" if remote/web, empty if local CLI |
+| `OPC_PROJECT_DIR` | Absolute path to project root |
+| `OPC_CODE_REMOTE` | "true" if remote/web, empty if local CLI |
 
 ### SessionStart Only
 
 | Variable | Description |
 |----------|-------------|
-| `CLAUDE_ENV_FILE` | Path to write `export VAR=value` lines |
+| `OPC_ENV_FILE` | Path to write `export VAR=value` lines |
 
 ### Plugin Hooks Only
 
 | Variable | Description |
 |----------|-------------|
-| `CLAUDE_PLUGIN_ROOT` | Absolute path to plugin directory |
+| `OPC_PLUGIN_ROOT` | Absolute path to plugin directory |
 
 ---
 
@@ -538,7 +538,7 @@ MCP tools use pattern `mcp__<server>__<tool>`:
 ```bash
 #!/bin/bash
 set -e
-cd "$CLAUDE_PROJECT_DIR/.claude/hooks"
+cd "$OPC_PROJECT_DIR/.claude/hooks"
 cat | npx tsx src/my-hook.ts
 ```
 
@@ -709,7 +709,7 @@ else:
 - [ ] Using `tool_response` not `tool_result`?
 - [ ] Output is valid JSON (or plain text)?
 - [ ] Checking `stop_hook_active` in Stop hooks?
-- [ ] Using `$CLAUDE_PROJECT_DIR` for paths?
+- [ ] Using `$OPC_PROJECT_DIR` for paths?
 
 ---
 

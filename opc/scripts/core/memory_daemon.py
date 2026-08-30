@@ -39,7 +39,7 @@ from dotenv import load_dotenv
 
 # Load .env files for DATABASE_URL (cross-platform)
 # 1. Global ~/.claude/.env (API keys, may have DB config)
-global_env = Path.home() / ".claude" / ".env"
+global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
 
@@ -75,7 +75,7 @@ def log(msg: str):
 
 def get_postgres_url() -> str | None:
     """Get PostgreSQL URL from environment (canonical first)."""
-    return os.environ.get("CONTINUOUS_CLAUDE_DB_URL") or os.environ.get("DATABASE_URL")
+    return os.environ.get("DATABASE_URL")
 
 
 def use_postgres() -> bool:
@@ -220,7 +220,7 @@ def extract_memories(session_id: str, project_dir: str):
     log(f"Extracting memories for session {session_id} in {project_dir}")
 
     # Find the most recent JSONL for this session
-    config_dir = Path(os.environ.get('CLAUDE_CONFIG_DIR', str(Path.home() / '.claude')))
+    config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
     jsonl_dir = config_dir / "projects"
 
     # Look for session JSONL
@@ -252,7 +252,7 @@ def extract_memories(session_id: str, project_dir: str):
     # Run headless memory extraction
     try:
         # Read agent prompt from memory-extractor.md (strip YAML frontmatter)
-        config_dir = Path(os.environ.get('CLAUDE_CONFIG_DIR', str(Path.home() / '.claude')))
+        config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
         agent_file = config_dir / "agents" / "memory-extractor.md"
 
         agent_prompt = ""

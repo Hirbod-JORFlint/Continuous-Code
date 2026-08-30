@@ -22,13 +22,13 @@ export { SAFE_ID_PATTERN, isValidId } from './pattern-router.js';
 /**
  * Get the path to the coordination database.
  *
- * Uses CLAUDE_PROJECT_DIR environment variable if set,
+ * Uses OPC_PROJECT_DIR environment variable if set,
  * otherwise falls back to process.cwd().
  *
  * @returns Absolute path to coordination.db
  */
 export function getDbPath(): string {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   return join(projectDir, '.claude', 'cache',
     'agentica-coordination', 'coordination.db');
 }

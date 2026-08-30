@@ -50,7 +50,7 @@ Or with explicit type:
 When this skill is invoked, run:
 
 ```bash
-cd $CLAUDE_OPC_DIR && PYTHONPATH=. uv run python scripts/core/store_learning.py \
+cd $OPC_ROOT && PYTHONPATH=. uv run python scripts/core/store_learning.py \
   --session-id "manual-$(date +%Y%m%d-%H%M)" \
   --type <TYPE or WORKING_SOLUTION> \
   --content "<ARGS>" \

@@ -9,7 +9,7 @@ async function readStdin() {
 }
 async function main() {
     const input = JSON.parse(await readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     // Only prompt on user-initiated session end, not auto-compaction
     if (input.reason === 'other') {
         console.log(JSON.stringify({ result: "continue" }));

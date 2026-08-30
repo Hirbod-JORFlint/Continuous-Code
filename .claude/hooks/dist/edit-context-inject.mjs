@@ -260,7 +260,7 @@ function trackHookActivitySync(hookName, projectDir, success = true, metrics = {
 // src/edit-context-inject.ts
 function getTLDRImports(filePath) {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const response = queryDaemonSync(
       { cmd: "imports", file: filePath },
       projectDir
@@ -278,7 +278,7 @@ function getTLDRImports(filePath) {
 }
 function getTLDRExtract(filePath, sessionId) {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const response = queryDaemonSync(
       { cmd: "extract", file: filePath, session: sessionId },
       projectDir
@@ -341,7 +341,7 @@ async function main() {
 ${parts.join("\n")}`
     }
   };
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   trackHookActivitySync("edit-context-inject", projectDir, true, {
     edits_processed: 1,
     symbols_shown: total

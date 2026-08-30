@@ -32,7 +32,7 @@ Your task prompt will include:
 [Test environment details - URLs, credentials location]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 2: Discover E2E Framework
@@ -120,7 +120,7 @@ cat test-results/*.json 2>/dev/null | head -100
 
 **ALWAYS write report to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/atlas/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/atlas/output-{timestamp}.md
 ```
 
 ## Output Format

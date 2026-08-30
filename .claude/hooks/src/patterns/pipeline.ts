@@ -12,7 +12,7 @@
  * - PIPELINE_STAGE_INDEX: Index of this stage (0-indexed)
  * - PIPELINE_TOTAL_STAGES: Total number of stages in pipeline
  * - PIPELINE_CONFIG_PATH: Path to pipeline config JSON (for auto-spawn)
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  *
  * Pipeline Config Format (JSON):
  * {
@@ -114,7 +114,7 @@ function spawnNextStage(config: PipelineConfig, nextIndex: number): void {
     return;
   }
 
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const configPath = process.env.PIPELINE_CONFIG_PATH;
 
   // Build environment for next stage

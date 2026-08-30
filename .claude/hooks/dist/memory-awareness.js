@@ -132,9 +132,9 @@ function checkMemoryRelevance(intent, projectDir) {
 }
 async function main() {
     const input = JSON.parse(readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     // Skip for subagents - they don't need memory recall (saves tokens)
-    if (process.env.CLAUDE_AGENT_ID) {
+    if (process.env.OPC_AGENT_ID) {
         return;
     }
     // Skip very short prompts (greetings, commands)

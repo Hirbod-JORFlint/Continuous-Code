@@ -28,7 +28,7 @@ async function main() {
         return;
     }
     // Query broadcasts table for this swarm
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const dbPath = join(projectDir, '.claude', 'cache', 'agentica-coordination', 'coordination.db');
     if (!existsSync(dbPath)) {
         console.log(JSON.stringify({ result: 'continue' }));

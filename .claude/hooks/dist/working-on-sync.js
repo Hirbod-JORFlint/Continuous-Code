@@ -14,7 +14,7 @@ function getSessionId() {
         '';
 }
 function getProject() {
-    return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 function readStdin() {
     try {
@@ -26,7 +26,7 @@ function readStdin() {
 }
 export function main() {
     // Skip if coordination not enabled (SQLite users)
-    if (process.env.CONTINUOUS_CLAUDE_COORDINATION !== 'true') {
+    if (process.env.OPC_COORDINATION !== 'true') {
         console.log(JSON.stringify({ result: 'continue' }));
         return;
     }
@@ -64,7 +64,7 @@ import os
 session_id = sys.argv[1]
 project = sys.argv[2]
 working_on = sys.argv[3] if len(sys.argv) > 3 else ''
-pg_url = os.environ.get('CONTINUOUS_CLAUDE_DB_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
 
 async def main():
     conn = await asyncpg.connect(pg_url)

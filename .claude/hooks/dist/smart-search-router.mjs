@@ -343,11 +343,11 @@ function tldrImpact(funcName, projectDir = ".") {
   }
 }
 function lookupCallers(pattern) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || ".";
+  const projectDir = process.env.OPC_PROJECT_DIR || ".";
   return tldrImpact(pattern, projectDir).slice(0, 20);
 }
 function lookupSymbol(pattern) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || ".";
+  const projectDir = process.env.OPC_PROJECT_DIR || ".";
   const funcResults = tldrSearch(`def ${pattern}`, projectDir);
   if (funcResults.length > 0) {
     return {
@@ -541,7 +541,7 @@ async function main() {
     callers: callers.slice(0, 20)
     // Limit to 20 callers for token efficiency
   });
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || ".";
+  const projectDir = process.env.OPC_PROJECT_DIR || ".";
   if (queryType === "literal") {
     trackHookActivitySync("smart-search-router", projectDir, true, {
       queries_routed: 1,

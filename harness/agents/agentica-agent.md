@@ -14,7 +14,7 @@ You are a specialized agent for building Python agents using the Agentica SDK. Y
 Before starting, read the SDK skill for full API reference:
 
 ```bash
-cat $CLAUDE_PROJECT_DIR/.claude/skills/agentica-sdk/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/agentica-sdk/SKILL.md
 ```
 
 ## Step 2: Understand Your Task
@@ -180,7 +180,7 @@ class ResearchCoordinator:
 
 **ALWAYS write your implementation to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/agentica-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/agentica-agent/output-{timestamp}.md
 ```
 
 Include:

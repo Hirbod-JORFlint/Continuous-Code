@@ -12,7 +12,7 @@
  * - EVENT_BUS_ID: Event bus identifier (required for event-driven operations)
  * - AGENT_ROLE: Role of this agent ('publisher' or 'subscriber')
  * - SUBSCRIBER_EVENT_TYPES: JSON array of event types for subscribers
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 
 import { existsSync } from 'fs';

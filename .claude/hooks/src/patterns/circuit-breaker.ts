@@ -11,7 +11,7 @@
  * - CB_ID: Circuit breaker identifier (required for circuit breaker operations)
  * - AGENT_ROLE: Role of this agent (primary or fallback)
  * - CIRCUIT_STATE: Current circuit state (closed, open, half_open)
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 
 import { existsSync } from 'fs';

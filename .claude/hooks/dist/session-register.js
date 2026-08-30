@@ -22,7 +22,7 @@ function getSessionId() {
 }
 // Get project from environment
 function getProject() {
-    return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 export function main() {
     // Read hook input from stdin

@@ -198,7 +198,7 @@ describe('Integration: Full Flow', () => {
       const { readFileSync, existsSync } = await import('fs');
       const { join } = await import('path');
 
-      const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+      const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
       const rulesPath = join(projectDir, '.claude', 'skills', 'skill-rules.json');
 
       if (!existsSync(rulesPath)) {

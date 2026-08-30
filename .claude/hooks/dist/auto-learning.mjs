@@ -71,7 +71,7 @@ function extractPeriodicLearning(turnCount, recentActions, sessionGoal) {
 // src/auto-learning.ts
 var PERIODIC_INTERVAL = 5;
 function getStateFilePath() {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR;
+  const projectDir = process.env.OPC_PROJECT_DIR;
   if (projectDir) {
     return join2(projectDir, ".claude", "cache", "auto-learning-state.json");
   }
@@ -136,7 +136,7 @@ function buildActionDescription(toolName, toolInput) {
 }
 async function main() {
   const input = JSON.parse(readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
   const state = loadState();
   state.turnCount++;
   const actionDesc = buildActionDescription(input.tool_name, input.tool_input);

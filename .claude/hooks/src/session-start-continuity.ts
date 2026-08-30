@@ -44,7 +44,7 @@ export function parseHandoffDirName(dirName: string): { sessionName: string; uui
  * 3. Any other UUID-suffixed dir for same session name (fallback)
  */
 export function findSessionHandoffWithUUID(sessionName: string, sessionId: string): string | null {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const handoffsBase = path.join(projectDir, 'thoughts', 'shared', 'handoffs');
 
   if (!fs.existsSync(handoffsBase)) return null;
@@ -150,7 +150,7 @@ export function extractLedgerSection(handoffContent: string): string | null {
  * Returns absolute path to the most recent handoff file (.md, .yaml, .yml) by mtime, or null if not found.
  */
 export function findSessionHandoff(sessionName: string): string | null {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const handoffDir = path.join(projectDir, 'thoughts', 'shared', 'handoffs', sessionName);
 
   if (!fs.existsSync(handoffDir)) return null;
@@ -283,7 +283,7 @@ interface UnmarkedHandoff {
 
 function getUnmarkedHandoffs(): UnmarkedHandoff[] {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const dbPath = path.join(projectDir, '.claude', 'cache', 'artifact-index', 'context.db');
 
     if (!fs.existsSync(dbPath)) {
@@ -310,7 +310,7 @@ function getUnmarkedHandoffs(): UnmarkedHandoff[] {
 
 async function main() {
   const input: SessionStartInput = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
 
   // Support both 'source' (per docs) and 'type' (legacy) fields
   const sessionType = input.source || input.type;

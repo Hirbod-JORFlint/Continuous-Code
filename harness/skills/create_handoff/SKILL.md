@@ -108,7 +108,7 @@ After the user responds, index and mark the outcome:
 ```bash
 # Mark the most recent handoff (works with PostgreSQL or SQLite)
 # Use git root to find project, then opc/scripts/core/
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "${CLAUDE_PROJECT_DIR:-.}")
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "${OPC_PROJECT_DIR:-.}")
 
 # First, index the handoff into the database
 cd "$PROJECT_ROOT/opc" && uv run python scripts/core/artifact_index.py --file thoughts/shared/handoffs/{session_name}/{filename}.yaml

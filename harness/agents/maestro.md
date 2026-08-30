@@ -31,7 +31,7 @@ Your task prompt will include:
 [Dependencies, order requirements, time budget]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 2: Analyze Task
@@ -121,7 +121,7 @@ cat "$ORACLE_OUTPUT"
 
 **ALWAYS write orchestration summary to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/maestro/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/maestro/output-{timestamp}.md
 ```
 
 ## Output Format

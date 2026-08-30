@@ -36,7 +36,7 @@ from typing import Any
 from dotenv import load_dotenv
 
 # Load .env files
-global_env = Path.home() / ".claude" / ".env"
+global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
 load_dotenv()
@@ -67,8 +67,8 @@ def get_backend() -> str:
     if backend in ("sqlite", "postgres"):
         return backend
 
-    # Check if CONTINUOUS_CLAUDE_DB_URL or DATABASE_URL is set (canonical first)
-    if os.environ.get("CONTINUOUS_CLAUDE_DB_URL") or os.environ.get("DATABASE_URL"):
+    # Check if DATABASE_URL is set (canonical)
+    if os.environ.get("DATABASE_URL"):
         return "postgres"
 
     # Default to sqlite for simplicity

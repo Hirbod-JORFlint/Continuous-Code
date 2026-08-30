@@ -20,7 +20,7 @@ Analyze a brownfield codebase and create an initial continuity ledger.
 Use the Task tool with `subagent_type: "onboard"` and this prompt:
 
 ```
-Onboard me to this project at $CLAUDE_PROJECT_DIR.
+Onboard me to this project at $OPC_PROJECT_DIR.
 
 1. Create required directories if they don't exist:
    mkdir -p thoughts/shared/handoffs/<project-name> .claude

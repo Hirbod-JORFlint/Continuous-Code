@@ -15,10 +15,10 @@ Before creating documentation, read the relevant skills:
 
 ```bash
 # For handoffs
-cat $CLAUDE_PROJECT_DIR/.claude/skills/create_handoff/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/create_handoff/SKILL.md
 
 # For ledger updates
-cat $CLAUDE_PROJECT_DIR/.claude/skills/continuity_ledger/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/continuity_ledger/SKILL.md
 ```
 
 Follow the structure and guidelines from those skills.
@@ -41,7 +41,7 @@ Your task prompt will include structured context:
 [Current progress on any multi-phase work]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 Parse this carefully - it's the input for your documentation.
@@ -61,17 +61,17 @@ docs/                        # User-facing documentation
 
 **Handoffs go to:**
 ```
-$CLAUDE_PROJECT_DIR/thoughts/shared/handoffs/{session-name}/current.md
+$OPC_PROJECT_DIR/thoughts/shared/handoffs/{session-name}/current.md
 ```
 
 **Ledger updates go to:**
 ```
-$CLAUDE_PROJECT_DIR/thoughts/ledgers/CONTINUITY_CLAUDE-{session-name}.md
+$OPC_PROJECT_DIR/thoughts/ledgers/CONTINUITY_CLAUDE-{session-name}.md
 ```
 
 **Session summaries can also go to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/scribe/latest-summary.md
+$OPC_PROJECT_DIR/.claude/cache/scribe/latest-summary.md
 ```
 
 ## Output Formats

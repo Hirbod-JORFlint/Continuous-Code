@@ -29,17 +29,17 @@ describe('main() handoff-first behavior', () => {
     // Create a temp directory for each test
     testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mainHandoffFirst-test-'));
 
-    // Save and override CLAUDE_PROJECT_DIR
-    originalProjectDir = process.env.CLAUDE_PROJECT_DIR;
-    process.env.CLAUDE_PROJECT_DIR = testDir;
+    // Save and override OPC_PROJECT_DIR
+    originalProjectDir = process.env.OPC_PROJECT_DIR;
+    process.env.OPC_PROJECT_DIR = testDir;
   });
 
   afterEach(() => {
-    // Restore original CLAUDE_PROJECT_DIR
+    // Restore original OPC_PROJECT_DIR
     if (originalProjectDir !== undefined) {
-      process.env.CLAUDE_PROJECT_DIR = originalProjectDir;
+      process.env.OPC_PROJECT_DIR = originalProjectDir;
     } else {
-      delete process.env.CLAUDE_PROJECT_DIR;
+      delete process.env.OPC_PROJECT_DIR;
     }
 
     // Clean up temp directory
@@ -54,10 +54,10 @@ describe('main() handoff-first behavior', () => {
     const hookPath = path.resolve(__dirname, '../../dist/session-start-continuity.mjs');
 
     try {
-      const stdout = execSync(`echo '${inputJson}' | CLAUDE_PROJECT_DIR="${testDir}" node "${hookPath}"`, {
+      const stdout = execSync(`echo '${inputJson}' | OPC_PROJECT_DIR="${testDir}" node "${hookPath}"`, {
         encoding: 'utf-8',
         timeout: 5000,
-        env: { ...process.env, CLAUDE_PROJECT_DIR: testDir }
+        env: { ...process.env, OPC_PROJECT_DIR: testDir }
       });
       return { stdout, stderr: '' };
     } catch (error: any) {

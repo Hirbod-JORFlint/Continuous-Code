@@ -57,7 +57,7 @@ function extractConfirmationLearning(prompt, recentContext) {
 
 // src/user-confirm-learning.ts
 function getStateFilePath() {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR;
+  const projectDir = process.env.OPC_PROJECT_DIR;
   if (projectDir) {
     return join2(projectDir, ".claude", "cache", "auto-learning-state.json");
   }
@@ -121,7 +121,7 @@ function buildRecentContext(state) {
 }
 async function main() {
   const input = JSON.parse(readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
   if (!input.prompt || input.prompt.trim().length === 0) {
     console.log("{}");
     return;

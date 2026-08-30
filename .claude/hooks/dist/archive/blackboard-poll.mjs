@@ -6,9 +6,9 @@ var POLL_STATE_DIR = process.env.POLL_STATE_DIR || "/tmp/claude-blackboard/poll-
 var MAX_ENTRIES_IN_REMINDER = 5;
 function getAgentContext() {
   return {
-    agentId: process.env.CLAUDE_AGENT_ID || null,
-    patternId: process.env.CLAUDE_PATTERN_ID || null,
-    projectId: process.env.CLAUDE_PROJECT_ID || null
+    agentId: process.env.OPC_AGENT_ID || null,
+    patternId: process.env.OPC_PATTERN_ID || null,
+    projectId: process.env.OPC_PROJECT_ID || null
   };
 }
 function getLastPollTimestamp(sessionId) {

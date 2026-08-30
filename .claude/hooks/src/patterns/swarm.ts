@@ -11,7 +11,7 @@
  * Environment Variables:
  * - SWARM_ID: Swarm identifier (required for swarm operations)
  * - AGENT_ID: Current agent identifier (for PreToolUse)
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 
 import { existsSync } from 'fs';

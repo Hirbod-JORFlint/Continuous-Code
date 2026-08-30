@@ -17,7 +17,7 @@ var DEFAULT_RESOURCE_STATE = {
   contextPct: 0
 };
 function getSessionId() {
-  return process.env.CLAUDE_SESSION_ID || String(process.ppid || process.pid);
+  return process.env.OPC_SESSION_ID || String(process.ppid || process.pid);
 }
 function getResourceFilePath(sessionId) {
   return join(tmpdir(), `claude-resources-${sessionId}.json`);
@@ -269,7 +269,7 @@ async function main() {
       process.exit(0);
     }
     const prompt = data.prompt.toLowerCase();
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const homeDir = process.env.HOME || process.env.USERPROFILE || "";
     const projectRulesPath = join2(projectDir, ".claude", "skills", "skill-rules.json");
     const globalRulesPath = join2(homeDir, ".claude", "skills", "skill-rules.json");
@@ -482,7 +482,7 @@ async function main() {
       }
       console.log(output);
     }
-    const rawSessionId = data.session_id || process.env.CLAUDE_SESSION_ID || process.env.CLAUDE_PPID || "default";
+    const rawSessionId = data.session_id || process.env.OPC_SESSION_ID || process.env.OPC_PPID || "default";
     const sessionId = rawSessionId.slice(0, 8);
     const contextFile = join2(tmpdir2(), `claude-context-pct-${sessionId}.txt`);
     if (existsSync2(contextFile)) {

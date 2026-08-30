@@ -65,7 +65,7 @@ function normalizeAgentType(agentType) {
 }
 async function main() {
     const input = JSON.parse(readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     // Validate we have the required fields
     if (!input.agent_result) {
         console.log('{}');

@@ -31,7 +31,7 @@ Your task prompt will include:
 [What the code is supposed to do]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 2: Gather Context
@@ -84,7 +84,7 @@ rp-cli -e 'structure src/'
 
 **ALWAYS write review to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/critic/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/critic/output-{timestamp}.md
 ```
 
 ## Output Format

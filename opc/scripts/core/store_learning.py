@@ -48,13 +48,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load global ~/.claude/.env first, then local .env
-global_env = Path.home() / ".claude" / ".env"
+global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
 load_dotenv()
 
 # Add project to path
-project_dir = os.environ.get("CLAUDE_PROJECT_DIR", str(Path(__file__).parent.parent.parent))
+project_dir = os.environ.get("OPC_PROJECT_DIR", str(Path(__file__).parent.parent.parent))
 sys.path.insert(0, project_dir)
 
 # Valid learning types for --type parameter
@@ -109,7 +109,7 @@ async def store_learning_v2(
         return {"success": False, "error": "No content provided"}
 
     # Get backend - prefer postgres if connection string is set
-    if os.environ.get("CONTINUOUS_CLAUDE_DB_URL") or os.environ.get("DATABASE_URL"):
+    if os.environ.get("DATABASE_URL"):
         backend = "postgres"
     else:
         backend = get_default_backend()
@@ -237,7 +237,7 @@ async def store_learning(
     }
 
     # Get backend - prefer postgres if connection string is set
-    if os.environ.get("CONTINUOUS_CLAUDE_DB_URL") or os.environ.get("DATABASE_URL"):
+    if os.environ.get("DATABASE_URL"):
         backend = "postgres"
     else:
         backend = get_default_backend()

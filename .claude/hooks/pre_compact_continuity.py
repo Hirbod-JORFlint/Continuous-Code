@@ -355,7 +355,7 @@ def append_to_ledger(ledger_path: Path, summary: str) -> None:
 
 def get_project_dir() -> Path:
     """Get project directory."""
-    return Path(os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()))
+    return Path(os.environ.get("OPC_PROJECT_DIR", os.getcwd()))
 
 
 def main() -> None:

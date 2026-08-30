@@ -461,7 +461,7 @@ def generate_env_file(config: dict[str, Any], env_path: Path) -> None:
                 lines.append(f"POSTGRES_PASSWORD={password}")
             lines.append("")
             lines.append("# Connection string for scripts (canonical name)")
-            lines.append(f"CONTINUOUS_CLAUDE_DB_URL=postgresql://{user}:{password}@{host}:{port}/{database}")
+            lines.append(f"DATABASE_URL=postgresql://{user}:{password}@{host}:{port}/{database}")
         elif mode == "embedded":
             pgdata = db.get("pgdata", "")
             venv = db.get("venv", "")
@@ -469,10 +469,10 @@ def generate_env_file(config: dict[str, Any], env_path: Path) -> None:
             lines.append(f"PGSERVER_VENV={venv}")
             lines.append("")
             lines.append("# Connection string (Unix socket)")
-            lines.append(f"CONTINUOUS_CLAUDE_DB_URL=postgresql://postgres:@/postgres?host={pgdata}")
+            lines.append(f"DATABASE_URL=postgresql://postgres:@/postgres?host={pgdata}")
         else:  # sqlite
             lines.append("# SQLite mode - no connection string needed")
-            lines.append("CONTINUOUS_CLAUDE_DB_URL=")
+            lines.append("DATABASE_URL=")
         lines.append("")
 
     # Embedding configuration
@@ -836,8 +836,8 @@ async def run_setup_wizard() -> None:
         else:
             console.print("  Skipped integration installation")
 
-    # Set CLAUDE_OPC_DIR environment variable for skills to find scripts
-    console.print("  Setting CLAUDE_OPC_DIR environment variable...")
+    # Set OPC_ROOT environment variable for skills to find scripts
+    console.print("  Setting OPC_ROOT environment variable...")
     shell_config = None
     shell = os.environ.get("SHELL", "")
     if "zsh" in shell:
@@ -848,19 +848,19 @@ async def run_setup_wizard() -> None:
     opc_dir = _project_root  # Use script location, not cwd (robust if invoked from elsewhere)
     if shell_config and shell_config.exists():
         content = shell_config.read_text()
-        export_line = f'export CLAUDE_OPC_DIR="{opc_dir}"'
-        if "CLAUDE_OPC_DIR" not in content:
+        export_line = f'export OPC_ROOT="{opc_dir}"'
+        if "OPC_ROOT" not in content:
             with open(shell_config, "a") as f:
                 f.write(f"\n# Continuous-Claude OPC directory (for skills to find scripts)\n{export_line}\n")
-            console.print(f"  [green]OK[/green] Added CLAUDE_OPC_DIR to {shell_config.name}")
+            console.print(f"  [green]OK[/green] Added OPC_ROOT to {shell_config.name}")
         else:
-            console.print(f"  [dim]CLAUDE_OPC_DIR already in {shell_config.name}[/dim]")
+            console.print(f"  [dim]OPC_ROOT already in {shell_config.name}[/dim]")
     elif sys.platform == "win32":
         console.print("  [yellow]NOTE[/yellow] Add to your environment:")
-        console.print(f'       set CLAUDE_OPC_DIR="{opc_dir}"')
+        console.print(f'       set OPC_ROOT="{opc_dir}"')
     else:
         console.print("  [yellow]NOTE[/yellow] Add to your shell config:")
-        console.print(f'       export CLAUDE_OPC_DIR="{opc_dir}"')
+        console.print(f'       export OPC_ROOT="{opc_dir}"')
 
     # Step 8: Math Features (Optional)
     console.print("\n[bold]Step 9/13: Math Features (Optional)[/bold]")

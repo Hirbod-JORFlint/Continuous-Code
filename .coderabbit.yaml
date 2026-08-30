@@ -19,7 +19,6 @@ reviews:
     - "!**/*.min.js"
     - "!**/*.lock"
     - "!**/dist/**"
-    - "!**/.claude/hooks/dist/**"
 
   # Request changes on critical issues
   request_changes_workflow: false

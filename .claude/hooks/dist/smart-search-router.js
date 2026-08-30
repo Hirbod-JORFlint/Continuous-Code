@@ -87,11 +87,11 @@ function tldrImpact(funcName, projectDir = '.') {
     }
 }
 function lookupCallers(pattern) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+    const projectDir = process.env.OPC_PROJECT_DIR || '.';
     return tldrImpact(pattern, projectDir).slice(0, 20);
 }
 function lookupSymbol(pattern) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+    const projectDir = process.env.OPC_PROJECT_DIR || '.';
     // Try function first (most common)
     const funcResults = tldrSearch(`def ${pattern}`, projectDir);
     if (funcResults.length > 0) {

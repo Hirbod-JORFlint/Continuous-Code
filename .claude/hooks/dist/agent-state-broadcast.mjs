@@ -20,7 +20,7 @@ function extractTodos(input) {
   return null;
 }
 function broadcastState(agentId, toolName, todos) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const scriptPath = join(projectDir, "scripts", "agentica_patterns", "agent_state_broadcast.py");
   const now = (/* @__PURE__ */ new Date()).toISOString();
   const pythonScript = `

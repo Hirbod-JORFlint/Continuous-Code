@@ -15,7 +15,7 @@ import { join } from 'path';
 const TEST_PROJECT_DIR = '/tmp/pattern-orchestrator-test';
 const PATTERN_DIR = join(TEST_PROJECT_DIR, '.claude', 'cache', 'patterns');
 function setupTestEnv() {
-    process.env.CLAUDE_PROJECT_DIR = TEST_PROJECT_DIR;
+    process.env.OPC_PROJECT_DIR = TEST_PROJECT_DIR;
     if (!existsSync(PATTERN_DIR)) {
         mkdirSync(PATTERN_DIR, { recursive: true });
     }

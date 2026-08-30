@@ -16,7 +16,7 @@ interface HookOutput {
 
 async function main() {
   const input: PreCompactInput = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
 
   // Find existing ledger files
   const ledgerDir = path.join(projectDir, 'thoughts', 'ledgers');

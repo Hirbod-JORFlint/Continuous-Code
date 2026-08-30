@@ -86,7 +86,7 @@ async function main() {
     }
     // Build the learning extraction prompt
     const sessionId = input.session_id;
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     const prompt = `Before ending this session, extract key learnings for future reference.
 
 **Instructions:**

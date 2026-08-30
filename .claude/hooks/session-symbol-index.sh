@@ -3,7 +3,7 @@
 # Uses tldr warm for incremental indexing (P0-P4)
 # Builds semantic index (P5) after warm completes
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+PROJECT_DIR="${OPC_PROJECT_DIR:-$(pwd)}"
 TLDR_DIR="${PROJECT_DIR}/.tldr"
 CACHE_DIR="${TLDR_DIR}/cache"
 

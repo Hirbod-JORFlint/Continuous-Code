@@ -73,7 +73,7 @@ function extractPythonImports(code: string): Array<{module: string, symbols: str
 }
 
 function checkSymbolExists(symbol: string): { exists: boolean, location?: string } {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+  const projectDir = process.env.OPC_PROJECT_DIR || '.';
 
   // Search for function or class definition
   const funcResults = tldrSearch(`def ${symbol}`, projectDir);
@@ -142,7 +142,7 @@ async function main() {
   };
 
   // Track hook activity for flush threshold
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+  const projectDir = process.env.OPC_PROJECT_DIR || '.';
   trackHookActivitySync('import-validator', projectDir, true, {
     writes_validated: 1,
     warnings_found: warnings.length,

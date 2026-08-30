@@ -87,7 +87,7 @@ def ensure_tldr_daemon() -> str:
 
     This function:
     1. Computes socket/TCP connection info from project dir
-    2. Sets TLDR_DAEMON_SOCKET and TLDR_PROJECT_DIR env vars via CLAUDE_ENV_FILE
+    2. Sets TLDR_DAEMON_SOCKET and TLDR_PROJECT_DIR env vars via OPC_ENV_FILE
     3. Handles first-run (no .tldr/ dir) - starts background indexing
     4. Starts daemon if not running
     5. Returns status message for Claude context
@@ -95,9 +95,9 @@ def ensure_tldr_daemon() -> str:
     Returns:
         Status message string for Claude's context
     """
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
     tldr_dir = Path(project_dir) / ".tldr"
-    env_file = os.environ.get("CLAUDE_ENV_FILE")
+    env_file = os.environ.get("OPC_ENV_FILE")
 
     # Compute connection info (platform-aware)
     addr, port = _get_connection_info(project_dir)
@@ -165,7 +165,7 @@ def ensure_semantic_index() -> str | None:
     Returns:
         Status message if action taken, None otherwise
     """
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
     tldr_dir = Path(project_dir) / ".tldr"
     semantic_dir = tldr_dir / "cache" / "semantic"
     index_file = semantic_dir / "index.faiss"
@@ -255,7 +255,7 @@ def ensure_memory_daemon() -> str | None:
 
 def get_project_dir() -> Path:
     """Get project directory from env or cwd."""
-    return Path(os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()))
+    return Path(os.environ.get("OPC_PROJECT_DIR", os.getcwd()))
 
 
 def get_ppid(pid: int) -> int | None:
@@ -536,13 +536,13 @@ def get_unmarked_handoffs() -> list[dict[str, Any]]:
 
 
 def write_session_env_vars(session_id: str, transcript_path: str) -> None:
-    """Write session info to CLAUDE_ENV_FILE for later use by memory extractor.
+    """Write session info to OPC_ENV_FILE for later use by memory extractor.
 
     Args:
         session_id: The current session ID
         transcript_path: Path to the session JSONL transcript
     """
-    env_file = os.environ.get("CLAUDE_ENV_FILE")
+    env_file = os.environ.get("OPC_ENV_FILE")
     if env_file and session_id:
         try:
             with open(env_file, "a") as f:

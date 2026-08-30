@@ -26,6 +26,7 @@ from mcp.client.streamable_http import streamablehttp_client
 from mcp.types import Tool
 
 from .config import McpConfig, ServerConfig
+from .env import get_global_mcp_config_path
 from .exceptions import (
     ConfigurationError,
     ServerConnectionError,
@@ -326,7 +327,7 @@ class McpClientManager:
         establish any server connections. Connections are established lazily
         on the first tool call.
 
-        Config merging: If both global (~/.claude/mcp_config.json) and project
+        Config merging: If both global (~/.opc/mcp_config.json) and project
         configs exist, they are merged with project config taking precedence
         for servers with the same name.
 
@@ -356,7 +357,7 @@ class McpClientManager:
             project_root = find_project_root(Path.cwd())
             mcp_json = project_root / ".mcp.json"
             mcp_config_json = project_root / "mcp_config.json"
-            global_config = Path.home() / ".claude" / "mcp_config.json"
+            global_config = get_global_mcp_config_path()
 
             global_cfg: McpConfig | None = None
             project_cfg: McpConfig | None = None

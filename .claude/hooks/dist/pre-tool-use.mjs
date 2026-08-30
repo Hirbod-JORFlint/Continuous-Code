@@ -18,7 +18,7 @@ function isValidId(id) {
 import { spawnSync } from "child_process";
 import { join } from "path";
 function getDbPath() {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   return join(
     projectDir,
     ".claude",
@@ -56,7 +56,7 @@ var DEFAULT_RESOURCE_STATE = {
   contextPct: 0
 };
 function getSessionId() {
-  return process.env.CLAUDE_SESSION_ID || String(process.ppid || process.pid);
+  return process.env.OPC_SESSION_ID || String(process.ppid || process.pid);
 }
 function getResourceFilePath(sessionId) {
   return `/tmp/claude-resources-${sessionId}.json`;

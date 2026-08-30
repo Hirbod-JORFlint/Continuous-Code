@@ -70,7 +70,7 @@ chmod +x your-project/.claude/hooks/*.sh
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/skill-activation-prompt.sh"
+            "command": "$OPC_PROJECT_DIR/.claude/hooks/skill-activation-prompt.sh"
           }
         ]
       }
@@ -103,7 +103,7 @@ chmod +x your-project/.claude/hooks/*.sh
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/post-tool-use-tracker.sh"
+            "command": "$OPC_PROJECT_DIR/.claude/hooks/post-tool-use-tracker.sh"
           }
         ]
       }

@@ -101,8 +101,8 @@ function analyzeTranscript(transcriptPath) {
     }
 }
 // TLDR installation path
-const TLDR_PATH = process.env.CLAUDE_PROJECT_DIR
-    ? `${process.env.CLAUDE_PROJECT_DIR}/opc/packages/tldr-code`
+const TLDR_PATH = process.env.OPC_PROJECT_DIR
+    ? `${process.env.OPC_PROJECT_DIR}/opc/packages/tldr-code`
     : '/Users/cosimo/.opc-dev/opc/packages/tldr-code';
 const TLDR_VENV = `${TLDR_PATH}/.venv/bin/python`;
 // Code file extensions that should use TLDR

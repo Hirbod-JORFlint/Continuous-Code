@@ -47,7 +47,7 @@ arbiter (verification)
 
 **Why pre-mortem?** Imagine the fix failed - what went wrong? This catches integration risks, missing tests, and edge cases before implementation.
 
-See [/premortem skill]($CLAUDE_PROJECT_DIR/.claude/skills/premortem/SKILL.md) for details.
+See [/premortem skill]($OPC_PROJECT_DIR/.claude/skills/premortem/SKILL.md) for details.
 
 ### Agent Consolidation (2026-01-08)
 
@@ -70,7 +70,7 @@ Agents now use TLDR-code for 95% token savings on code context:
 | Read raw files | 23,314 | 0% |
 | TLDR all layers | 1,189 | **95%** |
 
-**How it works:** Call graphs navigate to relevant code, then structured summaries replace reading entire files. Available via `tldr` CLI (see [TLDR documentation]($CLAUDE_PROJECT_DIR/docs/tools/tldr.md)).
+**How it works:** Call graphs navigate to relevant code, then structured summaries replace reading entire files. Available via `tldr` CLI (see [TLDR documentation]($OPC_PROJECT_DIR/docs/tools/tldr.md)).
 
 ## How to Use
 
@@ -1021,15 +1021,15 @@ See existing workflows for patterns and conventions.
 
 ### Context too large?
 - Workflows now use TLDR-code for 95% token savings
-- See [TLDR documentation]($CLAUDE_PROJECT_DIR/docs/tools/tldr.md)
+- See [TLDR documentation]($OPC_PROJECT_DIR/docs/tools/tldr.md)
 
 ## Related Documentation
 
-- [Agents]($CLAUDE_PROJECT_DIR/docs/agents/README.md) - Individual agent documentation
-- [Hooks]($CLAUDE_PROJECT_DIR/docs/hooks/README.md) - Lifecycle extensions
-- [Skills]($CLAUDE_PROJECT_DIR/docs/skills/help.md) - Skill system overview
-- [TLDR-code]($CLAUDE_PROJECT_DIR/docs/tools/tldr.md) - Token-efficient code analysis
-- [Pre-mortem]($CLAUDE_PROJECT_DIR/.claude/skills/premortem/SKILL.md) - Risk analysis technique
+- [Agents]($OPC_PROJECT_DIR/docs/agents/README.md) - Individual agent documentation
+- [Hooks]($OPC_PROJECT_DIR/docs/hooks/README.md) - Lifecycle extensions
+- [Skills]($OPC_PROJECT_DIR/docs/skills/help.md) - Skill system overview
+- [TLDR-code]($OPC_PROJECT_DIR/docs/tools/tldr.md) - Token-efficient code analysis
+- [Pre-mortem]($OPC_PROJECT_DIR/.claude/skills/premortem/SKILL.md) - Risk analysis technique
 
 ## Getting Help
 
@@ -1038,4 +1038,4 @@ See existing workflows for patterns and conventions.
 /help workflows # Workflow-specific help
 ```
 
-For questions or issues, see the main [README]($CLAUDE_PROJECT_DIR/README.md).
+For questions or issues, see the main [README]($OPC_PROJECT_DIR/README.md).

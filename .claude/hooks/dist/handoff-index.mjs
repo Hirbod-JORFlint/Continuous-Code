@@ -76,7 +76,7 @@ function extractSessionName(filePath) {
 }
 async function main() {
   const input = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const homeDir = process.env.HOME || process.env.USERPROFILE || "";
   if (input.tool_name !== "Write") {
     console.log(JSON.stringify({ result: "continue" }));

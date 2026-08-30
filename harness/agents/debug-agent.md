@@ -13,7 +13,7 @@ You are a specialized debugging agent. Your job is to investigate issues, trace 
 Before starting, read the debug skill for methodology:
 
 ```bash
-cat $CLAUDE_PROJECT_DIR/.claude/skills/debug/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/debug/SKILL.md
 ```
 
 Follow the structure and guidelines from that skill.
@@ -33,7 +33,7 @@ Your task prompt will include structured context:
 [What's been attempted so far]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 3: Investigate with MCP Tools
@@ -82,7 +82,7 @@ git log -p --all -S 'search_term' -- '*.ts'
 
 **ALWAYS write your findings to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/debug-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/debug-agent/output-{timestamp}.md
 ```
 
 ## Output Format

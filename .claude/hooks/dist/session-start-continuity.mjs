@@ -14,7 +14,7 @@ function parseHandoffDirName(dirName) {
   return { sessionName: dirName, uuidShort: null };
 }
 function findSessionHandoffWithUUID(sessionName, sessionId) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const handoffsBase = path.join(projectDir, "thoughts", "shared", "handoffs");
   if (!fs.existsSync(handoffsBase)) return null;
   const uuidShort = sessionId.replace(/-/g, "").slice(0, 8).toLowerCase();
@@ -71,7 +71,7 @@ function extractLedgerSection(handoffContent) {
 ${match[1].trim()}` : null;
 }
 function findSessionHandoff(sessionName) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const handoffDir = path.join(projectDir, "thoughts", "shared", "handoffs", sessionName);
   if (!fs.existsSync(handoffDir)) return null;
   const handoffFiles = fs.readdirSync(handoffDir).filter((f) => isHandoffFile(f)).sort((a, b) => {
@@ -139,7 +139,7 @@ function getLatestHandoff(handoffDir) {
 }
 function getUnmarkedHandoffs() {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const dbPath = path.join(projectDir, ".claude", "cache", "artifact-index", "context.db");
     if (!fs.existsSync(dbPath)) {
       return [];
@@ -161,7 +161,7 @@ function getUnmarkedHandoffs() {
 }
 async function main() {
   const input = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const sessionType = input.source || input.type;
   let message = "";
   let additionalContext = "";

@@ -18,13 +18,13 @@ export { SAFE_ID_PATTERN, isValidId } from './pattern-router.js';
 /**
  * Get the PostgreSQL connection string.
  *
- * Uses OPC_POSTGRES_URL environment variable if set,
+ * Uses DATABASE_URL environment variable if set,
  * otherwise falls back to default local development connection.
  *
  * @returns PostgreSQL connection string
  */
 export function getPgConnectionString() {
-    return process.env.OPC_POSTGRES_URL ||
+    return process.env.DATABASE_URL ||
         'postgresql://opc:opc_dev_password@localhost:5432/opc';
 }
 /**
@@ -38,7 +38,7 @@ export function getPgConnectionString() {
  * @returns QueryResult with success, stdout, and stderr
  */
 export function runPgQuery(pythonCode, args = []) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const opcDir = join(projectDir, 'opc');
     // Wrap the Python code to use asyncio.run() for async queries
     const wrappedCode = `
@@ -60,7 +60,7 @@ ${pythonCode}
             cwd: opcDir,
             env: {
                 ...process.env,
-                OPC_POSTGRES_URL: getPgConnectionString(),
+                DATABASE_URL: getPgConnectionString(),
             },
         });
         return {
@@ -148,7 +148,7 @@ import os
 
 pipeline_id = sys.argv[1]
 current_stage = int(sys.argv[2])
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -329,7 +329,7 @@ from datetime import datetime
 session_id = sys.argv[1]
 project = sys.argv[2]
 working_on = sys.argv[3] if len(sys.argv) > 3 else ''
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -383,7 +383,7 @@ import json
 from datetime import datetime, timedelta
 
 project_filter = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] != 'null' else None
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -456,7 +456,7 @@ import json
 file_path = sys.argv[1]
 project = sys.argv[2]
 my_session_id = sys.argv[3]
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -516,7 +516,7 @@ import os
 file_path = sys.argv[1]
 project = sys.argv[2]
 session_id = sys.argv[3]
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -558,7 +558,7 @@ session_id = sys.argv[1]
 topic = sys.argv[2]
 finding = sys.argv[3]
 relevant_to = json.loads(sys.argv[4]) if len(sys.argv) > 4 else []
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -609,7 +609,7 @@ import json
 query = sys.argv[1]
 exclude_session = sys.argv[2]
 limit = int(sys.argv[3])
-pg_url = os.environ.get('OPC_POSTGRES_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://opc:opc_dev_password@localhost:5432/opc')
 
 async def main():
     conn = await asyncpg.connect(pg_url)

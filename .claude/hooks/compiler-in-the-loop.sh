@@ -17,5 +17,5 @@ fi
 
 # Only invoke TypeScript for .lean files
 set -e
-cd "$CLAUDE_PROJECT_DIR/.claude/hooks"
+cd "$OPC_PROJECT_DIR/.claude/hooks"
 echo "$INPUT" | npx tsx src/compiler-in-the-loop.ts

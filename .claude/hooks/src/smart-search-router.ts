@@ -186,12 +186,12 @@ function tldrImpact(funcName: string, projectDir: string = '.'): string[] {
 }
 
 function lookupCallers(pattern: string): string[] {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+  const projectDir = process.env.OPC_PROJECT_DIR || '.';
   return tldrImpact(pattern, projectDir).slice(0, 20);
 }
 
 function lookupSymbol(pattern: string): { type: SearchContext['targetType']; location: string } | null {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+  const projectDir = process.env.OPC_PROJECT_DIR || '.';
 
   // Try function first (most common)
   const funcResults = tldrSearch(`def ${pattern}`, projectDir);
@@ -467,7 +467,7 @@ async function main() {
   });
 
   // Track hook activity (P8) - get project dir early for tracking
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || '.';
+  const projectDir = process.env.OPC_PROJECT_DIR || '.';
 
   // LITERAL: Suggest TLDR search (finds + enriches in one call)
   if (queryType === 'literal') {

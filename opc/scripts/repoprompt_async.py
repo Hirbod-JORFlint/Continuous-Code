@@ -37,7 +37,7 @@ from pathlib import Path
 SESSION_NAME = "rp-async"
 
 # Use project-local cache dir (gitignored)
-PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+PROJECT_DIR = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
 CACHE_DIR = Path(PROJECT_DIR) / ".claude" / "cache" / "rp"
 OUTPUT_FILE = CACHE_DIR / "async_result.md"
 

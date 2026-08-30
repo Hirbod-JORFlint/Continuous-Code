@@ -148,7 +148,7 @@ def get_hierarchical_context(root_span_id: str) -> dict:
     import json as json_mod
     import subprocess
 
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
     query_script = Path(project_dir) / "scripts" / "artifact_query.py"
 
     if not query_script.exists():
@@ -1135,7 +1135,7 @@ Output in markdown format (not JSON)."""
 
 async def learn_from_session(project_id: str, api_key: str, session_id: str | None = None):
     """Extract learnings from a session and save to .claude/cache/learnings/."""
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
     learnings_dir = Path(project_dir) / ".claude" / "cache" / "learnings"
     learnings_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1556,7 +1556,7 @@ def main():
     elif args.review:
         import asyncio
 
-        project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+        project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
         result = asyncio.run(run_implementation_review(project_dir, args.review, args.session_id))
 
         # Print review results
@@ -1602,7 +1602,7 @@ def main():
     elif args.rag_judge:
         import asyncio
 
-        project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+        project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
         plan_file = Path(project_dir) / args.rag_judge
         if not plan_file.exists():
             print(f"Error: Plan not found: {args.rag_judge}")

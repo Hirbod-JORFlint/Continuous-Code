@@ -23,7 +23,7 @@ def get_session_id(data: dict) -> str:
     session_id = data.get("session_id", "")
     if session_id:
         return session_id[:8]  # First 8 chars for filename
-    return os.environ.get("CLAUDE_SESSION_ID", str(os.getppid()))
+    return os.environ.get("OPC_SESSION_ID", str(os.getppid()))
 
 
 def read_context_pct_from_file(data: dict) -> int | None:

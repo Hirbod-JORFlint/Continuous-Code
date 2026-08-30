@@ -199,7 +199,7 @@ Hooks are registered in `.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-register.sh",
+            "command": "$OPC_PROJECT_DIR/.claude/hooks/session-register.sh",
             "timeout": 10
           }
         ]
@@ -211,7 +211,7 @@ Hooks are registered in `.claude/settings.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/tldr-read-enforcer.sh",
+            "command": "$OPC_PROJECT_DIR/.claude/hooks/tldr-read-enforcer.sh",
             "timeout": 20
           }
         ]
@@ -225,7 +225,7 @@ Hooks are registered in `.claude/settings.json`:
 
 - **matcher**: Tool name pattern to match (e.g., "Read", "Edit|Write", "*")
 - **type**: Always "command" for external scripts
-- **command**: Path to hook script (use `$CLAUDE_PROJECT_DIR` or `$HOME` for portability)
+- **command**: Path to hook script (use `$OPC_PROJECT_DIR` or `$HOME` for portability)
 - **timeout**: Max execution time in seconds
 
 ### Matcher Pattern Syntax
@@ -291,7 +291,7 @@ Execute bash commands or scripts. This is the default and most common type.
 ```json
 {
   "type": "command",
-  "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/my-hook.sh",
+  "command": "$OPC_PROJECT_DIR/.claude/hooks/my-hook.sh",
   "timeout": 60
 }
 ```
@@ -664,7 +664,7 @@ Hooks run with the same permissions as the Claude CLI. They can:
 
 **Recommendations:**
 - Review hook source code before enabling
-- Use `$CLAUDE_PROJECT_DIR` paths to scope to current project
+- Use `$OPC_PROJECT_DIR` paths to scope to current project
 - Set reasonable timeouts to prevent hanging
 - Validate hook inputs (untrusted user prompts)
 - Use readonly operations when possible (PreToolUse hooks)

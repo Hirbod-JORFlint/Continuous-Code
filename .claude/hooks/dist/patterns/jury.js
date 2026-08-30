@@ -12,7 +12,7 @@
  * - JUROR_INDEX: Index of this juror (0-indexed)
  * - TOTAL_JURORS: Total number of jurors in this jury
  * - JURY_ISOLATION: Optional isolation mode ('strict' blocks Read tool)
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 import { existsSync } from 'fs';
 // Import shared utilities

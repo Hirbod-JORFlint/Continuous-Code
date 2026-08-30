@@ -64,7 +64,7 @@ function main() {
     return;
   }
 
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
 
   // Warm cache in detached background process if stale
   // Uses spawn with detached:true so process exits immediately

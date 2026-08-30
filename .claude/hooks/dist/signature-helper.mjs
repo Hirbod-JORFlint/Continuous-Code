@@ -361,7 +361,7 @@ function getSignatureFromTLDR(funcName, filePath, sessionId) {
   return null;
 }
 function getProjectDir() {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 async function main() {
   const input = JSON.parse(readFileSync2(0, "utf-8"));

@@ -41,7 +41,7 @@ function extractTodos(input) {
  * Broadcast state to PostgreSQL via Python script
  */
 function broadcastState(agentId, toolName, todos) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const scriptPath = join(projectDir, 'scripts', 'agentica_patterns', 'agent_state_broadcast.py');
     const now = new Date().toISOString();
     // Build Python script to call broadcast_state

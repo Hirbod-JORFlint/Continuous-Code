@@ -47,8 +47,8 @@ interface CompilerState {
   timestamp: number;
 }
 
-const STATE_DIR = process.env.CLAUDE_PROJECT_DIR
-  ? join(process.env.CLAUDE_PROJECT_DIR, '.claude', 'cache', 'lean')
+const STATE_DIR = process.env.OPC_PROJECT_DIR
+  ? join(process.env.OPC_PROJECT_DIR, '.claude', 'cache', 'lean')
   : join(tmpdir(), 'claude-lean');
 
 const STATE_FILE = join(STATE_DIR, 'compiler-state.json');

@@ -5,10 +5,10 @@ import { readFileSync } from "fs";
 import { spawnSync } from "child_process";
 import { join } from "path";
 function getPgConnectionString() {
-  return process.env.OPC_POSTGRES_URL || "postgresql://opc:opc_dev_password@localhost:5432/opc";
+  return process.env.DATABASE_URL || "postgresql://opc:opc_dev_password@localhost:5432/opc";
 }
 function runPgQuery(pythonCode, args = []) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const opcDir = join(projectDir, "opc");
   const wrappedCode = `
 import sys
@@ -29,7 +29,7 @@ ${pythonCode}
       cwd: opcDir,
       env: {
         ...process.env,
-        OPC_POSTGRES_URL: getPgConnectionString()
+        DATABASE_URL: getPgConnectionString()
       }
     });
     return {
@@ -51,7 +51,7 @@ function getSessionId() {
   return process.env.COORDINATION_SESSION_ID || process.env.BRAINTRUST_SPAN_ID?.slice(0, 8) || "";
 }
 function getProject() {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 function readStdin() {
   try {
@@ -61,7 +61,7 @@ function readStdin() {
   }
 }
 function main() {
-  if (process.env.CONTINUOUS_CLAUDE_COORDINATION !== "true") {
+  if (process.env.OPC_COORDINATION !== "true") {
     console.log(JSON.stringify({ result: "continue" }));
     return;
   }
@@ -92,7 +92,7 @@ import os
 session_id = sys.argv[1]
 project = sys.argv[2]
 working_on = sys.argv[3] if len(sys.argv) > 3 else ''
-pg_url = os.environ.get('CONTINUOUS_CLAUDE_DB_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
 
 async def main():
     conn = await asyncpg.connect(pg_url)

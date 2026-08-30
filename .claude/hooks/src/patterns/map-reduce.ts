@@ -12,7 +12,7 @@
  * - AGENT_ROLE: Role of this agent ('mapper' or 'reducer')
  * - MAPPER_INDEX: Index of this mapper (0-indexed, for mappers only)
  * - TOTAL_MAPPERS: Total number of mappers in this execution
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 
 import { existsSync } from 'fs';

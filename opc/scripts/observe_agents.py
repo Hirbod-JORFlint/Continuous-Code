@@ -48,7 +48,7 @@ POSTGRES_URL = os.environ.get(
 # Paths - use project-relative paths
 PROJECT_DIR = Path(
     os.environ.get(
-        "CLAUDE_PROJECT_DIR",
+        "OPC_PROJECT_DIR",
         "/Users/cosimo/Documents/experimental/research/mcp-test/claude-continuity-kit",
     )
 )

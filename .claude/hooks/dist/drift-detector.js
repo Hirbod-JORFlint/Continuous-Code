@@ -13,7 +13,7 @@ function readStdin() {
 }
 async function main() {
     const input = JSON.parse(readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     // Only process successful edits
     if (!input.tool_response?.success) {
         console.log('{}');

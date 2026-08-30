@@ -149,7 +149,7 @@ export function getLoadingMode(skillName, rules) {
  * Build an enhanced lookup result with prerequisites, co-activation, and loading mode.
  */
 export function buildEnhancedLookupResult(match, rules) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
     // Get base result
     const result = {
         found: true,
@@ -196,7 +196,7 @@ function loadSkillRules() {
     if (cachedSkillRules !== null) {
         return cachedSkillRules;
     }
-    const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
     const possiblePaths = [
         join(projectDir, '.claude', 'skills', 'skill-rules.json'),
         join(process.env.HOME ?? '', '.claude', 'skills', 'skill-rules.json'),
@@ -255,7 +255,7 @@ function sortMatches(a, b) {
  * Build a SkillLookupResult from the best match.
  */
 function buildLookupResult(match) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
     return {
         found: true,
         skillName: match.skillName,
@@ -322,7 +322,7 @@ function lookupSkillInMemory(prompt) {
     const skillResult = validResults.find((r) => r.metadata?.type === 'skill' ||
         r.metadata?.skillName !== undefined);
     if (skillResult?.metadata?.skillName) {
-        const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+        const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
         const skillName = String(skillResult.metadata.skillName);
         return {
             found: true,

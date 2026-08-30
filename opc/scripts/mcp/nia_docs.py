@@ -77,7 +77,7 @@ def load_api_key() -> str:
     if os.environ.get("NIA_API_KEY"):
         return os.environ["NIA_API_KEY"]
 
-    for env_path in [Path.home() / ".claude" / ".env", Path.cwd() / ".env"]:
+    for env_path in [Path.home() / ".opc" / ".env", Path.cwd() / ".env"]:
         if env_path.exists():
             with open(env_path) as f:
                 for line in f:

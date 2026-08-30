@@ -153,7 +153,7 @@ def get_claude_stats(session_id: str) -> dict:
 def get_model_breakdown(session_id: str) -> dict:
     """Get per-model token breakdown from session JSONL."""
     model_breakdown = {}
-    config_dir = Path(os.environ.get('CLAUDE_CONFIG_DIR', str(Path.home() / '.claude')))
+    config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
     projects_base = config_dir / 'projects'
 
     if not projects_base.exists():
@@ -272,7 +272,7 @@ def get_historical_stats() -> tuple[list[dict], dict]:
 # ============================================================================
 
 def main():
-    session_id = os.environ.get('CLAUDE_SESSION_ID', 'unknown')[:8]
+    session_id = os.environ.get('OPC_SESSION_ID', 'unknown')[:8]
 
     # Collect data
     claude_stats = get_claude_stats(session_id)

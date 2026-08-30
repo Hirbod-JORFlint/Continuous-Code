@@ -9,7 +9,7 @@ var GOEDEL_ENABLED = process.env.GOEDEL_ENABLED !== "false";
 var lmStudioAvailable = null;
 var lmStudioCheckedAt = 0;
 var AVAILABILITY_CACHE_MS = 6e4;
-var STATE_DIR = process.env.CLAUDE_PROJECT_DIR ? join(process.env.CLAUDE_PROJECT_DIR, ".claude", "cache", "lean") : join(tmpdir(), "claude-lean");
+var STATE_DIR = process.env.OPC_PROJECT_DIR ? join(process.env.OPC_PROJECT_DIR, ".claude", "cache", "lean") : join(tmpdir(), "claude-lean");
 var STATE_FILE = join(STATE_DIR, "compiler-state.json");
 function readStdin() {
   return readFileSync(0, "utf-8");

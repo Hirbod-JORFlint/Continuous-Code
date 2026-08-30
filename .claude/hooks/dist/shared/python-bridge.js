@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 // Get project root - from .claude/hooks/src/shared/ go up 4 levels
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || resolve(__dirname, '..', '..', '..', '..');
+const PROJECT_DIR = process.env.OPC_PROJECT_DIR || resolve(__dirname, '..', '..', '..', '..');
 /**
  * Call Python validate_composition.py with JSON output.
  *

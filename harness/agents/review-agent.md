@@ -27,10 +27,10 @@ Invoke after implementation is complete but BEFORE creating a handoff.
 
 ```bash
 # Find today's plans
-ls -la $CLAUDE_PROJECT_DIR/thoughts/shared/plans/
+ls -la $OPC_PROJECT_DIR/thoughts/shared/plans/
 
 # Or check the ledger for the current plan
-grep -A5 "Plan:" $CLAUDE_PROJECT_DIR/CONTINUITY_*.md
+grep -A5 "Plan:" $OPC_PROJECT_DIR/CONTINUITY_*.md
 ```
 
 Read the plan completely - extract all requirements/phases.
@@ -160,7 +160,7 @@ Note any concerns in the Gaps section.
 
 **ALWAYS write output to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/review-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/review-agent/output-{timestamp}.md
 ```
 
 ### Output Format

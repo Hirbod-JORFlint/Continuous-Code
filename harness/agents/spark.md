@@ -31,7 +31,7 @@ Your task prompt will include:
 [Any patterns or requirements to follow]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 2: Quick Analysis
@@ -67,7 +67,7 @@ npx tsc --noEmit path/to/file.ts
 
 **Write summary to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/spark/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/spark/output-{timestamp}.md
 ```
 
 ## Output Format

@@ -31,7 +31,7 @@ def get_session_id(data: dict) -> str:
     if session_id:
         return session_id[:8]  # First 8 chars for filename
     # Fallback to env var or ppid
-    return os.environ.get("CLAUDE_SESSION_ID", str(os.getppid()))
+    return os.environ.get("OPC_SESSION_ID", str(os.getppid()))
 
 
 def get_context_info(data: dict) -> tuple[int, int, str]:
@@ -416,8 +416,8 @@ def main() -> None:
     cwd_str = workspace.get("current_dir", "")
 
     if not cwd_str:
-        # Fallback 1: CLAUDE_PROJECT_DIR env var (most reliable)
-        cwd_str = os.environ.get("CLAUDE_PROJECT_DIR", "")
+        # Fallback 1: OPC_PROJECT_DIR env var (most reliable)
+        cwd_str = os.environ.get("OPC_PROJECT_DIR", "")
 
     if not cwd_str:
         # Fallback 2: Walk up from cwd to find .git

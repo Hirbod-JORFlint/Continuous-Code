@@ -674,7 +674,7 @@ def main():
         sys.exit(1)
 
     # Load .env if exists
-    env_file = Path.home() / ".claude" / ".env"
+    env_file = Path.home() / ".opc" / ".env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
             if "=" in line and not line.startswith("#"):

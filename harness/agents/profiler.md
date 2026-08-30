@@ -31,7 +31,7 @@ Your task prompt will include:
 [Desired performance characteristics]
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 ## Step 2: Performance Analysis
@@ -109,7 +109,7 @@ hyperfine "uv run python script.py"
 
 **ALWAYS write findings to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/profiler/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/profiler/output-{timestamp}.md
 ```
 
 ## Output Format

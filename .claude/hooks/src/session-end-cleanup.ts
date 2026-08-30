@@ -67,7 +67,7 @@ function createExtractorLock(pid: number): void {
 
 async function main() {
   const input: SessionEndInput = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
 
   try {
     // Update continuity ledger with session end

@@ -51,7 +51,7 @@ interface TLDRImport {
  */
 function getTLDRImports(filePath: string): TLDRImport[] {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const response = queryDaemonSync(
       { cmd: 'imports', file: filePath },
       projectDir
@@ -77,7 +77,7 @@ function getTLDRImports(filePath: string): TLDRImport[] {
  */
 function getTLDRExtract(filePath: string, sessionId?: string): TLDRExtract | null {
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const response = queryDaemonSync(
       { cmd: 'extract', file: filePath, session: sessionId },
       projectDir
@@ -161,7 +161,7 @@ async function main() {
   };
 
   // Track hook activity for flush threshold
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   trackHookActivitySync('edit-context-inject', projectDir, true, {
     edits_processed: 1,
     symbols_shown: total,

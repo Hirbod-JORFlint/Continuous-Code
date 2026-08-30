@@ -12,7 +12,7 @@
  * - AGENT_ROLE: Role of this agent ('generator' or 'critic')
  * - GC_ITERATION: Current iteration number (1-indexed)
  * - GC_MAX_ROUNDS: Maximum number of refinement rounds
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 import { existsSync } from 'fs';
 // Import shared utilities

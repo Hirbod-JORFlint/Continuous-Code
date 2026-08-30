@@ -13,7 +13,7 @@ You are a specialized planning agent. Your job is to create detailed implementat
 Before creating any plan, read the planning skill for methodology and format:
 
 ```bash
-cat $CLAUDE_PROJECT_DIR/.claude/skills/create_plan/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/create_plan/SKILL.md
 ```
 
 Follow the structure and guidelines from that skill.
@@ -35,7 +35,7 @@ Your task prompt will include structured context:
 - Use existing Y pattern
 
 ## Codebase
-$CLAUDE_PROJECT_DIR = /path/to/project
+$OPC_PROJECT_DIR = /path/to/project
 ```
 
 Parse this carefully - it's the input for your plan.
@@ -70,12 +70,12 @@ uv run python -m runtime.harness scripts/morph_apply.py \
 
 **ALWAYS write your plan to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/plan-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/plan-agent/output-{timestamp}.md
 ```
 
 Also copy to persistent location if plan should survive cache cleanup:
 ```
-$CLAUDE_PROJECT_DIR/thoughts/shared/plans/[descriptive-name].md
+$OPC_PROJECT_DIR/thoughts/shared/plans/[descriptive-name].md
 ```
 
 ## Output Format

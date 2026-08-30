@@ -30,14 +30,14 @@ function setupTestEnv(): void {
   if (!existsSync(TLDR_DIR)) {
     mkdirSync(TLDR_DIR, { recursive: true });
   }
-  process.env.CLAUDE_PROJECT_DIR = TEST_PROJECT_DIR;
+  process.env.OPC_PROJECT_DIR = TEST_PROJECT_DIR;
 }
 
 function cleanupTestEnv(): void {
   if (existsSync(TEST_PROJECT_DIR)) {
     rmSync(TEST_PROJECT_DIR, { recursive: true, force: true });
   }
-  delete process.env.CLAUDE_PROJECT_DIR;
+  delete process.env.OPC_PROJECT_DIR;
 }
 
 function computeSocketPath(projectDir: string): string {
@@ -494,21 +494,21 @@ describe('Common daemon migration patterns', () => {
   });
 
   describe('project directory resolution', () => {
-    it('should use CLAUDE_PROJECT_DIR when available', () => {
-      process.env.CLAUDE_PROJECT_DIR = '/custom/project';
+    it('should use OPC_PROJECT_DIR when available', () => {
+      process.env.OPC_PROJECT_DIR = '/custom/project';
 
       const getProjectDir = (): string => {
-        return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+        return process.env.OPC_PROJECT_DIR || process.cwd();
       };
 
       expect(getProjectDir()).toBe('/custom/project');
     });
 
     it('should fall back to cwd when env not set', () => {
-      delete process.env.CLAUDE_PROJECT_DIR;
+      delete process.env.OPC_PROJECT_DIR;
 
       const getProjectDir = (): string => {
-        return process.env.CLAUDE_PROJECT_DIR || '/fallback/dir';
+        return process.env.OPC_PROJECT_DIR || '/fallback/dir';
       };
 
       expect(getProjectDir()).toBe('/fallback/dir');

@@ -107,7 +107,7 @@ Options:
 After the user responds, mark the outcome:
 ```bash
 # Mark the most recent handoff (works with PostgreSQL or SQLite)
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "${CLAUDE_PROJECT_DIR:-.}")
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "${OPC_PROJECT_DIR:-.}")
 cd "$PROJECT_ROOT/opc" && uv run python scripts/core/artifact_mark.py --latest --outcome <USER_CHOICE>
 ```
 

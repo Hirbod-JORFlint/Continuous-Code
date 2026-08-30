@@ -21,7 +21,7 @@ const TLDR_CACHE_DIR = join(TEST_PROJECT_DIR, '.claude', 'cache', 'tldr');
 const SEMANTIC_INDEX_DIR = join(TEST_PROJECT_DIR, '.tldr', 'cache', 'semantic');
 
 function setupTestEnv(): void {
-  process.env.CLAUDE_PROJECT_DIR = TEST_PROJECT_DIR;
+  process.env.OPC_PROJECT_DIR = TEST_PROJECT_DIR;
   if (!existsSync(TLDR_CACHE_DIR)) {
     mkdirSync(TLDR_CACHE_DIR, { recursive: true });
   }

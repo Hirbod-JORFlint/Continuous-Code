@@ -113,8 +113,8 @@ export function getSessionId(options: { debug?: boolean } = {}): string {
 /**
  * Returns the current project directory path.
  *
- * @returns CLAUDE_PROJECT_DIR env var or current working directory
+ * @returns OPC_PROJECT_DIR env var or current working directory
  */
 export function getProject(): string {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }

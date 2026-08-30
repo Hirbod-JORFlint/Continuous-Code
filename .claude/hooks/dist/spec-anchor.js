@@ -11,7 +11,7 @@ function readStdin() {
 }
 async function main() {
     const input = JSON.parse(readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     // Get session context
     const session = getSessionContext(projectDir, input.session_id);
     if (!session?.active_spec) {

@@ -21,7 +21,7 @@ interface TranscriptEntry {
 
 async function main() {
   const input: SubagentStopInput = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
 
   // Prevent infinite loops
   if (input.stop_hook_active) {

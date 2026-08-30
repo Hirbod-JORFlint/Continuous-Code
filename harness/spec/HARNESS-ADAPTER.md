@@ -92,6 +92,7 @@ Event payload contract (JSON on stdin to the hook/plugin body):
 | `CLAUDE_PROJECT_DIR` | `OPC_PROJECT_DIR` | working project |
 | `CLAUDE_ENV_FILE` | `OPC_ENV_FILE` | env file |
 | `CLAUDE_PPID` | `OPC_PPID` | parent process |
+| `CLAUDE_CONFIG_DIR` | `OPC_CONFIG_DIR` | config/state root (`~/.opc`) |
 | `CONTINUOUS_CLAUDE_DB_URL` | `DATABASE_URL` | postgres |
 | n/a | `OPC_DRIVER` | driver selector (`auto\|opencode\|codex\|cline`) |
 

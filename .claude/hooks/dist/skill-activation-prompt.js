@@ -111,7 +111,7 @@ async function main() {
         const data = JSON.parse(input);
         const prompt = data.prompt.toLowerCase();
         // Load skill rules (try project first, then global)
-        const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+        const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
         const homeDir = process.env.HOME || '';
         const projectRulesPath = join(projectDir, '.claude', 'skills', 'skill-rules.json');
         const globalRulesPath = join(homeDir, '.claude', 'skills', 'skill-rules.json');
@@ -334,9 +334,9 @@ async function main() {
             console.log(output);
         }
         // Check context % from statusLine temp file and add tiered warnings
-        // CLAUDE_PPID is passed from shell wrapper (matches status.sh's $PPID)
+        // OPC_PPID is passed from shell wrapper (matches status.sh's $PPID)
         // This ensures we read the same file that StatusLine wrote
-        const sessionId = process.env.CLAUDE_SESSION_ID || process.env.CLAUDE_PPID || 'default';
+        const sessionId = process.env.OPC_SESSION_ID || process.env.OPC_PPID || 'default';
         const contextFile = `/tmp/claude-context-pct-${sessionId}.txt`;
         if (existsSync(contextFile)) {
             try {

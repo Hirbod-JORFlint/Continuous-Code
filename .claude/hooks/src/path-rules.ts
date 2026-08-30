@@ -57,7 +57,7 @@ function readStdin(): string {
 }
 
 function getProjectDir(): string {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 
 function loadSkillContent(skillName: string): string | null {

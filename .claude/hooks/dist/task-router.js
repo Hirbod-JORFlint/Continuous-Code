@@ -86,13 +86,13 @@ except Exception as e:
 `;
   try {
     const result = spawnSync("uv", ["run", "python", "-c", pythonCode], {
-      cwd: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+      cwd: process.env.OPC_PROJECT_DIR || process.cwd(),
       encoding: "utf-8",
       timeout: 3e4,
       // 30 second timeout
       env: {
         ...process.env,
-        PYTHONPATH: process.env.CLAUDE_PROJECT_DIR || process.cwd()
+        PYTHONPATH: process.env.OPC_PROJECT_DIR || process.cwd()
       }
     });
     if (result.error) {
@@ -154,7 +154,7 @@ async function main() {
     console.log(JSON.stringify({ result: "continue" }));
     return;
   }
-  const sessionId = input.session_id || process.env.CLAUDE_SESSION_ID || "default";
+  const sessionId = input.session_id || process.env.OPC_SESSION_ID || "default";
   const gateResult = callUnifiedGate(prompt, sessionId);
   if (!gateResult) {
     console.log(JSON.stringify({ result: "continue" }));

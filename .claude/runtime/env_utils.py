@@ -97,7 +97,7 @@ def load_project_env(start_path: Path | None = None) -> bool:
     """
     search_path = start_path or find_project_root(Path.cwd())
     env_file = search_path / ".env"
-    global_env = Path.home() / ".claude" / ".env"
+    global_env = Path.home() / ".opc" / ".env"
 
     loaded = False
 

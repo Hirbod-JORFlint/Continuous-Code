@@ -12,7 +12,7 @@
  * - AGENT_ROLE: Role in blackboard (specialist or controller)
  * - BLACKBOARD_WRITES_TO: Comma-separated keys this specialist writes to
  * - BLACKBOARD_READS_FROM: Comma-separated keys this specialist reads from
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 import { existsSync } from 'fs';
 // Import shared utilities

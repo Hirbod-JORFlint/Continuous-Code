@@ -105,7 +105,7 @@ function extractSpecName(prompt) {
 }
 async function main() {
     const input = JSON.parse(readStdin());
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     const intent = detectIntent(input.prompt, projectDir);
     if (!intent) {
         // No spec intent detected

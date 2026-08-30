@@ -297,7 +297,7 @@ def load_agent_profile(agent_name: str) -> AgentProfile | None:
         AgentProfile if found, None otherwise
     """
     # Check multiple possible locations (project dir, CWD, home)
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
+    project_dir = os.environ.get("OPC_PROJECT_DIR", "")
     search_paths = [
         Path(project_dir) / ".claude/agents" / f"{agent_name}.json" if project_dir else None,
         Path(".claude/agents") / f"{agent_name}.json",

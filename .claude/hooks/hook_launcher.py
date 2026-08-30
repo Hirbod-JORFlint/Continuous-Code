@@ -31,7 +31,7 @@ Python hooks should include PEP 723 inline script metadata for portability:
     # dependencies = ["httpx"]  # list any required packages
     # ///
 
-Supports both project-specific hooks ($CLAUDE_PROJECT_DIR/.claude/hooks)
+Supports both project-specific hooks ($OPC_PROJECT_DIR/.claude/hooks)
 and user-level hooks (~/.claude/hooks), with project hooks taking precedence.
 """
 
@@ -107,8 +107,8 @@ def get_hooks_dirs() -> list[Path]:
     """
     dirs = []
 
-    # Project-specific hooks (from CLAUDE_PROJECT_DIR env var)
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR")
+    # Project-specific hooks (from OPC_PROJECT_DIR env var)
+    project_dir = os.environ.get("OPC_PROJECT_DIR")
     if project_dir:
         dirs.append(Path(project_dir) / ".claude" / "hooks")
 
@@ -235,8 +235,8 @@ def find_hook_script(name: str) -> tuple[Path | None, Path | None, Path | None]:
             # Project hooks: extract from hooks_dir path
             # hooks_dir is like: /path/to/project/.claude/hooks
             # project_root should be: /path/to/project
-            # Try resolving via CLAUDE_PROJECT_DIR first
-            env_project_dir = os.environ.get("CLAUDE_PROJECT_DIR")
+            # Try resolving via OPC_PROJECT_DIR first
+            env_project_dir = os.environ.get("OPC_PROJECT_DIR")
             if env_project_dir:
                 project_root = Path(env_project_dir)
             else:
@@ -383,9 +383,9 @@ def main() -> None:
         else:
             i += 1
 
-    # Special handling for CLAUDE_PPID (pass parent PID)
-    if "CLAUDE_PPID" not in env_vars and os.getppid():
-        env_vars["CLAUDE_PPID"] = str(os.getppid())
+    # Special handling for OPC_PPID (pass parent PID)
+    if "OPC_PPID" not in env_vars and os.getppid():
+        env_vars["OPC_PPID"] = str(os.getppid())
 
     # Read stdin with timeout (prevents hanging on Windows)
     try:

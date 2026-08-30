@@ -10,7 +10,7 @@ import { join } from 'path';
 describe('Backward Compatibility', () => {
     let skillRules;
     beforeEach(() => {
-        const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+        const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
         const rulesPath = join(projectDir, '.claude', 'skills', 'skill-rules.json');
         try {
             const content = readFileSync(rulesPath, 'utf-8');

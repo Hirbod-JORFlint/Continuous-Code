@@ -34,7 +34,7 @@ function main() {
     console.log("{}");
     return;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
   if (isCacheStale(projectDir)) {
     const child = spawn("tldr", ["daemon", "warm", "--project", projectDir], {
       detached: true,

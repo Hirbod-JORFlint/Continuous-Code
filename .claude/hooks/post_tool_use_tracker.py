@@ -237,7 +237,7 @@ def process_tool_use(tool_info: dict) -> dict[str, Any]:
     """
     tool_name = tool_info.get("tool_name", "")
     tool_input = tool_info.get("tool_input", {}) or {}
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
+    project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
 
     # Handle Bash tool - track build attempts
     if tool_name.lower() == "bash":

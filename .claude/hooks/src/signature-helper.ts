@@ -118,7 +118,7 @@ function getSignatureFromTLDR(funcName: string, filePath: string, sessionId?: st
 }
 
 function getProjectDir(): string {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 
 async function main() {

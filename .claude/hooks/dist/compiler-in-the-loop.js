@@ -18,8 +18,8 @@ const GOEDEL_ENABLED = process.env.GOEDEL_ENABLED !== 'false'; // Enable by defa
 let lmStudioAvailable = null;
 let lmStudioCheckedAt = 0;
 const AVAILABILITY_CACHE_MS = 60000; // Re-check every 60s
-const STATE_DIR = process.env.CLAUDE_PROJECT_DIR
-    ? join(process.env.CLAUDE_PROJECT_DIR, '.claude', 'cache', 'lean')
+const STATE_DIR = process.env.OPC_PROJECT_DIR
+    ? join(process.env.OPC_PROJECT_DIR, '.claude', 'cache', 'lean')
     : '/tmp/claude-lean';
 const STATE_FILE = join(STATE_DIR, 'compiler-state.json');
 function readStdin() {

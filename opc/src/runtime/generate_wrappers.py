@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import McpConfig
+from .env import get_global_mcp_config_path
 from .schema_utils import (
     generate_pydantic_model,
     sanitize_name,
@@ -224,7 +225,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
 
     Args:
         config_path: Path to config file. If provided, uses only that file.
-                    Otherwise merges global (~/.claude/mcp_config.json) with
+                    Otherwise merges global (~/.opc/mcp_config.json) with
                     project config (.mcp.json or mcp_config.json)
     """
     logger.info("Starting wrapper generation...")
@@ -247,7 +248,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
         project_root = find_project_root(Path.cwd())
         mcp_json = project_root / ".mcp.json"
         mcp_config_json = project_root / "mcp_config.json"
-        global_config = Path.home() / ".claude" / "mcp_config.json"
+        global_config = get_global_mcp_config_path()
 
         global_cfg: McpConfig | None = None
         project_cfg: McpConfig | None = None

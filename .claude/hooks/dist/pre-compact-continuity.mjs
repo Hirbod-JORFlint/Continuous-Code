@@ -216,7 +216,7 @@ if (isMainModule) {
 // src/pre-compact-continuity.ts
 async function main() {
   const input = JSON.parse(await readStdin());
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const ledgerDir = path.join(projectDir, "thoughts", "ledgers");
   const ledgerFiles = fs2.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md"));
   if (ledgerFiles.length === 0) {

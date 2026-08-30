@@ -22,7 +22,7 @@ var MemoryClient = class {
     this.sessionId = options.sessionId || "default";
     this.agentId = options.agentId || null;
     this.timeoutMs = options.timeoutMs || 5e3;
-    this.projectDir = options.projectDir || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    this.projectDir = options.projectDir || process.env.OPC_PROJECT_DIR || process.cwd();
   }
   /**
    * Search for similar content in memory.
@@ -132,7 +132,7 @@ import asyncio
 import os
 
 # Add project to path for imports
-project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
+project_dir = os.environ.get('OPC_PROJECT_DIR', os.getcwd())
 sys.path.insert(0, project_dir)
 
 async def search():
@@ -182,7 +182,7 @@ import asyncio
 import os
 
 # Add project to path for imports
-project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
+project_dir = os.environ.get('OPC_PROJECT_DIR', os.getcwd())
 sys.path.insert(0, project_dir)
 
 async def store():
@@ -221,7 +221,7 @@ asyncio.run(store())
         cwd: this.projectDir,
         env: {
           ...process.env,
-          CLAUDE_PROJECT_DIR: this.projectDir
+          OPC_PROJECT_DIR: this.projectDir
         }
       });
       return {
@@ -482,7 +482,7 @@ function getLoadingMode(skillName, rules) {
   return "lazy";
 }
 function buildEnhancedLookupResult(match, rules) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
   const result = {
     found: true,
     skillName: match.skillName,
@@ -515,7 +515,7 @@ function loadSkillRules() {
   if (cachedSkillRules !== null) {
     return cachedSkillRules;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
   const possiblePaths = [
     join(projectDir, ".claude", "skills", "skill-rules.json"),
     join(process.env.HOME ?? "", ".claude", "skills", "skill-rules.json")
@@ -556,7 +556,7 @@ function sortMatches(a, b) {
   return 0;
 }
 function buildLookupResult(match) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
   return {
     found: true,
     skillName: match.skillName,
@@ -602,7 +602,7 @@ function lookupSkillInMemory(prompt) {
     (r) => r.metadata?.type === "skill" || r.metadata?.skillName !== void 0
   );
   if (skillResult?.metadata?.skillName) {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR ?? process.cwd();
     const skillName = String(skillResult.metadata.skillName);
     return {
       found: true,

@@ -5,7 +5,7 @@
 
 set -e
 
-project_dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+project_dir="${OPC_PROJECT_DIR:-$(pwd)}"
 
 # Find most recent ledger file (check both locations)
 ledger=""

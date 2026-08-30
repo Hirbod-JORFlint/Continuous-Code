@@ -83,7 +83,7 @@ Options:
 
 | Variable | Purpose |
 |----------|---------|
-| `CONTINUOUS_CLAUDE_DB_URL` | PostgreSQL connection |
+| `DATABASE_URL` | PostgreSQL connection |
 | `VOYAGE_API_KEY` | Embeddings (optional) |
 | `BRAINTRUST_API_KEY` | Tracing (optional) |
-| `CLAUDE_PROJECT_DIR` | Auto-set by Claude Code |
+| `OPC_PROJECT_DIR` | Auto-set by Claude Code |

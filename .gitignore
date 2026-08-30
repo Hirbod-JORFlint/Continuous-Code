@@ -3,7 +3,25 @@
 __pycache__/
 .venv/
 
-# Claude Code local state (personal data, tokens, paths)
+# Generated harness integration configs (committed by design)
+!.codex/AGENTS.md
+!.codex/config.toml
+!.codex/hooks.toml
+!.codex/rules/
+!.codex/rules/**
+!.codex/skills/
+!.codex/skills/**
+!.opencode/agents/
+!.opencode/agents/**
+!.opencode/commands/
+!.opencode/commands/**
+!.opencode/plugins/
+!.opencode/plugins/**
+!.opencode/skills/
+!.opencode/skills/**
+!opencode.json
+
+# Harness local state (personal data, tokens, paths)
 .claude.json
 .claude.json.backup
 *.egg-info/

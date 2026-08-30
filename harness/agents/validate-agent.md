@@ -13,7 +13,7 @@ You are a specialized validation agent. Your job is to validate a technical plan
 Before validating, read the validation skill for methodology and format:
 
 ```bash
-cat $CLAUDE_PROJECT_DIR/.claude/skills/validate-agent/SKILL.md
+cat $OPC_PROJECT_DIR/.claude/skills/validate-agent/SKILL.md
 ```
 
 Follow the structure and guidelines from that skill.
@@ -73,7 +73,7 @@ Check for:
 
 **ALWAYS write your validation to:**
 ```
-$CLAUDE_PROJECT_DIR/.claude/cache/agents/validate-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.claude/cache/agents/validate-agent/output-{timestamp}.md
 ```
 
 Also write to handoff directory if provided:

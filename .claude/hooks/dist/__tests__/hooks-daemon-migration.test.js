@@ -27,13 +27,13 @@ function setupTestEnv() {
     if (!existsSync(TLDR_DIR)) {
         mkdirSync(TLDR_DIR, { recursive: true });
     }
-    process.env.CLAUDE_PROJECT_DIR = TEST_PROJECT_DIR;
+    process.env.OPC_PROJECT_DIR = TEST_PROJECT_DIR;
 }
 function cleanupTestEnv() {
     if (existsSync(TEST_PROJECT_DIR)) {
         rmSync(TEST_PROJECT_DIR, { recursive: true, force: true });
     }
-    delete process.env.CLAUDE_PROJECT_DIR;
+    delete process.env.OPC_PROJECT_DIR;
 }
 function computeSocketPath(projectDir) {
     const hash = crypto.createHash('md5').update(projectDir).digest('hex').substring(0, 8);
@@ -406,17 +406,17 @@ describe('Common daemon migration patterns', () => {
         cleanupTestEnv();
     });
     describe('project directory resolution', () => {
-        it('should use CLAUDE_PROJECT_DIR when available', () => {
-            process.env.CLAUDE_PROJECT_DIR = '/custom/project';
+        it('should use OPC_PROJECT_DIR when available', () => {
+            process.env.OPC_PROJECT_DIR = '/custom/project';
             const getProjectDir = () => {
-                return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+                return process.env.OPC_PROJECT_DIR || process.cwd();
             };
             expect(getProjectDir()).toBe('/custom/project');
         });
         it('should fall back to cwd when env not set', () => {
-            delete process.env.CLAUDE_PROJECT_DIR;
+            delete process.env.OPC_PROJECT_DIR;
             const getProjectDir = () => {
-                return process.env.CLAUDE_PROJECT_DIR || '/fallback/dir';
+                return process.env.OPC_PROJECT_DIR || '/fallback/dir';
             };
             expect(getProjectDir()).toBe('/fallback/dir');
         });

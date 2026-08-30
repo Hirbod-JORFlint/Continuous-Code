@@ -83,7 +83,7 @@ if [ -n "$ROOT_SPAN_ID" ]; then
         [ -f "$HOME/.claude/.env" ] && source "$HOME/.claude/.env"
 
         # Find project directory (check common locations)
-        PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+        PROJECT_DIR="${OPC_PROJECT_DIR:-$(pwd)}"
         ANALYZE_SCRIPT="$PROJECT_DIR/scripts/braintrust_analyze.py"
 
         # Fall back to global install

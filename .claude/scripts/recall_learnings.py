@@ -3,7 +3,7 @@
 Global Memory Recall Script (Bundled Version)
 
 Self-contained script for ~/.claude/scripts/ that works from any project directory.
-- PostgreSQL: If DATABASE_URL or OPC_POSTGRES_URL is set (requires asyncpg)
+- PostgreSQL: If DATABASE_URL is set (requires asyncpg)
 - SQLite: Default fallback at ~/.claude/memory.db (built-in, zero deps)
 
 Usage:
@@ -26,7 +26,7 @@ def get_sqlite_path() -> Path:
 
 def get_postgres_url() -> str | None:
     """Check for PostgreSQL configuration (canonical first)."""
-    return os.environ.get("CONTINUOUS_CLAUDE_DB_URL") or os.environ.get("DATABASE_URL")
+    return os.environ.get("DATABASE_URL")
 
 
 def search_sqlite(query: str, k: int = 5) -> list[dict[str, Any]]:

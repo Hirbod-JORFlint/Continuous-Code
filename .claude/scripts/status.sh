@@ -5,7 +5,7 @@
 
 input=$(cat)
 
-project_dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+project_dir="${OPC_PROJECT_DIR:-$(pwd)}"
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // ""' 2>/dev/null)
 [[ -z "$cwd" || "$cwd" == "null" ]] && cwd="$project_dir"
 
@@ -24,8 +24,8 @@ context_pct=$((total_tokens * 100 / context_size))
 [[ "$context_pct" -gt 100 ]] && context_pct=100
 
 # Write for hooks (per-session to avoid multi-instance conflicts)
-# Use PPID as unique session ID since CLAUDE_SESSION_ID isn't set by Claude Code
-session_id="${CLAUDE_SESSION_ID:-$PPID}"
+# Use PPID as unique session ID since OPC_SESSION_ID isn't set by Claude Code
+session_id="${OPC_SESSION_ID:-$PPID}"
 echo "$context_pct" > "/tmp/claude-context-pct-${session_id}.txt"
 
 # Format as K with one decimal

@@ -57,7 +57,7 @@ def load_api_key() -> str:
 
     if not api_key:
         # Try loading from ~/.claude/.env
-        env_file = Path.home() / ".claude" / ".env"
+        env_file = Path.home() / ".opc" / ".env"
         if env_file.exists():
             with open(env_file) as f:
                 for line in f:

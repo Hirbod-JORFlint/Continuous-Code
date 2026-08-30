@@ -12,6 +12,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from .env import get_global_env_path
+
 # Pattern for ${VAR} or ${VAR:-default}
 ENV_VAR_PATTERN = re.compile(r"\$\{([^}:]+)(?::-([^}]*))?\}")
 
@@ -85,7 +87,7 @@ def load_project_env(start_path: Path | None = None) -> bool:
 
     Searches for .env in:
     1. Current directory or specified path
-    2. ~/.claude/.env (global fallback)
+    2. ~/.opc/.env (global fallback)
 
     Does not override existing environment variables.
 
@@ -97,7 +99,7 @@ def load_project_env(start_path: Path | None = None) -> bool:
     """
     search_path = start_path or find_project_root(Path.cwd())
     env_file = search_path / ".env"
-    global_env = Path.home() / ".claude" / ".env"
+    global_env = get_global_env_path()
 
     loaded = False
 

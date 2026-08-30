@@ -229,7 +229,7 @@ async function main() {
         const prompt = data.prompt.toLowerCase();
 
         // Load skill rules (try project first, then global)
-        const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+        const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
         const homeDir = process.env.HOME || process.env.USERPROFILE || '';
         const projectRulesPath = join(projectDir, '.claude', 'skills', 'skill-rules.json');
         const globalRulesPath = join(homeDir, '.claude', 'skills', 'skill-rules.json');
@@ -491,8 +491,8 @@ async function main() {
 
         // Check context % from statusLine temp file and add tiered warnings
         // Use hook input session_id first, then env vars as fallback
-        // CLAUDE_PPID kept for backwards compatibility with bash wrapper
-        const rawSessionId = data.session_id || process.env.CLAUDE_SESSION_ID || process.env.CLAUDE_PPID || 'default';
+        // OPC_PPID kept for backwards compatibility with bash wrapper
+        const rawSessionId = data.session_id || process.env.OPC_SESSION_ID || process.env.OPC_PPID || 'default';
         const sessionId = rawSessionId.slice(0, 8);  // Match status.py truncation
         const contextFile = join(tmpdir(), `claude-context-pct-${sessionId}.txt`);
         if (existsSync(contextFile)) {

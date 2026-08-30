@@ -244,12 +244,12 @@ psql -h hostname -U user -d continuous_claude -f docker/init-schema.sql
 
 #### 2. Connection Configuration
 
-Set `CONTINUOUS_CLAUDE_DB_URL` in `~/.claude/settings.json`:
+Set `DATABASE_URL` in `~/.claude/settings.json`:
 
 ```json
 {
   "env": {
-    "CONTINUOUS_CLAUDE_DB_URL": "postgresql://user:password@hostname:5432/continuous_claude"
+    "DATABASE_URL": "postgresql://user:password@hostname:5432/continuous_claude"
   }
 }
 ```
@@ -257,7 +257,7 @@ Set `CONTINUOUS_CLAUDE_DB_URL` in `~/.claude/settings.json`:
 Or export before running Claude:
 
 ```bash
-export CONTINUOUS_CLAUDE_DB_URL="postgresql://user:password@hostname:5432/continuous_claude"
+export DATABASE_URL="postgresql://user:password@hostname:5432/continuous_claude"
 claude
 ```
 
@@ -1197,8 +1197,8 @@ Skill activation triggers.
 | `BRAINTRUST_API_KEY` | Session tracing | No |
 | `PERPLEXITY_API_KEY` | Web search | No |
 | `NIA_API_KEY` | Documentation search | No |
-| `CLAUDE_OPC_DIR` | Path to CC's opc/ directory (set by wizard) | Auto |
-| `CLAUDE_PROJECT_DIR` | Current project directory (set by SessionStart hook) | Auto |
+| `OPC_ROOT` | Path to CC's opc/ directory (set by wizard) | Auto |
+| `OPC_PROJECT_DIR` | Current project directory (set by SessionStart hook) | Auto |
 
 Services without API keys still work:
 - Continuity system (ledgers, handoffs)

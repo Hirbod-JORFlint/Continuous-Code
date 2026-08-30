@@ -310,7 +310,7 @@ async function main() {
     return;
   }
   try {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     const response = queryDaemonSync(
       { cmd: "diagnostics", file: filePath },
       projectDir

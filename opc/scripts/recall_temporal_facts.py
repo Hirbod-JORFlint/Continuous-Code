@@ -40,7 +40,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env files (global first, then local)
-global_env = Path.home() / ".claude" / ".env"
+global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
 load_dotenv()  # Local .env
@@ -88,7 +88,7 @@ async def main() -> int:
     parser.add_argument(
         "--session-id",
         default=None,
-        help="Session ID to search (default: from CLAUDE_SESSION_ID or 'default')",
+        help="Session ID to search (default: from OPC_SESSION_ID or 'default')",
     )
     parser.add_argument(
         "--all-sessions",
@@ -102,7 +102,7 @@ async def main() -> int:
     if args.all_sessions:
         session_id = None
     else:
-        session_id = args.session_id or os.environ.get("CLAUDE_SESSION_ID", "default")
+        session_id = args.session_id or os.environ.get("OPC_SESSION_ID", "default")
 
     # Import after arg parsing to avoid slow imports on --help
     from scripts.agentica_patterns.embedding_service import EmbeddingService

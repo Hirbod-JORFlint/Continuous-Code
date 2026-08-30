@@ -8,11 +8,11 @@ import { spawnSync } from "child_process";
 import { existsSync } from "fs";
 import { join } from "path";
 function getOpcDir() {
-  const envOpcDir = process.env.CLAUDE_OPC_DIR;
+  const envOpcDir = process.env.OPC_ROOT;
   if (envOpcDir && existsSync(envOpcDir)) {
     return envOpcDir;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const localOpc = join(projectDir, "opc");
   if (existsSync(localOpc)) {
     return localOpc;
@@ -38,7 +38,7 @@ function requireOpcDir() {
 
 // src/shared/db-utils-pg.ts
 function getPgConnectionString() {
-  return process.env.CONTINUOUS_CLAUDE_DB_URL || process.env.DATABASE_URL || process.env.OPC_POSTGRES_URL || "postgresql://claude:claude_dev@localhost:5432/continuous_claude";
+  return process.env.DATABASE_URL || "postgresql://claude:claude_dev@localhost:5432/continuous_claude";
 }
 function runPgQuery(pythonCode, args = []) {
   const opcDir = requireOpcDir();
@@ -63,7 +63,7 @@ ${pythonCode}
       cwd: opcDir,
       env: {
         ...process.env,
-        CONTINUOUS_CLAUDE_DB_URL: getPgConnectionString()
+        DATABASE_URL: getPgConnectionString()
       }
     });
     return {
@@ -88,7 +88,7 @@ import json
 file_path = sys.argv[1]
 project = sys.argv[2]
 my_session_id = sys.argv[3]
-pg_url = os.environ.get('CONTINUOUS_CLAUDE_DB_URL') or os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -140,7 +140,7 @@ import os
 file_path = sys.argv[1]
 project = sys.argv[2]
 session_id = sys.argv[3]
-pg_url = os.environ.get('CONTINUOUS_CLAUDE_DB_URL') or os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
+pg_url = os.environ.get('DATABASE_URL', 'postgresql://claude:claude_dev@localhost:5432/continuous_claude')
 
 async def main():
     conn = await asyncpg.connect(pg_url)
@@ -206,7 +206,7 @@ function getSessionId(options = {}) {
   return generateSessionId();
 }
 function getProject() {
-  return process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  return process.env.OPC_PROJECT_DIR || process.cwd();
 }
 
 // src/file-claims.ts

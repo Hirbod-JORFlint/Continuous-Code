@@ -108,7 +108,7 @@ function main() {
     console.log(JSON.stringify({ result: "continue" }));
     return;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+  const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   let contextPath = null;
   if (PLAN_CONTEXT_SKILLS.has(skillName)) {
     contextPath = getActivePlanOrLatest(projectDir);

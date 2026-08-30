@@ -40,7 +40,7 @@ async function main() {
   if (!["startup", "resume", "clear"].includes(input.source)) {
     return;
   }
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+  const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
   const opcDir = join(projectDir, "opc");
   const query = extractQueryFromContext(projectDir);
   const result = spawnSync("uv", [

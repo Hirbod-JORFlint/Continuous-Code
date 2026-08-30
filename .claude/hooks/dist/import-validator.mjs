@@ -286,7 +286,7 @@ function extractPythonImports(code) {
   return imports;
 }
 function checkSymbolExists(symbol) {
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || ".";
+  const projectDir = process.env.OPC_PROJECT_DIR || ".";
   const funcResults = tldrSearch(`def ${symbol}`, projectDir);
   if (funcResults.length > 0) {
     return { exists: true, location: `${funcResults[0].file}:${funcResults[0].line}` };
@@ -338,7 +338,7 @@ async function main() {
 ${warnings.join("\n")}`
     }
   };
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || ".";
+  const projectDir = process.env.OPC_PROJECT_DIR || ".";
   trackHookActivitySync("import-validator", projectDir, true, {
     writes_validated: 1,
     warnings_found: warnings.length

@@ -142,7 +142,7 @@ async function main() {
             return;
         }
         const prompt = data.prompt || '';
-        const cwd = data.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+        const cwd = data.cwd || process.env.OPC_PROJECT_DIR || process.cwd();
         if (!isImplementationTask(prompt)) {
             console.log(JSON.stringify({ result: 'continue' }));
             return;

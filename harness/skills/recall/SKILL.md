@@ -33,7 +33,7 @@ Query the memory system for relevant learnings from past sessions.
 When this skill is invoked, run:
 
 ```bash
-cd $CLAUDE_OPC_DIR && PYTHONPATH=. uv run python scripts/core/recall_learnings.py --query "<ARGS>" --k 5
+cd $OPC_ROOT && PYTHONPATH=. uv run python scripts/core/recall_learnings.py --query "<ARGS>" --k 5
 ```
 
 Where `<ARGS>` is the query provided by the user.

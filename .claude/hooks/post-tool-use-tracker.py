@@ -25,7 +25,7 @@ from pathlib import Path
 
 def get_project_dir() -> Path:
     """Get the Claude project directory."""
-    return Path(os.environ.get("CLAUDE_PROJECT_DIR", Path.cwd()))
+    return Path(os.environ.get("OPC_PROJECT_DIR", Path.cwd()))
 
 
 def get_current_branch(project_dir: Path) -> str:

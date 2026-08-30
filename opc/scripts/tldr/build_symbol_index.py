@@ -140,7 +140,7 @@ def main():
     )
     args = parser.parse_args()
 
-    search_path = os.environ.get("CLAUDE_PROJECT_DIR", args.path)
+    search_path = os.environ.get("OPC_PROJECT_DIR", args.path)
 
     if args.hook:
         # Hook mode: spawn background process and return immediately

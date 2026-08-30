@@ -13,7 +13,7 @@
  * - AGENT_ROLE: Role of this agent (advocate, adversary, or judge)
  * - ADVERSARIAL_ROUND: Current debate round (1-indexed)
  * - ADVERSARIAL_MAX_ROUNDS: Maximum debate rounds
- * - CLAUDE_PROJECT_DIR: Project directory for DB path
+ * - OPC_PROJECT_DIR: Project directory for DB path
  */
 
 import { existsSync } from 'fs';

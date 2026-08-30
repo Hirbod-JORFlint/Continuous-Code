@@ -62,13 +62,13 @@ export const DEFAULT_RESOURCE_STATE: ResourceState = {
  * Get the session ID from environment variables.
  *
  * Priority:
- * 1. CLAUDE_SESSION_ID (if set by Claude Code)
+ * 1. OPC_SESSION_ID (if set by Claude Code)
  * 2. PPID (parent process ID as fallback)
  *
  * @returns Session ID string
  */
 export function getSessionId(): string {
-  return process.env.CLAUDE_SESSION_ID || String(process.ppid || process.pid);
+  return process.env.OPC_SESSION_ID || String(process.ppid || process.pid);
 }
 
 /**

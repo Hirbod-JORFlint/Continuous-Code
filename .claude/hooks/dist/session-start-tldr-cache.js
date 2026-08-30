@@ -47,7 +47,7 @@ async function main() {
         console.log('{}');
         return;
     }
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd;
+    const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
     const cache = getCacheStatus(projectDir);
     if (!cache.exists) {
         // No cache - silent exit (don't spam user)

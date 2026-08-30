@@ -35,7 +35,7 @@ const SAFE_ID_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
 // Utility Functions
 // =============================================================================
 function getPatternDir() {
-    const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
     return join(projectDir, '.claude', 'cache', 'patterns');
 }
 function getPatternPath(type, id) {
