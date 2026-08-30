@@ -1,12 +1,12 @@
 ---
-name: math
+name: math-unified
 description: Unified math capabilities - computation, solving, and explanation. I route to the right tool.
 triggers: ["calculate", "compute", "solve", "integrate", "derivative", "eigenvalue", "matrix", "simplify", "factor", "limit", "series", "differential equation", "unit convert", "explain", "what is", "how does"]
 allowed-tools: [Bash, Read, Write]
 priority: high
 ---
 
-# /math - Unified Math Capabilities
+# math-unified - Unified Math Capabilities
 
 **One entry point for all computation and explanation.** I route to the right tool based on your request.
 
@@ -189,4 +189,4 @@ Use `/prove` when you need:
 - Publication-quality verification
 - Abstract algebra proofs
 
-`/math` is for computation. `/prove` is for verification.
+`math-unified` is for computation. `/prove` is for verification.

@@ -18,7 +18,7 @@ You are a specialized analysis agent. Your job is to run Braintrust analysis scr
 Read the braintrust-analyze skill:
 
 ```bash
-cat $OPC_PROJECT_DIR/.claude/skills/braintrust-analyze/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/braintrust-analyze/SKILL.md
 ```
 
 ## Step 2: Execute Analysis

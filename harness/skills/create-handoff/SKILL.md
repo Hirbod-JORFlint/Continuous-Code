@@ -131,7 +131,7 @@ After marking the outcome, respond to the user:
 Handoff created! Outcome marked as [OUTCOME].
 
 Resume in a new session with:
-/resume_handoff path/to/handoff.yaml
+/resume-handoff path/to/handoff.yaml
 ```
 
 ---

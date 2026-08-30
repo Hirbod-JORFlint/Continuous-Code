@@ -388,7 +388,7 @@ ROOT_SCRIPTS = [
     "research_implement_pipeline.py",  # /mcp-chaining skill
     "test_research_pipeline.py", # /mcp-chaining skill
     "multi_tool_pipeline.py",    # /skill-developer example
-    "recall_temporal_facts.py",  # /system_overview skill
+    "recall_temporal_facts.py",  # /system-overview skill
 ]
 
 

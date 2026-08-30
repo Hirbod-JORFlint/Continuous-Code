@@ -15,7 +15,7 @@ When you send a message, a hook injects context that tells **Claude** which skil
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️ CRITICAL SKILLS (REQUIRED):
-  → create_handoff
+  → create-handoff
 
 📚 RECOMMENDED SKILLS:
   → fix
@@ -73,8 +73,8 @@ When your context usage hits thresholds, you'll see tiered warnings:
 | Context % | Warning Level | Action |
 |-----------|--------------|--------|
 | 70-79% | Notice | "Consider handoff when you reach a stopping point" |
-| 80-89% | Warning | "Recommend: /create_handoff then /clear soon" |
-| 90%+ | **CRITICAL** | "Run /create_handoff NOW before auto-compact!" |
+| 80-89% | Warning | "Recommend: /create-handoff then /clear soon" |
+| 90%+ | **CRITICAL** | "Run /create-handoff NOW before auto-compact!" |
 
 These ensure you preserve state before Claude Code's automatic compaction.
 
@@ -87,8 +87,8 @@ These ensure you preserve state before Claude Code's automatic compaction.
 | "I want to understand this codebase" | `/explore` + scout agent |
 | "What could go wrong with this plan?" | `/premortem` |
 | "Help me figure out what I need" | `/discovery-interview` |
-| "Done for today" | `create_handoff` (critical) |
-| "Resume where we left off" | `resume_handoff` |
+| "Done for today" | `create-handoff` (critical) |
+| "Resume where we left off" | `resume-handoff` |
 | "Research auth patterns" | oracle agent + nia/perplexity |
 | "How does this function work?" | tldr-code → call graph, CFG, DFG |
 | "Find all usages of this API" | scout agent + ast-grep |
@@ -200,7 +200,7 @@ Example: Make handoffs mandatory at 85% context instead of 90%:
 
 ```json
 {
-  "create_handoff": {
+  "create-handoff": {
     "enforcement": "block",  // ← Changed from "suggest"
     "priority": "critical"
   }

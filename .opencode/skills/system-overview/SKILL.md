@@ -12,7 +12,7 @@ Show users how Continuous Claude works - the opinionated setup with hooks, memor
 - User asks "how does this work?"
 - User asks "what can you remember?"
 - User asks "what's different about this setup?"
-- User runs `/system_overview`
+- User runs `/system-overview`
 
 ## Response
 
@@ -46,8 +46,8 @@ Ledger:   thoughts/ledgers/CONTINUITY_CLAUDE-{session}.md
 Handoffs: thoughts/shared/handoffs/{session}/*.yaml
 
 Commands:
-  /resume_handoff <path>  - Continue from handoff
-  /create_handoff         - Create snapshot for transfer
+  /resume-handoff <path>  - Continue from handoff
+  /create-handoff         - Create snapshot for transfer
 
 TLDR CODE INTELLIGENCE
 ----------------------

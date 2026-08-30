@@ -152,6 +152,6 @@ Return to main conversation with:
 ## Notes
 
 - This agent is for BROWNFIELD projects (existing code)
-- For greenfield, recommend using `/create_plan` instead
-- Ledger can be updated anytime with `/continuity_ledger`
+- For greenfield, recommend using `plan-agent` instead
+- Ledger can be updated anytime with `/continuity-ledger`
 - Uses rp-cli for exploration (falls back to bash if unavailable)

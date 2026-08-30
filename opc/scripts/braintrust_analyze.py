@@ -1074,7 +1074,7 @@ async def run_scorers(project_dir: str, session_id: str) -> list[dict]:
     # NOTE: Handoff scoring intentionally removed
     # Reason: Handoffs are created at session end, so scoring them
     # has no feedback loop (can't iterate). This is "theater" scoring.
-    # Instead, use /create_handoff skill which enforces structure upfront.
+    # Instead, use /create-handoff skill which enforces structure upfront.
 
     return scores
 

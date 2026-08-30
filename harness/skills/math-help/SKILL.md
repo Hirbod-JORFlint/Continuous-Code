@@ -314,7 +314,7 @@ Need MACHINE-VERIFIED formal proof?
 
 ## Related Skills
 
-- `/math` or `/math-mode` - Quick access to the orchestration skill
+- `math-unified` - Unified math orchestration skill
 - `/lean4` - Formal theorem proving with Lean 4
 - `/lean4-functors` - Category theory functors
 - `/lean4-nat-trans` - Natural transformations

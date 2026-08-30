@@ -19,10 +19,10 @@ Before creating documentation, read the relevant skills:
 
 ```bash
 # For handoffs
-cat $OPC_PROJECT_DIR/.claude/skills/create_handoff/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/create-handoff/SKILL.md
 
 # For ledger updates
-cat $OPC_PROJECT_DIR/.claude/skills/continuity_ledger/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/continuity-ledger/SKILL.md
 ```
 
 Follow the structure and guidelines from those skills.

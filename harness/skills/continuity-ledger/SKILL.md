@@ -5,9 +5,9 @@ description: Create or update continuity ledger for state preservation across cl
 
 # Continuity Ledger
 
-> **Note:** This skill is now an alias for `/create_handoff`. Both output the same YAML format.
+> **Note:** This skill is now an alias for `/create-handoff`. Both output the same YAML format.
 
-Create a YAML handoff document for state preservation across `/clear`. This is the same as `/create_handoff`.
+Create a YAML handoff document for state preservation across `/clear`. This is the same as `/create-handoff`.
 
 ## Process
 
@@ -119,7 +119,7 @@ After marking the outcome, respond to the user:
 Handoff created! Outcome marked as [OUTCOME].
 
 Resume in a new session with:
-/resume_handoff path/to/handoff.yaml
+/resume-handoff path/to/handoff.yaml
 ```
 
 ## When to Use

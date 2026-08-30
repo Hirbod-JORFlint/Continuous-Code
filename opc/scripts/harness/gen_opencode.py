@@ -392,8 +392,19 @@ def _emit_skills() -> Tuple[List[str], List[str]]:
             skipped.append(f"{skill_dir.name} (duplicate name {name!r})")
             continue
         seen.add(name)
-        shutil.copytree(skill_dir, SKILLS_DST_DIR / name, dirs_exist_ok=True)
+        dst = SKILLS_DST_DIR / name
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(
+            skill_dir,
+            dst,
+            ignore=shutil.ignore_patterns("*.v6.md", "*.bak", "*.backup"),
+        )
         copied.append(name)
+    for stale_dir in SKILLS_DST_DIR.iterdir():
+        if stale_dir.is_dir() and stale_dir.name not in seen:
+            shutil.rmtree(stale_dir)
+            print(f"pruned stale skill dir {SKILLS_DST_DIR.name}/{stale_dir.name}")
     return copied, skipped
 
 

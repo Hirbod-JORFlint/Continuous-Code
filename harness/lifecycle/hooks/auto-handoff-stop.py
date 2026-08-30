@@ -56,7 +56,7 @@ def main():
     if pct >= CONTEXT_THRESHOLD:
         print(json.dumps({
             "decision": "block",
-            "reason": f"Context at {pct}%. Run: /create_handoff"
+            "reason": f"Context at {pct}%. Run: /create-handoff"
         }))
     else:
         print('{}')

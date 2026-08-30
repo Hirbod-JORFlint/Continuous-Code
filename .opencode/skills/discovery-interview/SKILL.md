@@ -426,7 +426,7 @@ This will:
 
 **If "Plan implementation":**
 ```
-Spawn plan-agent or invoke /create_plan with the spec path
+Spawn plan-agent or invoke plan-agent with the spec path
 ```
 
 **If "Review spec first" or "Done for now":**

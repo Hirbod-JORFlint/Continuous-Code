@@ -13,7 +13,7 @@
 - Work with ANY AI agent (not just Claude Code)
 
 **NOT to be confused with:**
-- **Skills** = Claude Code's native format (.claude/skills/ with SKILL.md)
+- **Skills** = harness skill library (`harness/skills/<name>/SKILL.md`)
 
 ---
 
@@ -83,13 +83,13 @@ uv run python -m runtime.harness scripts/multi_tool_pipeline.py \
 **For:** Any AI agent
 **Efficiency:** 99.6% token reduction with CLI args
 
-### Skills (Claude Code Native)
+### Skills (Harness Skill Library)
 
 **What:** SKILL.md directories
-**Where:** `.claude/skills/`
+**Where:** `harness/skills/`
 **Format:** YAML + markdown
-**Discovery:** Auto (Claude Code scans)
-**For:** Claude Code only
+**Discovery:** Auto (emitted to each harness on generation)
+**For:** opencode / codex / cline
 **Efficiency:** Native progressive disclosure
 
 **Relationship:** Skills reference scripts for execution
@@ -134,7 +134,7 @@ asyncio.run(main())
 
 - **SCRIPTS.md** - Complete framework documentation
 - **This README** - Quick start
-- **../.claude/skills/** - Claude Code Skills that reference these scripts
+- **../harness/skills/** - Harness skills that reference these scripts
 - **../docs/** - Complete project documentation
 
 ---

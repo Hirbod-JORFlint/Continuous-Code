@@ -32,10 +32,10 @@ The `/build` meta-skill has specialized modes:
 
 | Build Mode | Chain | Use Case |
 |------------|-------|----------|
-| `greenfield` | discovery-interview → plan-agent → validate-agent → implement_plan → commit → describe_pr | New feature from scratch |
-| `brownfield` | onboard → research-codebase → plan-agent → validate-agent → implement_plan | Feature in existing codebase |
-| `tdd` | plan-agent → test-driven-development → implement_plan | Test-first implementation |
-| `refactor` | tldr-code (impact) → plan-agent → test-driven-development → implement_plan | Safe refactoring with impact analysis |
+| `greenfield` | discovery-interview → plan-agent → validate-agent → implement-plan → commit → describe-pr | New feature from scratch |
+| `brownfield` | onboard → research-codebase → plan-agent → validate-agent → implement-plan | Feature in existing codebase |
+| `tdd` | plan-agent → test-driven-development → implement-plan | Test-first implementation |
+| `refactor` | tldr-code (impact) → plan-agent → test-driven-development → implement-plan | Safe refactoring with impact analysis |
 
 ### Fix Scopes (Sub-workflows)
 
@@ -43,10 +43,10 @@ The `/fix` meta-skill has specialized scopes:
 
 | Fix Scope | Chain | Description |
 |-----------|-------|-------------|
-| `bug` | debug → implement_task → test-driven-development → commit | General bug fix workflow |
-| `hook` | debug-hooks → hook-developer → implement_task → test hook | Hook-specific debugging |
-| `deps` | dependency-preflight → oracle → plan-agent → implement_plan → qlty-check | Dependency issues |
-| `pr-comments` | github-search → research-codebase → plan-agent → implement_plan → commit | Address PR feedback |
+| `bug` | debug → implement-task → test-driven-development → commit | General bug fix workflow |
+| `hook` | debug-hooks → hook-developer → implement-task → test hook | Hook-specific debugging |
+| `deps` | dependency-preflight → oracle → plan-agent → implement-plan → qlty-check | Dependency issues |
+| `pr-comments` | github-search → research-codebase → plan-agent → implement-plan → commit | Address PR feedback |
 
 ---
 
@@ -73,9 +73,9 @@ Skills that provide exceptional value across multiple workflows.
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| **create_handoff** | Capture session state for transfer | Before ending sessions, at phase boundaries |
-| **resume_handoff** | Resume from handoff with context | Starting new session, continuing work |
-| **continuity_ledger** | Track state within long session | Before `/clear`, at major milestones |
+| **create-handoff** | Capture session state for transfer | Before ending sessions, at phase boundaries |
+| **resume-handoff** | Resume from handoff with context | Starting new session, continuing work |
+| **continuity-ledger** | Track state within long session | Before `/clear`, at major milestones |
 | **recall** | Query semantic memory from past sessions | Starting work, solving similar problems |
 | **remember** | Store learnings for future sessions | After solving problems, making decisions |
 
@@ -84,7 +84,7 @@ Skills that provide exceptional value across multiple workflows.
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
 | **commit** | Git commits with user approval (no Claude attribution) | After implementation phases |
-| **describe_pr** | Generate comprehensive PR descriptions | Creating/updating pull requests |
+| **describe-pr** | Generate comprehensive PR descriptions | Creating/updating pull requests |
 | **git-commits** | Git best practices and patterns | Reference for commit message format |
 
 ### Research & External Knowledge
@@ -241,7 +241,7 @@ Specialized capabilities organized by domain.
 |-------|---------|
 | **cli-reference** | CLI command reference |
 | **reference-sdk** | SDK reference documentation |
-| **system_overview** | System architecture overview |
+| **system-overview** | System architecture overview |
 | **settings-reference** | Configuration reference |
 | **model-configuration** | LLM model configuration |
 | **llm-tuning-patterns** | Patterns for tuning LLM behavior |
@@ -257,11 +257,10 @@ Specialized capabilities organized by domain.
 
 | Skill | Purpose |
 |-------|---------|
-| **implement_task** | Single task implementation |
-| **implement_plan** | Full plan implementation |
-| **create_plan** | Planning workflows |
-| **create_plan_micro** | Micro-planning for small tasks |
-| **create_plan_micro_d** | Micro-planning (decomposition variant) |
+| **implement-task** | Single task implementation |
+| **implement-plan** | Full plan implementation |
+| **plan-agent** | Planning workflows |
+| **implement-plan-micro** | Micro-planning for small tasks |
 | **multi-tool-pipeline** | Multi-step tool pipelines |
 | **parallel-agent-contracts** | Contracts for parallel agent coordination |
 | **compound-learnings** | Synthesize learnings from multiple sessions |
@@ -359,13 +358,13 @@ validate-agent (check tech choices)
     ↓
 [CHECKPOINT: Review plan]
     ↓
-implement_plan (execute phases)
+implement-plan (execute phases)
     ↓
 [CHECKPOINT: Verify each phase]
     ↓
 commit (git commit with approval)
     ↓
-describe_pr (generate PR description)
+describe-pr (generate PR description)
 ```
 
 ### /fix bug
@@ -453,8 +452,8 @@ debug (investigate issue)
 
 Many meta-skills internally compose other skills:
 
-- **`/build`** uses: `discovery-interview`, `onboard`, `research-codebase`, `plan-agent`, `validate-agent`, `implement_plan`, `commit`, `describe_pr`
-- **`/fix`** uses: `debug-hooks`, `dependency-preflight`, `github-search`, `plan-agent`, `implement_plan`, `qlty-check`, `premortem`, `commit`
+- **`/build`** uses: `discovery-interview`, `onboard`, `research-codebase`, `plan-agent`, `validate-agent`, `implement-plan`, `commit`, `describe-pr`
+- **`/fix`** uses: `debug-hooks`, `dependency-preflight`, `github-search`, `plan-agent`, `implement-plan`, `qlty-check`, `premortem`, `commit`
 - **`/tdd`** uses: `plan-agent`, `arbiter` (for tests), `kraken` (for implementation)
 - **`/explore`** uses: `tldr-code`, `onboard`, `research-codebase`, `scout`
 
@@ -483,13 +482,13 @@ Many meta-skills internally compose other skills:
 - Memory persists across sessions and helps avoid repeating mistakes
 
 ### Context Management
-- Use `create_handoff` before ending sessions
-- Use `resume_handoff` to pick up where you left off
-- Use `continuity_ledger` during long sessions before `/clear`
+- Use `create-handoff` before ending sessions
+- Use `resume-handoff` to pick up where you left off
+- Use `continuity-ledger` during long sessions before `/clear`
 
 ### Git Workflow
 - `commit` skill handles user approval and Claude attribution removal
-- `describe_pr` generates comprehensive PR descriptions from git diff
+- `describe-pr` generates comprehensive PR descriptions from git diff
 - Both skills are checkpointed in meta-workflows
 
 ---
@@ -571,8 +570,8 @@ New skills should follow:
 ### Execution Phase
 | Situation | Skill |
 |-----------|-------|
-| Implement a task | `implement_task` |
-| Implement full plan | `implement_plan` |
+| Implement a task | `implement-task` |
+| Implement full plan | `implement-plan` |
 | Run tests | `/test` |
 | Check code quality | `qlty-check` |
 | Create commit | `commit` |
@@ -585,8 +584,8 @@ All skills are located in: `.claude/skills/<skill-name>/SKILL.md`
 
 Categories by directory prefix:
 - **Workflows**: `build/`, `fix/`, `tdd/`, `review/`, `refactor/`, `explore/`, `test/`, `security/`, `release/`, `migrate/`
-- **Planning**: `discovery-interview/`, `plan-agent/`, `create_plan*/`, `premortem/`
-- **Memory**: `create_handoff/`, `resume_handoff/`, `continuity_ledger/`, `recall/`, `remember/`
+- **Planning**: `discovery-interview/`, `plan-agent/`, `implement-plan*/`, `premortem/`
+- **Memory**: `create-handoff/`, `resume-handoff/`, `continuity-ledger/`, `recall/`, `remember/`
 - **Analysis**: `tldr-*/`, `ast-grep-find/`, `morph-*/`
 - **Research**: `perplexity-search/`, `nia-docs/`, `github-search/`, `firecrawl-scrape/`, `loogle-search/`
 - **Quality**: `qlty-check/`, `braintrust-*/`, `validate-agent/`

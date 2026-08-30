@@ -486,7 +486,7 @@ critic:
   - Handoffs: `thoughts/shared/handoffs/<session>/current.md`
   - Ledgers: `thoughts/ledgers/CONTINUITY_CLAUDE-<session>.md`
   - Summaries: `.claude/cache/scribe/latest-summary.md`
-- **Follows:** create_handoff and continuity_ledger skill methodologies
+- **Follows:** create-handoff and continuity-ledger skill methodologies
 
 #### chronicler
 - **Model:** Opus

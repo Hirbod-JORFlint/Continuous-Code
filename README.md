@@ -96,7 +96,7 @@ When you send a message, a hook injects context that tells **Claude** which skil
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️ CRITICAL SKILLS (REQUIRED):
-  → create_handoff
+  → create-handoff
 
 📚 RECOMMENDED SKILLS:
   → fix
@@ -128,8 +128,8 @@ ACTION: Use Skill tool BEFORE responding
 | "I want to understand this codebase" | `/explore` + scout agent |
 | "What could go wrong with this plan?" | `/premortem` |
 | "Help me figure out what I need" | `/discovery-interview` |
-| "Done for today" | `create_handoff` (critical) |
-| "Resume where we left off" | `resume_handoff` |
+| "Done for today" | `create-handoff` (critical) |
+| "Resume where we left off" | `resume-handoff` |
 | "Research auth patterns" | oracle agent + perplexity |
 | "Find all usages of this API" | scout agent + ast-grep |
 
@@ -565,9 +565,9 @@ These follow their defined chains without mode flags. Just run:
 - **discovery-interview**: Transform vague ideas into detailed specs
 
 **Context Management**
-- **create_handoff**: Capture session state for transfer
-- **resume_handoff**: Resume from handoff with context
-- **continuity_ledger**: Track state within session
+- **create-handoff**: Capture session state for transfer
+- **resume-handoff**: Resume from handoff with context
+- **continuity-ledger**: Track state within session
 
 **Code Analysis (95% Token Savings)**
 - **tldr-code**: Call graph, CFG, DFG, slicing

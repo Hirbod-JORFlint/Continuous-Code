@@ -84,7 +84,7 @@ Each instance's status line updates when ANY instance creates a new handoff. Thi
 
 ## Implementation
 
-### Handoff Creation (`/create_handoff`)
+### Handoff Creation (`/create-handoff`)
 
 ```yaml
 # thoughts/shared/handoffs/{workflow}/YYYY-MM-DD_HH-MM_description.yaml

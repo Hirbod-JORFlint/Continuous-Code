@@ -340,7 +340,7 @@ If user added mitigations, append to the plan:
 
 ## Integration Points
 
-### In create_plan / plan-agent
+### In plan-agent
 
 After plan structure is approved, before ExitPlanMode:
 

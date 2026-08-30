@@ -144,10 +144,10 @@ Proceed? [Yes / Adjust settings]
 
 | Scope | Chain | Description |
 |-------|-------|-------------|
-| `bug` | debug -> implement_task -> test-driven-development -> commit | General bug fix workflow |
-| `hook` | debug-hooks -> hook-developer -> implement_task -> test hook | Hook-specific debugging |
-| `deps` | dependency-preflight -> oracle -> plan-agent -> implement_plan -> qlty-check | Dependency issues |
-| `pr-comments` | github-search -> research-codebase -> plan-agent -> implement_plan -> commit | Address PR feedback |
+| `bug` | debug -> implement-task -> test-driven-development -> commit | General bug fix workflow |
+| `hook` | debug-hooks -> hook-developer -> implement-task -> test hook | Hook-specific debugging |
+| `deps` | dependency-preflight -> oracle -> plan-agent -> implement-plan -> qlty-check | Dependency issues |
+| `pr-comments` | github-search -> research-codebase -> plan-agent -> implement-plan -> commit | Address PR feedback |
 
 ## Options
 
@@ -336,7 +336,7 @@ Task(
   Files: {diagnosis.files_to_modify}
   Approach: {diagnosis.approach}
 
-  Follow implement_task workflow:
+  Follow implement-task workflow:
   1. Write failing test that reproduces the bug
   2. Implement minimal fix to pass test
   3. Refactor if needed
@@ -464,7 +464,7 @@ sleuth (investigation)
 [PREMORTEM: quick risk check]
   |
   v
-kraken (implement_task + TDD)
+kraken (implement-task + TDD)
   |
   v
 kraken (regression test)
@@ -488,7 +488,7 @@ debug-hooks (structured investigation)
 [PREMORTEM: quick risk check]
   |
   v
-kraken (implement_task + hook-developer patterns)
+kraken (implement-task + hook-developer patterns)
   |
   v
 test hook manually
@@ -518,7 +518,7 @@ plan-agent (create fix plan)
 [PREMORTEM: quick risk check]
   |
   v
-kraken (implement_plan)
+kraken (implement-plan)
   |
   v
 qlty-check
@@ -548,7 +548,7 @@ plan-agent (plan for each comment)
 [PREMORTEM: quick risk check]
   |
   v
-kraken (implement_plan)
+kraken (implement-plan)
   |
   v
 [HUMAN CHECKPOINT: verification]
@@ -645,7 +645,7 @@ This skill orchestrates:
 - `debug` / `debug-hooks`: Initial investigation
 - `sleuth`: Parallel investigation agent
 - `kraken`: TDD implementation agent
-- `implement_task`: Single task implementation
+- `implement-task`: Single task implementation
 - `test-driven-development`: Test creation
 - `plan-agent`: Complex fix planning
 - `dependency-preflight`: Dependency checks
@@ -654,7 +654,7 @@ This skill orchestrates:
 - `qlty-check`: Quality verification
 - `premortem`: Risk assessment before implementation
 - `commit`: Git commit workflow
-- `create_handoff`: Session handoff
+- `create-handoff`: Session handoff
 
 ## Checkpoints Summary
 

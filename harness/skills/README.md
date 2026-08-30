@@ -1,97 +1,57 @@
-# Claude Code Skills Integration
+# Harness Skills
 
-**Purpose:** Demonstrate proper Claude Code Skills integration with MCP workflow automation.
+**Purpose:** Canonical, harness-neutral skill library for Continuous Code. Each skill is emitted to every harness (opencode / codex / cline) at generation time.
 
 ---
 
 ## Structure
 
-This directory contains Skills in Claude Code's native format:
+This directory is the source of truth for skills:
 
 ```
-.claude/skills/
-├── simple-fetch/
-│   ├── SKILL.md        # Claude Code Skills format (YAML + markdown)
-│   └── workflow.py     # Executable Python workflow
-└── multi-tool-pipeline/
-    ├── SKILL.md        # Claude Code Skills format
-    └── workflow.py     # Executable Python workflow
+harness/skills/
+├── <skill-name>/
+│   └── SKILL.md        # YAML frontmatter (name, description) + markdown instructions
+├── archive/            # Archived skills, preserved but not emitted
+├── math/               # Math category tree (solver knowledge), not emitted
+└── _sandbox/           # Scratch space
 ```
 
-## Claude Code Skills Format
+## SKILL.md Format
 
-Each Skill directory contains:
-
-**1. SKILL.md (Required)**
 - YAML frontmatter with `name` and `description`
-- Markdown instructions for Claude to follow
-- References to workflow.py with CLI usage
+- `name` must be kebab-case (`[a-z0-9-]+`) — the emitter uses it as the skill's id
+- Markdown body with step-by-step instructions for the model to follow
+- Optional `triggers`, `allowed-tools`, and metadata keys are preserved as-is
 
-**2. workflow.py (Implementation)**
-- Python script with argparse CLI
-- MCP tool orchestration code
-- Returns structured results
+## How Skills Are Emitted
 
-## How Claude Code Discovers These
+The generators (`opc/scripts/harness/gen_codex.py`, `gen_opencode.py`, `gen_cline.py`) copy every `harness/skills/*/<SKILL.md>` into the harness output:
 
-**Automatic discovery:**
-Claude Code scans `.claude/skills/` and finds:
-- simple-fetch
-- multi-tool-pipeline
+- `.codex/skills/<name>/SKILL.md` (codex prompt skill)
+- `.opencode/skills/<name>/SKILL.md` (opencode skill / subagent)
+- `.clinerules/skills/<name>/SKILL.md` (cline prompt skill)
 
-**When triggered:**
-1. Claude reads SKILL.md
-2. Follows instructions
-3. Executes workflow.py with appropriate CLI args
-4. Returns results
+Directories without a `SKILL.md` at their root (`archive/`, `math/`, `_sandbox/`) are skipped.
 
-## Skills vs Scripts
+## Skills vs Agents
 
-**`.claude/skills/`** (This directory):
-- Claude Code Skills format (discoverable by Claude)
-- SKILL.md with YAML frontmatter
-- Claude Code validation rules
+- **Skills** (`harness/skills/`) — reusable procedure/domain knowledge, ask-before-use.
+- **Agents** (`harness/agents/`) — long-running specialists with their own prompt and working agreements.
 
-**`../../skills/`** (Parent directory):
-- Python CLI workflow scripts
-- Can be executed standalone
-- Referenced by Skills
+## Creating a Skill
 
-**Integration:**
-- Skills wrap workflows for Claude Code discovery
-- Workflows can be used with or without Skills wrapper
-- Best of both: Claude's framework + our execution efficiency
+1. Create `harness/skills/<kebab-name>/SKILL.md`
+2. Frontmatter: `name: <kebab-name>` + `description: <one-line>`
+3. Body: concise procedural instructions
+4. Re-run the generators to emit the skill into each harness
 
-## Generic Examples Included
+## Naming Rules
 
-**simple-fetch:**
-- Basic single-tool pattern
-- Template for simple workflows
-- Demonstrates CLI argument pattern
+- `name` and directory must match: lowercase letters, numbers, hyphens only
+- No underscores, spaces, or uppercase
 
-**multi-tool-pipeline:**
-- Multi-tool chaining pattern
-- Template for complex workflows
-- Shows sequential execution
+## Validation
 
-## Creating Custom Skills
-
-1. Write Python workflow in `../../skills/`
-2. Create directory here: `.claude/skills/your-skill-name/`
-3. Write SKILL.md with proper format
-4. Link or copy workflow as workflow.py
-5. Test with Claude Code
-
-## Validation Rules
-
-Skills must pass Claude Code validation:
-- `name`: lowercase letters, numbers, hyphens only (max 64 chars)
-- `description`: non-empty (max 1024 chars)
-- No XML tags
-- No reserved words
-
-## Documentation
-
-- Individual SKILL.md files - Specific skill documentation
-- ../../skills/SKILLS.md - Workflow system guide
-- ../../README.md - Complete project documentation
+- Developer-facing skills are validated during generation (invalid names are skipped and reported)
+- Generator output is validated against each harness's schema (opencode config, cline rules)

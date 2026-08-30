@@ -67,5 +67,5 @@ The onboard process:
 ## Notes
 
 - This skill is for BROWNFIELD projects (existing code)
-- For greenfield, use `/create_plan` instead
-- Handoff can be updated anytime with `/create_handoff`
+- For greenfield, use `plan-agent` instead
+- Handoff can be updated anytime with `/create-handoff`

@@ -13,7 +13,7 @@ You analyze Claude Code session data from Braintrust and provide insights.
 Read the skill file first:
 
 ```bash
-cat $OPC_PROJECT_DIR/.claude/skills/braintrust-analyze/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/braintrust-analyze/SKILL.md
 ```
 
 ## Step 2: Run Analysis

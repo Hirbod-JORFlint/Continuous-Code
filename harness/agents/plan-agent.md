@@ -13,7 +13,7 @@ You are a specialized planning agent. Your job is to create detailed implementat
 Before creating any plan, read the planning skill for methodology and format:
 
 ```bash
-cat $OPC_PROJECT_DIR/.claude/skills/create_plan/SKILL.md
+cat $OPC_PROJECT_DIR/harness/skills/plan-agent/SKILL.md
 ```
 
 Follow the structure and guidelines from that skill.

@@ -47,7 +47,7 @@ You have access to these key locations and tools:
 
 **Git State**:
 - Check current branch, recent commits, uncommitted changes
-- Similar to how `commit` and `describe_pr` commands work
+- Similar to how `commit` and `describe-pr` commands work
 
 **Service Status**:
 - Check running processes: `ps aux | grep {service}`
@@ -160,7 +160,7 @@ Would you like me to investigate something specific further?
 - **Focus on manual testing scenarios** - This is for debugging during implementation
 - **Always require problem description** - Can't debug without knowing what's wrong
 - **Read files completely** - No limit/offset when reading context
-- **Think like `commit` or `describe_pr`** - Understand git state and changes
+- **Think like `commit` or `describe-pr`** - Understand git state and changes
 - **Guide back to user** - Some issues (browser console, MCP internals) are outside reach
 - **No file editing** - Pure investigation only
 

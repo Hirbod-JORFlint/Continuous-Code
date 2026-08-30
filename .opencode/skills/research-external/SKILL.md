@@ -430,8 +430,8 @@ If an MCP tool fails (API key missing, rate limited, etc.):
 | After Research | Use Skill | For |
 |----------------|-----------|-----|
 | `--output handoff` | `plan-agent` | Create implementation plan |
-| Code examples found | `implement_task` | Direct implementation |
-| Architecture decision | `create_plan` | Detailed planning |
+| Code examples found | `implement-task` | Direct implementation |
+| Architecture decision | `plan-agent` | Detailed planning |
 | Library comparison | Present to user | Decision making |
 
 ## Required Environment

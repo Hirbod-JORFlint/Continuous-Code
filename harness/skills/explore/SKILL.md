@@ -439,7 +439,7 @@ fi
 | **tldr-code** | Specific analysis commands (cfg, dfg, slice) |
 | **onboard** | First-time project setup (used by deep depth) |
 | **research-codebase** | Pattern documentation (used by deep depth) |
-| **create_handoff** | Handoff format (used by --output handoff) |
+| **create-handoff** | Handoff format (used by --output handoff) |
 
 ## Troubleshooting
 
