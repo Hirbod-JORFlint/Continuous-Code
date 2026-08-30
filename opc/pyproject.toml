@@ -56,6 +56,7 @@ dev = [
     "pytest-timeout>=2.0.0",  # Hard kill for stuck tests
     "types-aiofiles>=23.0.0",
     "anthropic>=0.28.0",
+    "jsonschema>=4.23.0",  # harness config validation (opencode schema)
 ]
 agentica = [
     # Agentica SDK for building AI agents
@@ -156,6 +157,7 @@ dev = [
     "types-aiofiles>=25.1.0.20251011",
     "mutmut>=3.0.0",
     "radon>=6.0.1",
+    "jsonschema>=4.23.0",  # harness config validation (opencode schema)
 ]
 
 [tool.mutmut]
