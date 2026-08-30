@@ -24,6 +24,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import project_dir, prompt_text, read_stdin  # noqa: E402, I001  # isort: skip
+
 
 # Patterns that suggest implementation intent
 IMPLEMENTATION_SIGNALS = [
@@ -97,9 +100,9 @@ def generate_suggestion(plan_files: list[str]) -> str:
 
 def main():
     try:
-        input_data = json.load(sys.stdin)
-        prompt = input_data.get("prompt", "")
-        cwd = input_data.get("cwd", ".")
+        input_data = read_stdin()
+        prompt = prompt_text(input_data)
+        cwd = project_dir(input_data, ".")
 
         # Find plan files in prompt
         plan_files = find_plan_files(prompt)

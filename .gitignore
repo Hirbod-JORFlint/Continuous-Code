@@ -26,7 +26,6 @@ __pycache__/
 *.egg-info/
 dist/
 !.claude/hooks/dist/
-build/
 !.claude/skills/build/
 .pytest_cache/
 .mypy_cache/
@@ -37,7 +36,6 @@ node_modules/
 stats-cache.json
 
 # Session artifacts (per-session, not shareable)
-debug/
 todos/
 projects/
 paste-cache/
@@ -106,6 +104,11 @@ plugins/
 session-env/
 telemetry/
 tldr/
+
+# Re-include the generated opencode plugin bridge (generic `plugins/` above overrides the
+# earlier `!.opencode/plugins/**` negation because it is evaluated later — negate again here)
+!.opencode/plugins/
+!.opencode/plugins/**
 
 # Tool caches
 .qlty/

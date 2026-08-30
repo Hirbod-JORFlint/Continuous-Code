@@ -1,0 +1,284 @@
+# Neutral lifecycle hook manifest — source of truth for event wiring.
+#
+# Generators translate this into driver configs:
+#   - gen_codex.py    -> ~/.codex/config.toml hooks
+#   - gen_opencode.py -> .opencode/plugins/opc-hooks.ts; opencode has NO
+#     config-level hooks key, so hooks surface as an auto-loaded plugin.
+#   - gen_cline.py    -> .clinerules/hooks/ executable hooks (macOS/Linux
+#     extensionless, Windows *.ps1).
+# Claude Code's own settings.json is generated from this manifest by
+# gen_claude (live wiring today); see Step 8.
+#
+# Schema: each event under [hooks.*] is an array of handler tables. Handler
+# keys consumed by gen_codex: command, matcher, statusMessage, timeout, async,
+# additionalContextLimit, disabled. Extra keys (id, description, transport)
+# are metadata — ignored by the codex emitter, read by gen_opencode/gen_cline.
+#
+# Transport notes:
+#   - Re-homed python hooks run through the canonical launcher:
+#     `uv run $HOME/.opc/hooks/hook_launcher.py <name>` where ~/.opc/hooks is
+#     the neutral install root (junction -> harness/lifecycle/hooks today,
+#     copied by the Step 9 installer on other machines).
+#   - TS-dist / bash / Braintrust entries still point at legacy
+#     `$HOME/.claude/...` paths until their re-home (Step 11). Each carries a
+#     `transport` key documenting that.
+
+[meta]
+version = 1
+source_claude = ".claude/settings.json"
+install_root = "$HOME/.opc/hooks"
+canonical_hooks_dir = "harness/lifecycle/hooks"
+python_transport = "uv run $HOME/.opc/hooks/hook_launcher.py <name>"
+legacy_transport = "legacy $HOME/.claude path until dist re-home (Step 11)"
+
+[[hooks.session_start]]
+id = "persist-project-dir"
+description = "Persist project dir for OPC_* env propagation"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/hooks/persist-project-dir.sh"
+
+[[hooks.session_start]]
+id = "braintrust-session-start"
+description = "Open session for Braintrust tracing"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_start.sh"
+
+[[hooks.session_start]]
+id = "session-register"
+description = "Register session in OPC registry"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/session-register.mjs"
+timeout = 10
+
+[[hooks.session_start]]
+id = "session-symbol-index"
+description = "Warm tldr cache and build semantic index"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-symbol-index"
+timeout = 5
+
+[[hooks.session_start]]
+id = "session-start-continuity"
+description = "Restore continuity ledger context on resume/compact/clear"
+matcher = "resume|compact|clear"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/session-start-continuity.mjs"
+
+[[hooks.session_start]]
+id = "session-start-tldr-cache"
+description = "Pre-warm tldr cache on startup/resume"
+matcher = "startup|resume"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs"
+timeout = 2
+
+[[hooks.prompt_submit]]
+id = "skill-activation-prompt"
+description = "Activate relevant skills for the prompt"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/skill-activation-prompt.mjs"
+
+[[hooks.prompt_submit]]
+id = "premortem-suggest"
+description = "Suggest /premortem deep <plan> when implementing from a plan"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py premortem-suggest"
+timeout = 5
+
+[[hooks.prompt_submit]]
+id = "memory-awareness"
+description = "Inject memory-system awareness into the prompt"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/memory-awareness.mjs"
+timeout = 10
+
+[[hooks.prompt_submit]]
+id = "impact-refactor"
+description = "Flag refactor-ready code paths mentioned in the prompt"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/impact-refactor.mjs"
+timeout = 10
+
+[[hooks.prompt_submit]]
+id = "braintrust-user-prompt-submit"
+description = "Record prompt for Braintrust tracing"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/user_prompt_submit.sh"
+
+[[hooks.pre_tool_use]]
+id = "pre-tool-use-broadcast"
+description = "Broadcast tool-use to observers (no blocking)"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/pre-tool-use-broadcast.mjs"
+
+[[hooks.pre_tool_use]]
+id = "path-rules"
+description = "Enforce path allow/deny rules before file ops"
+matcher = "Read|Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/path-rules.mjs"
+timeout = 5
+
+[[hooks.pre_tool_use]]
+id = "tldr-read-enforcer"
+description = "Route reads of indexed files through tldr cache"
+matcher = "Read"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/tldr-read-enforcer.mjs"
+timeout = 20
+
+[[hooks.pre_tool_use]]
+id = "smart-search-router"
+description = "Route searches to the best search tool"
+matcher = "Grep"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/smart-search-router.mjs"
+timeout = 10
+
+[[hooks.pre_tool_use]]
+id = "tldr-context-inject"
+description = "Inject tldr context for Task/delegated work"
+matcher = "Task"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/tldr-context-inject.mjs"
+timeout = 30
+
+[[hooks.pre_tool_use]]
+id = "arch-context-inject"
+description = "Inject architecture context for Task/delegated work"
+matcher = "Task"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/arch-context-inject.mjs"
+timeout = 30
+
+[[hooks.pre_tool_use]]
+id = "file-claims"
+description = "Record file ownership claims before edits"
+matcher = "Edit"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/file-claims.mjs"
+timeout = 5
+
+[[hooks.pre_tool_use]]
+id = "edit-context-inject"
+description = "Inject symbol/file context before edits"
+matcher = "Edit"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/edit-context-inject.mjs"
+timeout = 5
+
+[[hooks.pre_tool_use]]
+id = "signature-helper"
+description = "Surface signatures before edits"
+matcher = "Edit"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/signature-helper.mjs"
+timeout = 5
+
+[[hooks.post_tool_use]]
+id = "typescript-preflight"
+description = "Run TypeScript typecheck preflight after edits"
+matcher = "Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/typescript-preflight.mjs"
+timeout = 40
+
+[[hooks.post_tool_use]]
+id = "compiler-in-the-loop"
+description = "Compile edited modules and surface diagnostics"
+matcher = "Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/compiler-in-the-loop.mjs"
+timeout = 30
+
+[[hooks.post_tool_use]]
+id = "post-edit-notify"
+description = "Notify on edit completion"
+matcher = "Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/post-edit-notify.mjs"
+timeout = 5
+
+[[hooks.post_tool_use]]
+id = "post-edit-diagnostics"
+description = "Collect diagnostics after edits"
+matcher = "Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs"
+timeout = 10
+
+[[hooks.post_tool_use]]
+id = "handoff-index"
+description = "Index handoff docs written this session"
+matcher = "Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/handoff-index.mjs"
+
+[[hooks.post_tool_use]]
+id = "post-tool-use-tracker"
+description = "Track edited files + build/test attempts for reasoning VCS"
+matcher = "Edit|MultiEdit|Write|Bash"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker"
+timeout = 120
+
+[[hooks.post_tool_use]]
+id = "braintrust-post-tool-use"
+description = "Record tool use for Braintrust tracing"
+matcher = "*"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/post_tool_use.sh"
+
+[[hooks.post_tool_use]]
+id = "import-validator"
+description = "Validate imports after edits"
+matcher = "Edit|Write"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/import-validator.mjs"
+timeout = 5
+
+[[hooks.post_tool_use]]
+id = "import-error-detector"
+description = "Detect import errors in bash output"
+matcher = "Bash"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/import-error-detector.mjs"
+timeout = 5
+
+[[hooks.pre_compact]]
+id = "pre-compact-continuity"
+description = "Persist continuity ledger excerpt before context compaction"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/pre-compact-continuity.mjs"
+
+[[hooks.stop]]
+id = "auto-handoff-stop"
+description = "Block stop when context too high and suggest handoff"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py auto-handoff-stop"
+
+[[hooks.stop]]
+id = "braintrust-stop"
+description = "Record stop for Braintrust tracing"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/stop_hook.sh"
+
+[[hooks.stop]]
+id = "compiler-in-the-loop-stop"
+description = "Final compile sweep before the session stops"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/compiler-in-the-loop-stop.mjs"
+
+[[hooks.session_stop]]
+id = "session-end-cleanup"
+description = "Clean up session artifacts"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/session-end-cleanup.mjs"
+
+[[hooks.session_stop]]
+id = "session-outcome"
+description = "Record session outcome"
+transport = "legacy .claude path until dist re-home (Step 11)"
+command = "node $HOME/.claude/hooks/dist/session-outcome.mjs"
+
+[[hooks.session_stop]]
+id = "braintrust-session-end"
+description = "Close session for Braintrust tracing"
+transport = "legacy .claude path (Step 11)"
+command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_end.sh"

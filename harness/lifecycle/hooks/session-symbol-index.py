@@ -10,15 +10,18 @@ Cross-platform Python port of session-symbol-index.sh
 Uses daemon for cache warming (P0-P4)
 Triggers semantic indexing (P5) if call graph exists but FAISS missing
 """
-import os
-import sys
 import json
 import subprocess
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import project_dir  # noqa: E402, I001  # isort: skip
+
+
 def main():
-    project_dir = Path(os.environ.get('OPC_PROJECT_DIR', os.getcwd()))
-    cache_dir = project_dir / '.claude' / 'cache' / 'tldr'
+    pdir = Path(project_dir({}))
+    cache_dir = pdir / '.claude' / 'cache' / 'tldr'
     semantic_dir = cache_dir / 'semantic'
 
     calls_file = cache_dir / 'calls.json'
@@ -29,7 +32,7 @@ def main():
         # Trigger warm via daemon (non-blocking)
         try:
             subprocess.Popen(
-                ['tldr', 'daemon', 'warm', str(project_dir)],
+                ['tldr', 'daemon', 'warm', str(pdir)],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 start_new_session=True  # Detach from parent (cross-platform nohup)
@@ -45,7 +48,7 @@ def main():
             log_file = cache_dir / 'semantic_indexing.log'
             with open(log_file, 'w') as log:
                 subprocess.Popen(
-                    ['tldr', 'daemon', 'semantic', 'index', str(project_dir)],
+                    ['tldr', 'daemon', 'semantic', 'index', str(pdir)],
                     stdout=log,
                     stderr=subprocess.STDOUT,
                     start_new_session=True

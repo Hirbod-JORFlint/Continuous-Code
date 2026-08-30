@@ -9,21 +9,15 @@ Reads context percentage from the temp file written by status.py.
 This ensures 1:1 match with status line display.
 """
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import read_stdin, session_id  # noqa: E402, I001  # isort: skip
+
 
 CONTEXT_THRESHOLD = 85   # Block at 85%+
-
-
-def get_session_id(data: dict) -> str:
-    """Get session ID from Claude Code input, matching status.py logic."""
-    session_id = data.get("session_id", "")
-    if session_id:
-        return session_id[:8]  # First 8 chars for filename
-    return os.environ.get("OPC_SESSION_ID", str(os.getppid()))
 
 
 def read_context_pct_from_file(data: dict) -> int | None:
@@ -31,9 +25,9 @@ def read_context_pct_from_file(data: dict) -> int | None:
 
     Returns None if file doesn't exist or can't be read.
     """
-    session_id = get_session_id(data)
+    sid = session_id(data)[:8]
     tmp_dir = Path(tempfile.gettempdir())
-    tmp_file = tmp_dir / f"claude-context-pct-{session_id}.txt"
+    tmp_file = tmp_dir / f"claude-context-pct-{sid}.txt"
 
     try:
         if tmp_file.exists():
@@ -44,7 +38,7 @@ def read_context_pct_from_file(data: dict) -> int | None:
 
 
 def main():
-    data = json.load(sys.stdin)
+    data = read_stdin()
 
     # Avoid recursion if stop hook triggers itself
     if data.get('stop_hook_active'):

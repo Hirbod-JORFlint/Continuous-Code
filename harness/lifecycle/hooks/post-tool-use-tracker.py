@@ -15,17 +15,25 @@ Cross-platform Python port of post-tool-use-tracker.sh
 """
 
 import json
-import os
 import re
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import (  # noqa: E402, I001
+    project_dir,
+    read_stdin,
+    session_id,
+    tool_input,
+    tool_name,
+)
+
 
 def get_project_dir() -> Path:
-    """Get the Claude project directory."""
-    return Path(os.environ.get("OPC_PROJECT_DIR", Path.cwd()))
+    """Get the project directory."""
+    return Path(project_dir({}))
 
 
 def get_current_branch(project_dir: Path) -> str:
@@ -153,7 +161,7 @@ def read_transcript_for_exit(transcript_path: str) -> tuple[str, str]:
 
 def handle_bash_tool(tool_info: dict) -> None:
     """Handle Bash tool - capture build/test attempts for reasoning."""
-    command = tool_info.get("tool_input", {}).get("command", "")
+    command = tool_input(tool_info).get("command", "")
 
     if not command or not is_build_test_command(command):
         return
@@ -177,7 +185,7 @@ def handle_bash_tool(tool_info: dict) -> None:
             exit_code, output = read_transcript_for_exit(transcript_path)
 
     # Log attempt to branch-keyed JSONL file
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")  # noqa: UP017
     attempts_file = branch_dir / "attempts.jsonl"
 
     if exit_code not in ("0", "unknown", "null", None, ""):
@@ -266,12 +274,15 @@ def get_build_command(repo: str) -> str:
                     return f"cd {repo_path} && yarn build"
                 else:
                     return f"cd {repo_path} && npm run build"
-        except (json.JSONDecodeError, IOError):
+        except (json.JSONDecodeError, OSError):
             pass
 
     # Special case for database with Prisma
     if repo == "database" or "prisma" in repo:
-        if (repo_path / "schema.prisma").exists() or (repo_path / "prisma" / "schema.prisma").exists():
+        if (
+            (repo_path / "schema.prisma").exists()
+            or (repo_path / "prisma" / "schema.prisma").exists()
+        ):
             return f"cd {repo_path} && npx prisma generate"
 
     return ""
@@ -304,8 +315,8 @@ def mark_tldr_dirty(file_path: str) -> None:
 
 def handle_edit_tool(tool_info: dict) -> None:
     """Handle Edit/Write tools - track edited files and repos."""
-    file_path = tool_info.get("tool_input", {}).get("file_path", "")
-    session_id = tool_info.get("session_id", "default")
+    file_path = tool_input(tool_info).get("file_path", "")
+    sid = session_id(tool_info)
 
     if not file_path:
         return
@@ -323,7 +334,7 @@ def handle_edit_tool(tool_info: dict) -> None:
     project_dir = get_project_dir()
 
     # Create cache directory
-    cache_dir = project_dir / ".claude" / "tsc-cache" / session_id
+    cache_dir = project_dir / ".claude" / "tsc-cache" / sid
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     # Log edited file
@@ -349,7 +360,6 @@ def handle_edit_tool(tool_info: dict) -> None:
     tsc_cmd = get_tsc_command(repo)
 
     commands_file = cache_dir / "commands.txt"
-    commands_tmp = cache_dir / "commands.txt.tmp"
 
     # Read existing commands
     existing_commands = set()
@@ -370,21 +380,16 @@ def handle_edit_tool(tool_info: dict) -> None:
 
 def main() -> None:
     """Main entry point."""
-    # Read tool information from stdin
-    try:
-        tool_info = json.load(sys.stdin)
-    except json.JSONDecodeError:
-        sys.exit(0)
-
-    tool_name = tool_info.get("tool_name", "")
+    tool_info = read_stdin()
+    tname = tool_name(tool_info)
 
     # Handle Bash tool (build/test tracking)
-    if tool_name.lower() == "bash":
+    if tname.lower() == "bash":
         handle_bash_tool(tool_info)
         sys.exit(0)
 
     # Handle Edit/Write tools (file tracking)
-    if tool_name in ("Edit", "MultiEdit", "Write"):
+    if tname in ("Edit", "MultiEdit", "Write"):
         handle_edit_tool(tool_info)
 
     sys.exit(0)

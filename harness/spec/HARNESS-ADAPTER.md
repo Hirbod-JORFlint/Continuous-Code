@@ -15,7 +15,9 @@ harness/
 ├── mcp/
 │   ├── servers/             MCP server implementations (stdio, portable)
 │   └── registry.json        master MCP registry (harness-neutral schema, §5)
-├── lifecycle/               hooks/plugins source (re-homed from .claude/hooks in later steps)
+├── lifecycle/
+│   ├── hooks/               neutral python hooks + hook_launcher.py + _payload.py adapter
+│   └── hooks.toml           neutral lifecycle-hook manifest (§3); generators emit native configs
 └── spec/                    this spec + event taxonomy
 ```
 
@@ -23,15 +25,19 @@ Generated, committed outputs (written by `opc harness gen`):
 
 | Target | Generated artifact |
 |---|---|
-| Opencode | `opencode.json`, `.opencode/{agents,commands,skills,plugins}` |
+| Opencode | `opencode.json`, `.opencode/{agents,commands,skills,plugins}` (hook bridge: `.opencode/plugins/opc-hooks.ts`) |
 | Codex | `.codex/config.toml` (MCP `[mcp_servers.*]` + inline `[hooks]`), `.codex/AGENTS.md` |
-| Cline | `.clinerules/*.md`, `cline_mcp_settings.json` (project `mcpServers`; CLI reads `~/.cline/mcp.json`) |
+| Cline | `.clinerules/*.md`, `.clinerules/hooks/*` (real executable hooks, §3), `cline_mcp_settings.json` (project `mcpServers`; CLI reads `~/.cline/mcp.json`) |
 
 User-level installs (merging, never clobbering): `~/.codex/skills/` + optional
 `~/.codex/config.toml` `[mcp_servers.*]` merge, `~/.config/opencode/skills/`, and for Cline
 `~/.cline/skills/` plus CLI MCP `~/.cline/mcp.json` (the project `cline_mcp_settings.json` covers the
 IDE extension; the wizard merges it into `~/.cline/mcp.json` for the CLI in Step 9). Global Cline
 rules resolve from the OS `Documents/Cline/Rules` dir.
+
+Neutral install root for re-homed hooks: `~/.opc/hooks` — a junction to
+`harness/lifecycle/hooks` on the canonical machine (created in Step 7 verification), copied by the
+Step 9 installer on other machines and registered as the hook launcher's `OPC_HARNESS_DIR`.
 
 ## 2. HarnessDriver protocol
 
@@ -65,25 +71,21 @@ Hooks/plugins are declared against this taxonomy. Harness translates to its nati
 
 | Neutral event | Meaning | Parity |
 |---|---|---|
-| `session_start` | harness session begins | codex `SessionStart`, opencode plugin `session.created`, cline n/a |
-| `prompt_submit` | user prompt is about to be processed | codex `UserPromptSubmit`, opencode plugin `event`/`chat`-submit, cline n/a |
-| `pre_tool_use` | tool invocation about to run (can block) | codex `PreToolUse` (tool-filtered), opencode plugin `tool.execute.before`, cline n/a |
-| `post_tool_use` | tool invocation finished (non-blocking) | codex `PostToolUse`, opencode plugin `tool.execute.after`, cline n/a |
-| `pre_compact` | context compaction imminent (may persist state) | codex `PreCompact`, opencode plugin `session.compacted`, cline n/a |
-| `session_stop` | session ending (must save state/handoff) | codex `SessionEnd`, opencode plugin `session.closed`, cline n/a (custom instructions run at start) |
+| `session_start` | harness session begins | codex `SessionStart`; opencode plugin `session.created`; cline `TaskStart` |
+| `prompt_submit` | user prompt is about to be processed | codex `UserPromptSubmit`; opencode NO clean equivalent (unmapped, skipped in the bridge); cline `UserPromptSubmit` |
+| `pre_tool_use` | tool invocation about to run (can block) | codex `PreToolUse` (tool-filtered); opencode plugin `tool.execute.before`; cline `PreToolUse` |
+| `post_tool_use` | tool invocation finished (non-blocking) | codex `PostToolUse`; opencode plugin `tool.execute.after`; cline `PostToolUse` |
+| `pre_compact` | context compaction imminent (may persist state) | codex `PreCompact`; opencode plugin `experimental.session.compacting`; cline `PreCompact` |
+| `session_stop` | session ending (must save state/handoff) | codex `SessionEnd`; opencode plugin `session.idle` (approximation — there is no `session.closed`/stop event); cline n/a (`TaskComplete` maps to `stop`, not `session_stop`) |
 | `status_line` | footer status text (harness-specific sugar, optional) | codex n/a, opencode plugin `status`, cline n/a |
 
-Codex also exposes `PostCompact`, `SubagentStart`, `SubagentStop`, `Stop`, and
-`PermissionRequest`; the generator maps only the neutral set above and passes
-through any extra events found in the neutral `harness/lifecycle/hooks.toml`
-manifest. Hooks are declared inline under `[hooks]` in `.codex/config.toml`
-(Codex discovers `hooks.json` or inline `[hooks]` tables - not a standalone
-`hooks.toml`).
-
-Cline has no executable command-hook surface: its `hooks/` directories
-(`.cline/hooks/`, `~/.cline/hooks/`) hold model-executed markdown, not shell
-commands, so the neutral hook set is `n/a` there until Step 7 decides whether
-to translate to the markdown-hook format.
+Cline hooks are **real executable scripts** (since v3.36+), not model-executed markdown: each hook
+reads one JSON object on stdin and returns JSON controlling the session (`cancel`,
+`contextModification`). They live in `.clinerules/hooks/` (project, committed) or
+`~/Documents/Cline/Hooks` (global). Windows: `HookType.ps1` is the only supported name; hook files
+have no per-tool matcher (enable/disable is a UI toggle only). macOS/Linux: extensionless executable
+named exactly `HookType` + `chmod +x`. The `stop` event maps to `TaskComplete`; `session_stop` has no
+Cline equivalent and is not emitted there.
 
 Event payload contract (JSON on stdin to the hook/plugin body):
 
@@ -155,18 +157,20 @@ mode: normal              # opencode mode; mapped only there
 
 ## 8. Parity tiers
 
-- **Opencode** — full parity: plugins (JS/TS) covering all neutral events, skills/agents/commands
-  natively, provider-agnostic models. The only real re-platform (Python+TS hooks -> JS/TS plugins,
-  keeping heavy logic in neutral Python invoked by thin plugin wrappers).
+- **Opencode** — parity except `prompt_submit`/`session_stop` (no native events; the bridge maps
+  `session_stop`→`session.idle` as an approximation and skips `prompt_submit`): plugins (TS)
+  covering all neutral events, skills/agents/commands natively, provider-agnostic models. The only
+  real re-platform (Python+TS hooks -> TS plugin wrappers, keeping heavy logic in neutral Python
+  invoked by thin plugin wrappers under `.opencode/plugins/opc-hooks.ts`).
 - **Codex** — full parity where its schema allows: inline `[hooks]` in `.codex/config.toml` covers the
   neutral set except where noted; skills/AGENTS.md native; subagents not emitted (documented mechanism
   is `agents.<name>.config_file` / user `~/.codex/agents/`; wired at smoke in Step 13).
-- **Cline** — **thin client** (experimental): surface = `.clinerules/*.md` (every `.md`/`.txt` loaded,
-  numeric prefixes fine), `cline_mcp_settings.json` (project MCP), and repo-root `AGENTS.md` (read
-  natively). No config-file agents — Cline's "subagents" are built-in read-only research agents driven
-  by the `use_subagents` tool — and no command hooks (its `hooks/` are model-executed markdown).
-  Continuity/memory run through the experimental Cline CLI driver (`cline --json -y`). Not certified
-  until Cline is installed on the box.
+- **Cline** — **thin client + real hooks** (experimental): surface = `.clinerules/*.md` (every
+  `.md`/`.txt` loaded, numeric prefixes fine), real executable hooks in `.clinerules/hooks/*` (§3),
+  `cline_mcp_settings.json` (project MCP), and repo-root `AGENTS.md` (read natively). No config-file
+  agents — Cline's "subagents" are built-in read-only research agents driven by the `use_subagents`
+  tool. Continuity/memory run through the experimental Cline CLI driver (`cline --json -y`). Not
+  certified until Cline is installed on the box.
 
 ## 9. Spawn layer
 
