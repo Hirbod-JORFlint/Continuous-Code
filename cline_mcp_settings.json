@@ -1,0 +1,103 @@
+{
+  "mcpServers": {
+    "ast-grep": {
+      "command": "npx",
+      "disabled": true,
+      "autoApprove": [],
+      "args": [
+        "-y",
+        "@anthropic/mcp-ast-grep"
+      ]
+    },
+    "fetch": {
+      "command": "uvx",
+      "disabled": false,
+      "autoApprove": [],
+      "args": [
+        "mcp-server-fetch"
+      ]
+    },
+    "firecrawl": {
+      "command": "npx",
+      "disabled": true,
+      "autoApprove": [],
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      }
+    },
+    "git": {
+      "command": "uvx",
+      "disabled": false,
+      "autoApprove": [],
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "."
+      ]
+    },
+    "github": {
+      "type": "streamableHttp",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "disabled": true,
+      "autoApprove": [],
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    },
+    "morph": {
+      "command": "npx",
+      "disabled": true,
+      "autoApprove": [],
+      "args": [
+        "-y",
+        "@morphllm/morphmcp"
+      ],
+      "env": {
+        "MORPH_API_KEY": "${MORPH_API_KEY}"
+      }
+    },
+    "nia": {
+      "command": "pipx",
+      "disabled": true,
+      "autoApprove": [],
+      "args": [
+        "run",
+        "--no-cache",
+        "nia-mcp-server"
+      ],
+      "env": {
+        "NIA_API_KEY": "${NIA_API_KEY}",
+        "NIA_API_URL": "https://apigcp.trynia.ai/"
+      }
+    },
+    "perplexity": {
+      "command": "npx",
+      "disabled": true,
+      "autoApprove": [],
+      "args": [
+        "-y",
+        "@perplexity-ai/mcp-server"
+      ],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      }
+    },
+    "qlty": {
+      "command": "$HOME/.claude/venv/bin/python",
+      "disabled": false,
+      "autoApprove": [],
+      "args": [
+        "$HOME/.claude/servers/qlty/server.py"
+      ]
+    },
+    "repoprompt": {
+      "command": "repoprompt_cli",
+      "disabled": true,
+      "autoApprove": []
+    }
+  }
+}

@@ -25,10 +25,13 @@ Generated, committed outputs (written by `opc harness gen`):
 |---|---|
 | Opencode | `opencode.json`, `.opencode/{agents,commands,skills,plugins}` |
 | Codex | `.codex/config.toml` (MCP `[mcp_servers.*]` + inline `[hooks]`), `.codex/AGENTS.md` |
-| Cline | `.clinerules/*.md`, `cline-custom-instructions.md`, `cline_mcp_settings.json` |
+| Cline | `.clinerules/*.md`, `cline_mcp_settings.json` (project `mcpServers`; CLI reads `~/.cline/mcp.json`) |
 
-User-level installs (merging, never clobbering): `~/.codex/skills/`, `~/.config/opencode/skills/`,
-`~/.clinerules/`, optional `~/.codex/config.toml` `[mcp_servers.*]` merge.
+User-level installs (merging, never clobbering): `~/.codex/skills/` + optional
+`~/.codex/config.toml` `[mcp_servers.*]` merge, `~/.config/opencode/skills/`, and for Cline
+`~/.cline/skills/` plus CLI MCP `~/.cline/mcp.json` (the project `cline_mcp_settings.json` covers the
+IDE extension; the wizard merges it into `~/.cline/mcp.json` for the CLI in Step 9). Global Cline
+rules resolve from the OS `Documents/Cline/Rules` dir.
 
 ## 2. HarnessDriver protocol
 
@@ -62,7 +65,7 @@ Hooks/plugins are declared against this taxonomy. Harness translates to its nati
 
 | Neutral event | Meaning | Parity |
 |---|---|---|
-| `session_start` | harness session begins | codex `SessionStart`, opencode plugin `session.created`, cline custom-instructions (read-only) |
+| `session_start` | harness session begins | codex `SessionStart`, opencode plugin `session.created`, cline n/a |
 | `prompt_submit` | user prompt is about to be processed | codex `UserPromptSubmit`, opencode plugin `event`/`chat`-submit, cline n/a |
 | `pre_tool_use` | tool invocation about to run (can block) | codex `PreToolUse` (tool-filtered), opencode plugin `tool.execute.before`, cline n/a |
 | `post_tool_use` | tool invocation finished (non-blocking) | codex `PostToolUse`, opencode plugin `tool.execute.after`, cline n/a |
@@ -76,6 +79,11 @@ through any extra events found in the neutral `harness/lifecycle/hooks.toml`
 manifest. Hooks are declared inline under `[hooks]` in `.codex/config.toml`
 (Codex discovers `hooks.json` or inline `[hooks]` tables - not a standalone
 `hooks.toml`).
+
+Cline has no executable command-hook surface: its `hooks/` directories
+(`.cline/hooks/`, `~/.cline/hooks/`) hold model-executed markdown, not shell
+commands, so the neutral hook set is `n/a` there until Step 7 decides whether
+to translate to the markdown-hook format.
 
 Event payload contract (JSON on stdin to the hook/plugin body):
 
@@ -150,11 +158,15 @@ mode: normal              # opencode mode; mapped only there
 - **Opencode** — full parity: plugins (JS/TS) covering all neutral events, skills/agents/commands
   natively, provider-agnostic models. The only real re-platform (Python+TS hooks -> JS/TS plugins,
   keeping heavy logic in neutral Python invoked by thin plugin wrappers).
-- **Codex** — full parity where its schema allows: `hooks.toml` covers the neutral set except where
-  noted; skills/AGENTS.md native; subagents via `multi_agent`.
-- **Cline** — **thin client**: no native hooks/subagents. Surface = `.clinerules/`, custom
-  instructions, memory-bank bootstrap, MCP. Continuity/memory run through `cmdline`-driven
-  `npx cline --json` (experimental driver). Not certified until Cline is installed on the box.
+- **Codex** — full parity where its schema allows: inline `[hooks]` in `.codex/config.toml` covers the
+  neutral set except where noted; skills/AGENTS.md native; subagents not emitted (documented mechanism
+  is `agents.<name>.config_file` / user `~/.codex/agents/`; wired at smoke in Step 13).
+- **Cline** — **thin client** (experimental): surface = `.clinerules/*.md` (every `.md`/`.txt` loaded,
+  numeric prefixes fine), `cline_mcp_settings.json` (project MCP), and repo-root `AGENTS.md` (read
+  natively). No config-file agents — Cline's "subagents" are built-in read-only research agents driven
+  by the `use_subagents` tool — and no command hooks (its `hooks/` are model-executed markdown).
+  Continuity/memory run through the experimental Cline CLI driver (`cline --json -y`). Not certified
+  until Cline is installed on the box.
 
 ## 9. Spawn layer
 

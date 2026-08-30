@@ -61,8 +61,10 @@ class DriverRegistry:
 
 
 def register_drivers() -> None:
+    from harness.cline import ClineDriver
     from harness.codex import CodexDriver
     from harness.opencode import OpencodeDriver
 
     DriverRegistry.register(OpencodeDriver())
     DriverRegistry.register(CodexDriver())
+    DriverRegistry.register(ClineDriver())
