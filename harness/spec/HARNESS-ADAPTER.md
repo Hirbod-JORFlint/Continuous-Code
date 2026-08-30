@@ -24,7 +24,7 @@ Generated, committed outputs (written by `opc harness gen`):
 | Target | Generated artifact |
 |---|---|
 | Opencode | `opencode.json`, `.opencode/{agents,commands,skills,plugins}` |
-| Codex | `.codex/config.toml`, `.codex/hooks.toml`, `.codex/AGENTS.md`, skills manifest |
+| Codex | `.codex/config.toml` (MCP `[mcp_servers.*]` + inline `[hooks]`), `.codex/AGENTS.md` |
 | Cline | `.clinerules/*.md`, `cline-custom-instructions.md`, `cline_mcp_settings.json` |
 
 User-level installs (merging, never clobbering): `~/.codex/skills/`, `~/.config/opencode/skills/`,
@@ -62,13 +62,20 @@ Hooks/plugins are declared against this taxonomy. Harness translates to its nati
 
 | Neutral event | Meaning | Parity |
 |---|---|---|
-| `session_start` | harness session begins | codex `session_start`, opencode plugin `session.created`, cline custom-instructions (read-only) |
-| `prompt_submit` | user prompt is about to be processed | codex `userpromptsubmit`, opencode plugin `event`/`chat`-submit, cline n/a |
-| `pre_tool_use` | tool invocation about to run (can block) | codex `pre_tool_use` (tool-filtered), opencode plugin `tool.execute.before`, cline n/a |
-| `post_tool_use` | tool invocation finished (non-blocking) | codex `post_tool_use`, opencode plugin `tool.execute.after`, cline n/a |
-| `pre_compact` | context compaction imminent (may persist state) | codex `before_compact`-style, opencode plugin `session.compacted`, cline n/a |
-| `session_stop` | session ending (must save state/handoff) | codex `session_stop`, opencode plugin `session.closed`, cline n/a (custom instructions run at start) |
-| `status_line` | footer status text (harness-specific sugar, optional) | codex `/statusline`, opencode plugin `status`, cline n/a |
+| `session_start` | harness session begins | codex `SessionStart`, opencode plugin `session.created`, cline custom-instructions (read-only) |
+| `prompt_submit` | user prompt is about to be processed | codex `UserPromptSubmit`, opencode plugin `event`/`chat`-submit, cline n/a |
+| `pre_tool_use` | tool invocation about to run (can block) | codex `PreToolUse` (tool-filtered), opencode plugin `tool.execute.before`, cline n/a |
+| `post_tool_use` | tool invocation finished (non-blocking) | codex `PostToolUse`, opencode plugin `tool.execute.after`, cline n/a |
+| `pre_compact` | context compaction imminent (may persist state) | codex `PreCompact`, opencode plugin `session.compacted`, cline n/a |
+| `session_stop` | session ending (must save state/handoff) | codex `SessionEnd`, opencode plugin `session.closed`, cline n/a (custom instructions run at start) |
+| `status_line` | footer status text (harness-specific sugar, optional) | codex n/a, opencode plugin `status`, cline n/a |
+
+Codex also exposes `PostCompact`, `SubagentStart`, `SubagentStop`, `Stop`, and
+`PermissionRequest`; the generator maps only the neutral set above and passes
+through any extra events found in the neutral `harness/lifecycle/hooks.toml`
+manifest. Hooks are declared inline under `[hooks]` in `.codex/config.toml`
+(Codex discovers `hooks.json` or inline `[hooks]` tables - not a standalone
+`hooks.toml`).
 
 Event payload contract (JSON on stdin to the hook/plugin body):
 

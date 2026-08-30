@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Dict, Optional, Protocol, Sequence, Type
+from collections.abc import Sequence
+from typing import Protocol
 
 
 @dataclasses.dataclass
@@ -9,31 +10,31 @@ class HarnessOutput:
     text: str
     exit_code: int
     raw: str = ""
-    events: Sequence[Dict] = dataclasses.field(default_factory=tuple)
+    events: Sequence[dict] = dataclasses.field(default_factory=tuple)
 
 
 class HarnessDriver(Protocol):
     name: str
 
     def installed(self) -> bool: ...
-    def start(self, cwd: Optional[str] = None) -> None: ...
+    def start(self, cwd: str | None = None) -> None: ...
     def run_prompt(
         self,
         prompt: str,
         *,
-        cwd: Optional[str] = None,
-        agent: Optional[str] = None,
-        model: Optional[str] = None,
-        session_id: Optional[str] = None,
-        timeout: Optional[float] = None,
+        cwd: str | None = None,
+        agent: str | None = None,
+        model: str | None = None,
+        session_id: str | None = None,
+        timeout: float | None = None,
     ) -> HarnessOutput: ...
     def capture_output(self, process: object) -> HarnessOutput: ...
-    def session_id(self, cwd: Optional[str] = None) -> Optional[str]: ...
-    def list_agents(self, cwd: Optional[str] = None) -> Sequence[str]: ...
+    def session_id(self, cwd: str | None = None) -> str | None: ...
+    def list_agents(self, cwd: str | None = None) -> Sequence[str]: ...
 
 
 class DriverRegistry:
-    _drivers: Dict[str, HarnessDriver] = {}
+    _drivers: dict[str, HarnessDriver] = {}
 
     @classmethod
     def register(cls, driver: HarnessDriver) -> None:
@@ -60,6 +61,8 @@ class DriverRegistry:
 
 
 def register_drivers() -> None:
+    from harness.codex import CodexDriver
     from harness.opencode import OpencodeDriver
 
     DriverRegistry.register(OpencodeDriver())
+    DriverRegistry.register(CodexDriver())

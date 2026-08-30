@@ -1,0 +1,63 @@
+[mcp_servers.ast-grep]
+args = ["-y", "@anthropic/mcp-ast-grep"]
+command = "npx"
+enabled = false
+
+[mcp_servers.fetch]
+args = ["mcp-server-fetch"]
+command = "uvx"
+enabled = true
+
+[mcp_servers.firecrawl]
+args = ["-y", "firecrawl-mcp"]
+command = "npx"
+enabled = false
+[mcp_servers.firecrawl.env]
+FIRECRAWL_API_KEY = "${FIRECRAWL_API_KEY}"
+
+
+[mcp_servers.git]
+args = ["mcp-server-git", "--repository", "."]
+command = "uvx"
+enabled = true
+
+[mcp_servers.github]
+enabled = false
+url = "https://api.githubcopilot.com/mcp/"
+[mcp_servers.github.http_headers]
+Authorization = "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+
+
+[mcp_servers.morph]
+args = ["-y", "@morphllm/morphmcp"]
+command = "npx"
+enabled = false
+[mcp_servers.morph.env]
+MORPH_API_KEY = "${MORPH_API_KEY}"
+
+
+[mcp_servers.nia]
+args = ["run", "--no-cache", "nia-mcp-server"]
+command = "pipx"
+enabled = false
+[mcp_servers.nia.env]
+NIA_API_KEY = "${NIA_API_KEY}"
+NIA_API_URL = "https://apigcp.trynia.ai/"
+
+
+[mcp_servers.perplexity]
+args = ["-y", "@perplexity-ai/mcp-server"]
+command = "npx"
+enabled = false
+[mcp_servers.perplexity.env]
+PERPLEXITY_API_KEY = "${PERPLEXITY_API_KEY}"
+
+
+[mcp_servers.qlty]
+args = ["$HOME/.claude/servers/qlty/server.py"]
+command = "$HOME/.claude/venv/bin/python"
+enabled = true
+
+[mcp_servers.repoprompt]
+command = "repoprompt_cli"
+enabled = false

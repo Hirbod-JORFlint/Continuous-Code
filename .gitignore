@@ -6,7 +6,6 @@ __pycache__/
 # Generated harness integration configs (committed by design)
 !.codex/AGENTS.md
 !.codex/config.toml
-!.codex/hooks.toml
 !.codex/rules/
 !.codex/rules/**
 !.codex/skills/
