@@ -1,20 +1,20 @@
-# Continuous Claude
+# Continuous Code
 
-> A persistent, learning, multi-agent development environment built on Claude Code
+> A persistent, learning, multi-agent development environment built for opencode, codex, and cline
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Claude Code](https://img.shields.io/badge/Claude-Code-orange.svg)](https://claude.ai/code)
+[![Continuous Code](https://img.shields.io/badge/Continuous-Code-orange.svg)](https://github.com/Hirbod-JORFlint/Continuous-Code)
 [![Skills](https://img.shields.io/badge/Skills-108-green.svg)](#skills-system)
 [![Agents](https://img.shields.io/badge/Agents-32-purple.svg)](#agents-system)
 [![Hooks](https://img.shields.io/badge/Hooks-36-blue.svg)](#hooks-system)
 
-**Continuous Claude** transforms Claude Code into a continuously learning system that maintains context across sessions, orchestrates specialized agents, and eliminates wasting tokens through intelligent code analysis.
+**Continuous Code** transforms the agent into a continuously learning system that maintains context across sessions, orchestrates specialized agents, and eliminates wasting tokens through intelligent code analysis.
 
 ## Table of Contents
 
-- [Why Continuous Claude?](#why-continuous-claude)
+- [Why Continuous Code?](#why-continuous-code)
 - [Design Principles](#design-principles)
-- [How to Talk to Claude](#how-to-talk-to-claude)
+- [How to Talk to the Agent](#how-to-talk-to-the-agent)
 - [Quick Start](#quick-start)
 - [Architecture](#architecture)
 - [Core Systems](#core-systems)
@@ -34,11 +34,11 @@
 
 ---
 
-## Why Continuous Claude?
+## Why Continuous Code?
 
-Claude Code has a **compaction problem**: when context fills up, the system compacts your conversation, losing nuanced understanding and decisions made during the session.
+The agent has a **compaction problem**: when context fills up, the system compacts your conversation, losing nuanced understanding and decisions made during the session.
 
-**Continuous Claude solves this with:**
+**Continuous Code solves this with:**
 
 | Problem | Solution |
 |---------|----------|
@@ -52,7 +52,7 @@ Claude Code has a **compaction problem**: when context fills up, the system comp
 
 ### Why "Continuous"? Why "Compounding"?
 
-The name is a pun. **Continuous** because Claude maintains state across sessions. **Compounding** because each session makes the system smarter—learnings accumulate like compound interest.
+The name is a pun. **Continuous** because the agent maintains state across sessions. **Compounding** because each session makes the system smarter—learnings accumulate like compound interest.
 
 ---
 
@@ -64,7 +64,7 @@ An agent is five things: **Prompt + Tools + Context + Memory + Model**.
 |-----------|------------------|
 | **Prompt** | Skills inject relevant context; hooks add system reminders |
 | **Tools** | TLDR reduces tokens; agents parallelize work |
-| **Context** | Not just *what* Claude knows, but *how* it's provided |
+| **Context** | Not just *what* the agent knows, but *how* it's provided |
 | **Memory** | Daemon extracts learnings; recall surfaces them |
 | **Model** | Becomes swappable when the other four are solid |
 
@@ -81,13 +81,13 @@ The failure modes of complex systems are structurally invisible until they happe
 
 ---
 
-## How to Talk to Claude
+## How to Talk to the Agent
 
 **You don't need to memorize slash commands.** Just describe what you want naturally.
 
 ### The Skill Activation System
 
-When you send a message, a hook injects context that tells **Claude** which skills and agents are relevant. Claude infers from a rule-based system and decides which tools to use.
+When you send a message, a hook injects context that tells **the agent** which skills and agents are relevant. The agent infers from a rule-based system and decides which tools to use.
 
 ```
 > "Fix the login bug in auth.py"
@@ -161,14 +161,14 @@ ACTION: Use Skill tool BEFORE responding
 - Python 3.11+
 - [uv](https://github.com/astral-sh/uv) package manager
 - Docker (for PostgreSQL)
-- Claude Code CLI
+- A code assistant CLI: `opencode`, `codex`, or `cline` (legacy: Claude Code)
 
 ### Installation
 
 ```bash
 # Clone
-git clone https://github.com/parcadei/Continuous-Claude-v3.git
-cd Continuous-Claude-v3/opc
+git clone https://github.com/Hirbod-JORFlint/Continuous-Code.git
+cd Continuous-Code/opc
 
 # Run setup wizard (12 steps)
 uv run python -m scripts.setup.wizard
@@ -184,7 +184,7 @@ uv run python -m scripts.setup.wizard
 | 2 | Check prerequisites (Docker, Python, uv) |
 | 3-5 | Database + API key configuration |
 | 6-7 | Start Docker stack, run migrations |
-| 8 | Install Claude Code integration (32 agents, 108 skills, 36 hooks) |
+| 8 | Install harness integration (32 agents, 108 skills, 36 hooks) |
 | 9 | Math features (SymPy, Z3, Pint - optional) |
 | 10 | TLDR code analysis tool |
 | 11-12 | Diagnostics tools + Loogle (optional) |
@@ -193,7 +193,7 @@ uv run python -m scripts.setup.wizard
 #### To Uninstall:
 
 ```
-cd Continuous-Claude-v3/opc
+cd Continuous-Code/opc
   uv run python -m scripts.setup.wizard --uninstall
 ```
 
@@ -209,7 +209,7 @@ cd Continuous-Claude-v3/opc
   - projects.json (project configs)
   - file-history/ directory
   - projects/ directory
-4. Removes CC-v3 additions → Everything else (hooks, skills, agents, rules)
+4. Removes Continuous Code additions → Everything else (hooks, skills, agents, rules)
 
 
 **Safety Features**
@@ -222,7 +222,7 @@ cd Continuous-Claude-v3/opc
 
 ### Remote Database Setup
 
-By default, CC-v3 runs PostgreSQL locally via Docker. For remote database setups:
+By default, Continuous Code runs PostgreSQL locally via Docker. For remote database setups:
 
 #### 1. Database Preparation
 
@@ -254,24 +254,28 @@ Set `DATABASE_URL` in `~/.claude/settings.json`:
 }
 ```
 
-Or export before running Claude:
+Or export before running the agent:
 
 ```bash
 export DATABASE_URL="postgresql://user:password@hostname:5432/continuous_claude"
 claude
 ```
 
+You can also run `opencode`, `codex`, or `cline` instead of `claude`.
+
 See `.env.example` for all available environment variables.
 
 ### First Session
 
 ```bash
-# Start Claude Code
+# Start a session
 claude
 
 # Try a workflow
 > /workflow
 ```
+
+You can also run `opencode`, `codex`, or `cline` instead of `claude`.
 
 ### First Session Commands
 
@@ -289,7 +293,7 @@ claude
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                        CONTINUOUS CLAUDE                            │
+│                        CONTINUOUS CODE                             │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐             │
@@ -368,7 +372,7 @@ SessionStart                    Working                      SessionEnd
            │                           │ 4. SESSION END     │
            │                           │                    │
            │                           │  Stale heartbeat ──┼──▶ Daemon wakes
-           │                           │  Daemon spawns ────┼──▶ Headless Claude
+           │                           │  Daemon spawns ────┼──▶ Headless agent
            │                           │  Thinking blocks ──┼──▶ archival_memory
            │                           │                    │
            │                           └────────────────────┘
@@ -771,13 +775,13 @@ Cross-session learning powered by PostgreSQL + pgvector.
 
 ```
 Session ends → Database detects stale heartbeat (>5 min)
-            → Daemon spawns headless Claude (Sonnet)
+            → Daemon spawns a headless agent (Sonnet)
             → Analyzes thinking blocks from session
             → Extracts learnings to archival_memory
             → Next session recalls relevant learnings
 ```
 
-The key insight: **thinking blocks contain the real reasoning**—not just what Claude did, but why. The daemon extracts this automatically.
+The key insight: **thinking blocks contain the real reasoning**—not just what the agent did, but why. The daemon extracts this automatically.
 
 #### Conversational Interface
 
@@ -813,7 +817,7 @@ cd opc && uv run python scripts/core/store_learning.py \
 
 #### Automatic Memory
 
-The **memory-awareness** hook surfaces relevant learnings when you send a message. You'll see `MEMORY MATCH` indicators—Claude can use these without you asking.
+The **memory-awareness** hook surfaces relevant learnings when you send a message. You'll see `MEMORY MATCH` indicators—the agent can use these without you asking.
 
 ---
 
@@ -1015,8 +1019,8 @@ Blocks on HIGH severity until user accepts/mitigates risks.
 
 ```bash
 # Clone
-git clone https://github.com/parcadei/continuous-claude.git
-cd continuous-claude/opc
+git clone https://github.com/Hirbod-JORFlint/Continuous-Code.git
+cd Continuous-Code/opc
 
 # Run the setup wizard
 uv run python -m scripts.setup.wizard
@@ -1029,7 +1033,7 @@ The wizard walks you through all configuration options interactively.
 Pull latest changes and sync your installation:
 
 ```bash
-cd continuous-claude/opc
+cd Continuous-Code/opc
 uv run python -m scripts.setup.update
 ```
 
@@ -1063,10 +1067,10 @@ The wizard offers two installation modes:
 
 #### Copy Mode (Default)
 
-Files are copied from `continuous-claude/.claude/` to `~/.claude/`. Changes you make in `~/.claude/` are **local only** and will be overwritten on next update.
+Files are copied from `Continuous-Code/.claude/` to `~/.claude/`. Changes you make in `~/.claude/` are **local only** and will be overwritten on next update.
 
 ```text
-continuous-claude/.claude/  ──COPY──>  ~/.claude/
+Continuous-Code/.claude/  ──COPY──>  ~/.claude/
      (source)                          (user config)
 ```
 
@@ -1078,10 +1082,10 @@ continuous-claude/.claude/  ──COPY──>  ~/.claude/
 Creates symlinks so `~/.claude/` points directly to repo files. Changes in either location affect the same files.
 
 ```text
-~/.claude/rules  ──SYMLINK──>  continuous-claude/.claude/rules
-~/.claude/skills ──SYMLINK──>  continuous-claude/.claude/skills
-~/.claude/hooks  ──SYMLINK──>  continuous-claude/.claude/hooks
-~/.claude/agents ──SYMLINK──>  continuous-claude/.claude/agents
+~/.claude/rules  ──SYMLINK──>  Continuous-Code/.claude/rules
+~/.claude/skills ──SYMLINK──>  Continuous-Code/.claude/skills
+~/.claude/hooks  ──SYMLINK──>  Continuous-Code/.claude/hooks
+~/.claude/agents ──SYMLINK──>  Continuous-Code/.claude/agents
 ```
 
 **Pros:**
@@ -1109,7 +1113,7 @@ ls -la ~/.claude/backups/$(date +%Y%m%d)/
 rm -rf ~/.claude/{rules,skills,hooks,agents}
 
 # Create symlinks (adjust path to your repo location)
-REPO="$HOME/continuous-claude"  # or wherever you cloned
+REPO="$HOME/Continuous-Code"  # or wherever you cloned
 ln -s "$REPO/.claude/rules" ~/.claude/rules
 ln -s "$REPO/.claude/skills" ~/.claude/skills
 ln -s "$REPO/.claude/hooks" ~/.claude/hooks
@@ -1137,7 +1141,7 @@ Get-ChildItem $BackupDir
 Remove-Item -Recurse "$HOME\.claude\rules","$HOME\.claude\skills","$HOME\.claude\hooks","$HOME\.claude\agents"
 
 # Create symlinks (adjust path to your repo location)
-$REPO = "$HOME\continuous-claude"  # or wherever you cloned
+$REPO = "$HOME\Continuous-Code"  # or wherever you cloned
 New-Item -ItemType SymbolicLink -Path "$HOME\.claude\rules" -Target "$REPO\.claude\rules"
 New-Item -ItemType SymbolicLink -Path "$HOME\.claude\skills" -Target "$REPO\.claude\skills"
 New-Item -ItemType SymbolicLink -Path "$HOME\.claude\hooks" -Target "$REPO\.claude\hooks"
@@ -1149,7 +1153,7 @@ Get-ChildItem "$HOME\.claude" | Where-Object { $_.LinkType -eq "SymbolicLink" }
 
 ### For Brownfield Projects
 
-After installation, start Claude and run:
+After installation, start the agent and run:
 ```
 > /onboard
 ```
@@ -1199,7 +1203,7 @@ Skill activation triggers.
 | `BRAINTRUST_API_KEY` | Session tracing | No |
 | `PERPLEXITY_API_KEY` | Web search | No |
 | `NIA_API_KEY` | Documentation search | No |
-| `OPC_ROOT` | Path to CC's opc/ directory (set by wizard) | Auto |
+| `OPC_ROOT` | Path to Continuous Code's opc/ directory (set by wizard) | Auto |
 | `OPC_PROJECT_DIR` | Current project directory (set by SessionStart hook) | Auto |
 
 Services without API keys still work:
@@ -1279,7 +1283,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=parcadei/Continuous-Claude-v2&type=timeline)](https://star-history.com/#parcadei/Continuous-Claude-v2&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Hirbod-JORFlint/Continuous-Code&type=timeline)](https://star-history.com/#Hirbod-JORFlint/Continuous-Code&Date)
 
 ---
 
@@ -1289,4 +1293,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
 
 ---
 
-**Continuous Claude**: Not just a coding assistant—a persistent, learning, multi-agent development environment that gets smarter with every session.
+**Continuous Code**: Not just a coding assistant—a persistent, learning, multi-agent development environment that gets smarter with every session.
