@@ -709,6 +709,14 @@ async def run_setup_wizard() -> None:
                 else:
                     console.print(f"  [green]OK[/green] {harness} user-level config generated")
         _codex_login_trust(harness_targets)
+        if Confirm.ask("  Write the harness-neutral global MCP config (~/.opc/mcp_config.json)?", default=True):
+            from scripts.harness import gen_opc
+
+            rc = gen_opc.main([])
+            if rc:
+                console.print("  [red]ERROR[/red] neutral global MCP config generation failed")
+            else:
+                console.print("  [green]OK[/green] neutral global MCP config written (~/.opc/mcp_config.json)")
     else:
         console.print("  No harness selected (project files left unchanged)")
 
