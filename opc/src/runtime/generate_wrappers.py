@@ -294,7 +294,7 @@ async def generate_wrappers(config_path: Path | None = None) -> None:
             config = global_cfg
         else:
             logger.error(
-                "No config file found. Expected .mcp.json or mcp_config.json, or global ~/.claude/mcp_config.json"
+                "No config file found. Expected .mcp.json or mcp_config.json, or global ~/.opc/mcp_config.json"
             )
             return
 

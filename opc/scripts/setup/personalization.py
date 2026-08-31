@@ -5,11 +5,12 @@ Handles preference extraction from JSONL session logs and
 configuration of default agent behaviors.
 
 USAGE:
-    python -m scripts.setup.personalization --jsonl-dir ~/.claude/logs/
+    python -m scripts.setup.personalization --jsonl-dir ~/.opc/projects/
 """
 
 import asyncio
 import json
+import os
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
@@ -247,7 +248,7 @@ async def main():
     parser.add_argument(
         "--jsonl-dir",
         type=Path,
-        default=Path.home() / ".claude" / "logs",
+        default=Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc'))) / "projects",
         help="Directory containing JSONL session logs",
     )
     parser.add_argument("--import-file", type=Path, help="Import preferences from JSON file")

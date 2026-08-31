@@ -243,10 +243,12 @@ async def setup_embedded_environment() -> dict[str, Any]:
             - error: str (if failed)
     """
     import asyncio
+    import os
     import sys
 
-    pgdata = Path.home() / ".claude" / "pgdata"
-    venv_path = Path.home() / ".claude" / "pgserver-venv"
+    config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
+    pgdata = config_dir / "pgdata"
+    venv_path = config_dir / "pgserver-venv"
 
     try:
         # Create pgdata directory

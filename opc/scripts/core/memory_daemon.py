@@ -54,8 +54,9 @@ if opc_env.exists():
 POLL_INTERVAL = 60  # seconds
 STALE_THRESHOLD = 300  # 5 minutes in seconds
 MAX_CONCURRENT_EXTRACTIONS = 2  # Limit concurrent headless agent processes
-PID_FILE = Path.home() / ".claude" / "memory-daemon.pid"
-LOG_FILE = Path.home() / ".claude" / "memory-daemon.log"
+CONFIG_DIR = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
+PID_FILE = CONFIG_DIR / "memory-daemon.pid"
+LOG_FILE = CONFIG_DIR / "memory-daemon.log"
 
 # Worker queue state (module-level for daemon process)
 active_extractions: dict[int, str] = {}  # thread ident -> session_id
@@ -138,7 +139,7 @@ def pg_mark_extracted(session_id: str):
 def get_sqlite_path() -> Path:
     """Get SQLite database path."""
     # Use global path for cross-repo sessions
-    return Path.home() / ".claude" / "sessions.db"
+    return CONFIG_DIR / "sessions.db"
 
 
 def sqlite_ensure_table():
@@ -222,8 +223,7 @@ def extract_memories(session_id: str, project_dir: str):
     log(f"Extracting memories for session {session_id} in {project_dir}")
 
     # Find the most recent JSONL for this session
-    config_dir = Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc')))
-    jsonl_dir = config_dir / "projects"
+    jsonl_dir = CONFIG_DIR / "projects"
 
     # Look for session JSONL
     # Session IDs may be truncated (s-mkb24ccg) while JSONL uses full UUIDs

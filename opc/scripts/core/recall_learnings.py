@@ -178,7 +178,7 @@ async def search_learnings_sqlite(query: str, k: int = 5) -> list[dict[str, Any]
     import re
 
     # Global SQLite path
-    db_path = Path.home() / ".claude" / "cache" / "memory.db"
+    db_path = (Path(os.environ.get('OPC_CONFIG_DIR', str(Path.home() / '.opc'))) / "cache" / "memory.db")
 
     if not db_path.exists():
         return []
