@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -25,6 +26,13 @@ REGISTRY_PATH = HARNESS_DIR / "mcp" / "registry.json"
 CLINERULES_DIR = REPO_ROOT / ".clinerules"
 CLINE_HOOKS_DIR = CLINERULES_DIR / "hooks"
 MCP_JSON_PATH = REPO_ROOT / "cline_mcp_settings.json"
+
+# User-level (global) config roots for Cline
+USER_CLINE_DIR = Path.home() / ".cline"
+USER_RULES_DIR = Path.home() / ".clinerules"
+USER_MCP_PATH = USER_CLINE_DIR / "cline_mcp_settings.json"
+USER_SKILLS_DIR = USER_CLINE_DIR / "skills"
+_SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 _LAUNCHER_NAME_RE = re.compile(r"hook_launcher\.py\s+([\w-]+)\s*$")
 
@@ -243,11 +251,17 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m scripts.harness.gen_cline",
         description=(
-            "Generate the project-scoped Cline integration config from the canonical harness tree"
+            "Generate the Cline integration config from the canonical harness tree "
+            "(project scope by default, or --user-level for the global ~/.cline root)"
         ),
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="print the generated files without writing"
+    )
+    parser.add_argument(
+        "--user-level",
+        action="store_true",
+        help="emit rules/skills/MCP to the user-global roots (~/.clinerules, ~/.cline) instead of the project",
     )
     args = parser.parse_args(argv)
     cfg = _mcp_config()
@@ -263,16 +277,113 @@ def main(argv: list[str] | None = None) -> int:
             if hook_names:
                 print(f"  {cline_type}.ps1 -> {', '.join(hook_names)}")
         return 0
-    rules = _emit_rules()
-    hooks = _emit_hooks()
-    MCP_JSON_PATH.write_text(mcp_text, encoding="utf-8")
-    print(f"wrote {MCP_JSON_PATH.relative_to(REPO_ROOT)}")
-    print(f"wrote {len(rules)} rules to {CLINERULES_DIR.relative_to(REPO_ROOT)}")
-    print(
-        f"wrote {len(hooks)} Cline hook scripts + README to "
-        f"{CLINE_HOOKS_DIR.relative_to(REPO_ROOT)}"
-    )
+    rules = _emit_rules() if not args.user_level else []
+    hooks = _emit_hooks() if not args.user_level else []
+    if args.user_level:
+        print("(project-level Cline files skipped: --user-level selected)")
+    else:
+        MCP_JSON_PATH.write_text(mcp_text, encoding="utf-8")
+        print(f"wrote {MCP_JSON_PATH.relative_to(REPO_ROOT)}")
+        print(f"wrote {len(rules)} rules to {CLINERULES_DIR.relative_to(REPO_ROOT)}")
+        print(
+            f"wrote {len(hooks)} Cline hook scripts + README to "
+            f"{CLINE_HOOKS_DIR.relative_to(REPO_ROOT)}"
+        )
+    if args.user_level:
+        _emit_user_level(cfg)
     return _validate(mcp_text)
+
+
+def _emit_user_level(generated_mcp: dict[str, object]) -> None:
+    """Emit the user-global Cline integration: rules, MCP merge, and skills."""
+    imported_rules = _emit_user_rules()
+    if imported_rules:
+        print(f"imported {len(imported_rules)} rules to {USER_RULES_DIR}")
+    merged = _merge_user_mcp(generated_mcp)
+    USER_MCP_PATH.parent.mkdir(parents=True, exist_ok=True)
+    USER_MCP_PATH.write_text(
+        json.dumps(merged, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print(f"merged {len(merged.get('mcpServers', {}))} mcp servers into {USER_MCP_PATH}")
+    copied, skipped = _copy_user_skills()
+    if copied:
+        print(f"copied {len(copied)} skills to {USER_SKILLS_DIR}")
+    if skipped:
+        print(f"skipped skills: {', '.join(skipped)}")
+    print(
+        "(user-level Cline hooks not emitted: global hooks are platform-specific and"
+        " UI-toggled in Cline; see ~/Documents/Cline/Hooks on Windows/macOS)"
+    )
+
+
+def _emit_user_rules() -> list[str]:
+    USER_RULES_DIR.mkdir(parents=True, exist_ok=True)
+    imported: list[str] = []
+    for path in sorted(RULES_DIR.glob("*.md")):
+        (USER_RULES_DIR / path.name).write_text(
+            path.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        imported.append(path.name)
+    return imported
+
+
+def _merge_user_mcp(generated: dict[str, object]) -> dict[str, object]:
+    """Merge generated mcpServers into the user's global Cline settings, preserving
+    any existing user-defined servers while letting generated entries win on update."""
+    existing: dict[str, object] = {}
+    if USER_MCP_PATH.exists():
+        try:
+            parsed = json.loads(USER_MCP_PATH.read_text(encoding="utf-8"))
+            if isinstance(parsed, dict):
+                existing = parsed
+        except json.JSONDecodeError:
+            print(f"warning: {USER_MCP_PATH} is not valid JSON; starting fresh")
+    gen_servers = generated.get("mcpServers", {})
+    merged_servers = dict(existing.get("mcpServers", {}))
+    if isinstance(gen_servers, dict):
+        merged_servers.update(gen_servers)
+    out = dict(existing)
+    out["mcpServers"] = merged_servers
+    return out
+
+
+def _copy_user_skills() -> tuple[list[str], list[str]]:
+    """Copy canonical skills into the user-global Cline skills directory.
+
+    Skill names come from the directory slug (harness/skills keeps slugs equal to
+    frontmatter `name`), which is what Cline keys its skills dir on.
+    """
+    copied: list[str] = []
+    skipped: list[str] = []
+    seen: set[str] = set()
+    for skill_dir in sorted((HARNESS_DIR / "skills").iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        if not (skill_dir / "SKILL.md").exists():
+            continue
+        name = skill_dir.name
+        if not _SKILL_NAME_RE.match(name):
+            skipped.append(f"{name} (invalid slug)")
+            continue
+        if name in seen:
+            skipped.append(f"{name} (duplicate)")
+            continue
+        seen.add(name)
+        dst = USER_SKILLS_DIR / name
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(
+            skill_dir,
+            dst,
+            ignore=shutil.ignore_patterns("*.v6.md", "*.bak", "*.backup"),
+        )
+        copied.append(name)
+    USER_SKILLS_DIR.mkdir(parents=True, exist_ok=True)
+    for stale_dir in USER_SKILLS_DIR.iterdir():
+        if stale_dir.is_dir() and stale_dir.name not in seen:
+            shutil.rmtree(stale_dir)
+            print(f"pruned stale skill dir {USER_SKILLS_DIR.name}/{stale_dir.name}")
+    return copied, skipped
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -27,6 +29,10 @@ REGISTRY_PATH = HARNESS_DIR / "mcp" / "registry.json"
 CODEX_DIR = REPO_ROOT / ".codex"
 CONFIG_PATH = CODEX_DIR / "config.toml"
 AGENTS_MD_PATH = CODEX_DIR / "AGENTS.md"
+
+# User-level (global) config root for Codex CLI: ~/.codex
+USER_CONFIG_DIR = Path.home() / ".codex"
+_SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 _NEUTRAL_TO_CODEX_EVENT = {
     "session_start": "SessionStart",
@@ -272,13 +278,21 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m scripts.harness.gen_codex",
         description=(
-            "Generate the project-scoped Codex integration config from the canonical harness tree"
+            "Generate the Codex integration config from the canonical harness tree "
+            "(project scope by default, or --user-level for the global ~/.codex root)"
         ),
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="print the generated files without writing"
     )
+    parser.add_argument(
+        "--user-level",
+        action="store_true",
+        help="emit to the user-global root (~/.codex) instead of the project",
+    )
     args = parser.parse_args(argv)
+    if args.user_level:
+        _repoint(USER_CONFIG_DIR)
     cfg = _config()
     toml_text = _dump_toml(cfg)
     agenda = _agenda()
@@ -286,13 +300,80 @@ def main(argv: list[str] | None = None) -> int:
         print(toml_text)
         print("--- AGENTS.md ---")
         print(agenda)
+        if args.user_level:
+            print("--- ~/.codex/skills/ ---")
+            print(_copy_user_skills(USER_CONFIG_DIR / "skills", dry_run=True))
         return 0
     CODEX_DIR.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(toml_text, encoding="utf-8")
     AGENTS_MD_PATH.write_text(agenda, encoding="utf-8")
     print(f"wrote {CONFIG_PATH.relative_to(REPO_ROOT)}")
     print(f"wrote {AGENTS_MD_PATH.relative_to(REPO_ROOT)}")
+    if args.user_level:
+        copied, skipped = _copy_user_skills(CODEX_DIR / "skills")
+        if copied:
+            print(f"copied {len(copied)} skills to {CODEX_DIR / 'skills'}")
+        if skipped:
+            print(f"skipped skills: {', '.join(skipped)}")
     return _validate(toml_text)
+
+
+def _repoint(root: Path) -> None:
+    """Rebind the destination constants to a non-project config root."""
+    globals().update(
+        {
+            "REPO_ROOT": root,
+            "CODEX_DIR": root,
+            "CONFIG_PATH": root / "config.toml",
+            "AGENTS_MD_PATH": root / "AGENTS.md",
+        }
+    )
+
+
+def _copy_user_skills(dst_dir: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
+    """Copy canonical skills into a user-level (global) skills directory.
+
+    Codex keeps reusable skills at the user level (~/.codex/skills) rather
+    than per project. Mirror the harness/skills layout, pruning stale dirs and
+    skipping entries whose frontmatter name is missing or invalid.
+    """
+    copied: list[str] = []
+    skipped: list[str] = []
+    seen: set[str] = set()
+    for skill_dir in sorted(SKILLS_SRC_DIR.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        md = skill_dir / "SKILL.md"
+        if not md.exists():
+            continue
+        data, _ = _parse_frontmatter(md.read_text(encoding="utf-8"))
+        name = data.get("name")
+        if not (isinstance(name, str) and _SKILL_NAME_RE.match(name)):
+            skipped.append(f"{skill_dir.name} (invalid name {name!r})")
+            continue
+        if name in seen:
+            skipped.append(f"{skill_dir.name} (duplicate name {name!r})")
+            continue
+        seen.add(name)
+        if dry_run:
+            copied.append(name)
+            continue
+        dst = dst_dir / name
+        if dst.exists():
+            shutil.rmtree(dst)
+        shutil.copytree(
+            skill_dir,
+            dst,
+            ignore=shutil.ignore_patterns("*.v6.md", "*.bak", "*.backup"),
+        )
+        copied.append(name)
+    if not dry_run:
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        for stale_dir in dst_dir.iterdir():
+            if stale_dir.is_dir() and stale_dir.name not in seen:
+                shutil.rmtree(stale_dir)
+                print(f"pruned stale skill dir {dst_dir.name}/{stale_dir.name}")
+    return copied, skipped
 
 
 if __name__ == "__main__":

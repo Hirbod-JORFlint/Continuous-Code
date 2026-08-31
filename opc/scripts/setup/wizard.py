@@ -523,7 +523,7 @@ async def run_setup_wizard() -> None:
     )
 
     # Step 0: Backup global ~/.claude (safety first)
-    console.print("\n[bold]Step 0/13: Backing up global Claude configuration...[/bold]")
+    console.print("\n[bold]Step 0/14: Backing up global Claude configuration...[/bold]")
     from scripts.setup.claude_integration import (
         backup_global_claude_dir,
         get_global_claude_dir,
@@ -540,7 +540,7 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]No existing ~/.claude found (clean install)[/dim]")
 
     # Step 1: Check prerequisites (with installation offers)
-    console.print("\n[bold]Step 1/13: Checking system requirements...[/bold]")
+    console.print("\n[bold]Step 1/14: Checking system requirements...[/bold]")
     prereqs = await check_prerequisites_with_install_offers()
 
     if prereqs["docker"]:
@@ -565,7 +565,7 @@ async def run_setup_wizard() -> None:
         sys.exit(1)
 
     # Step 2: Database config
-    console.print("\n[bold]Step 2/13: Database Configuration[/bold]")
+    console.print("\n[bold]Step 2/14: Database Configuration[/bold]")
     console.print("  Choose your database backend:")
     console.print("    [bold]docker[/bold]    - PostgreSQL in Docker (recommended)")
     console.print("    [bold]embedded[/bold]  - Embedded PostgreSQL (no Docker needed)")
@@ -605,21 +605,21 @@ async def run_setup_wizard() -> None:
         db_config["mode"] = "docker"
 
     # Step 3: Embedding configuration
-    console.print("\n[bold]Step 3/13: Embedding Configuration[/bold]")
+    console.print("\n[bold]Step 3/14: Embedding Configuration[/bold]")
     if Confirm.ask("Configure embedding provider?", default=True):
         embeddings = await prompt_embedding_config()
     else:
         embeddings = {"provider": "local"}
 
     # Step 4: API keys
-    console.print("\n[bold]Step 4/13: API Keys (Optional)[/bold]")
+    console.print("\n[bold]Step 4/14: API Keys (Optional)[/bold]")
     if Confirm.ask("Configure API keys?", default=False):
         api_keys = await prompt_api_keys()
     else:
         api_keys = {"perplexity": "", "nia": "", "braintrust": ""}
 
     # Step 5: Generate .env
-    console.print("\n[bold]Step 5/13: Generating configuration...[/bold]")
+    console.print("\n[bold]Step 5/14: Generating configuration...[/bold]")
     config = {"database": db_config, "embeddings": embeddings, "api_keys": api_keys}
     env_path = Path.cwd() / ".env"
     generate_env_file(config, env_path)
@@ -627,7 +627,7 @@ async def run_setup_wizard() -> None:
 
     # Step 5: Container stack (Sandbox Infrastructure)
     runtime = prereqs.get("container_runtime", "docker")
-    console.print(f"\n[bold]Step 6/13: Container Stack (Sandbox Infrastructure)[/bold]")
+    console.print(f"\n[bold]Step 6/14: Container Stack (Sandbox Infrastructure)[/bold]")
     console.print("  The sandbox requires PostgreSQL and Redis for:")
     console.print("  - Agent coordination and scheduling")
     console.print("  - Build cache and LSP index storage")
@@ -655,7 +655,7 @@ async def run_setup_wizard() -> None:
             console.print(f"  You can start manually with: {runtime} compose up -d")
 
     # Step 6: Migrations
-    console.print("\n[bold]Step 7/13: Database Setup[/bold]")
+    console.print("\n[bold]Step 7/14: Database Setup[/bold]")
     if Confirm.ask("Run database migrations?", default=True):
         from scripts.setup.docker_setup import run_migrations, set_container_runtime
 
@@ -667,8 +667,50 @@ async def run_setup_wizard() -> None:
         else:
             console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
 
-    # Step 7: Claude Code Integration
-    console.print("\n[bold]Step 8/13: Claude Code Integration[/bold]")
+    # Step 8: Target Harness Integration (Step 9 requirement)
+    console.print("\n[bold]Step 8/14: Target Harness Integration[/bold]")
+    console.print("  Choose which harness(es) to target and at which scope.")
+    console.print("  [dim]opencode -> .opencode/ + opencode.json (project)  |  ~/.config/opencode (user)[/dim]")
+    console.print("  [dim]codex    -> .codex/ (project)                      |  ~/.codex (user)[/dim]")
+    console.print("  [dim]cline    -> .clinerules/ + mcp settings (project)  |  ~/.clinerules + ~/.cline (user)[/dim]")
+    console.print("  [dim]claude   -> legacy ~/.claude integration (installed in Step 9 until Step 11)[/dim]")
+    harness_targets: dict[str, dict[str, bool]] = {}
+    for harness in ("opencode", "codex", "cline"):
+        if Confirm.ask(f"  Target {harness}?", default=False):
+            user_level = Confirm.ask(f"    {harness}: user-level (global)?", default=False)
+            project_level = Confirm.ask(f"    {harness}: project-level?", default=True)
+            harness_targets[harness] = {"user": user_level, "project": project_level}
+    want_claude = Confirm.ask("  Target claude (legacy)?", default=False)
+
+    if harness_targets:
+        from scripts.harness import gen_cline, gen_codex, gen_opencode
+
+        generators = {
+            "opencode": gen_opencode,
+            "codex": gen_codex,
+            "cline": gen_cline,
+        }
+        for harness, scope in harness_targets.items():
+            generator = generators[harness]
+            if scope["project"]:
+                console.print(f"  Generating {harness} project config...")
+                rc = generator.main([])
+                if rc:
+                    console.print(f"  [red]ERROR[/red] {harness} project generation failed (rc={rc})")
+                else:
+                    console.print(f"  [green]OK[/green] {harness} project config generated")
+            if scope["user"]:
+                console.print(f"  Generating {harness} user-level config...")
+                rc = generator.main(["--user-level"])
+                if rc:
+                    console.print(f"  [red]ERROR[/red] {harness} user-level generation failed (rc={rc})")
+                else:
+                    console.print(f"  [green]OK[/green] {harness} user-level config generated")
+    else:
+        console.print("  No harness selected (project files left unchanged)")
+
+    # Step 9: Legacy Claude Code Integration
+    console.print("\n[bold]Step 9/14: Legacy Claude Code Integration[/bold]")
     from scripts.setup.claude_integration import (
         analyze_conflicts,
         backup_claude_dir,
@@ -716,7 +758,9 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]Symlink mode links rules/skills/hooks/agents to the repo.[/dim]")
         console.print("  [dim]Changes sync automatically; great for contributing back.[/dim]")
 
-        choice = Prompt.ask("Choose option", choices=["1", "2", "3", "4"], default="1")
+        choice = (
+            "4" if not want_claude else Prompt.ask("Choose option", choices=["1", "2", "3", "4"], default="1")
+        )
 
         if choice in ("1", "2"):
             # Backup first
@@ -790,7 +834,9 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]Symlink mode links rules/skills/hooks/agents to the repo.[/dim]")
         console.print("  [dim]Changes sync automatically; great for contributing back.[/dim]")
 
-        choice = Prompt.ask("Choose mode", choices=["1", "2", "3"], default="1")
+        choice = (
+            "3" if not want_claude else Prompt.ask("Choose mode", choices=["1", "2", "3"], default="1")
+        )
 
         if choice == "1":
             opc_source = get_opc_integration_source()
@@ -863,7 +909,7 @@ async def run_setup_wizard() -> None:
         console.print(f'       export OPC_ROOT="{opc_dir}"')
 
     # Step 8: Math Features (Optional)
-    console.print("\n[bold]Step 9/13: Math Features (Optional)[/bold]")
+    console.print("\n[bold]Step 10/14: Math Features (Optional)[/bold]")
     console.print("  Math features include:")
     console.print("    - SymPy: symbolic algebra, calculus, equation solving")
     console.print("    - Z3: SMT solver for constraint satisfaction & proofs")
@@ -922,7 +968,7 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]Install later with: uv sync --extra math[/dim]")
 
     # Step 9: TLDR Code Analysis Tool
-    console.print("\n[bold]Step 10/13: TLDR Code Analysis Tool[/bold]")
+    console.print("\n[bold]Step 11/14: TLDR Code Analysis Tool[/bold]")
     console.print("  TLDR provides token-efficient code analysis for LLMs:")
     console.print("    - 95% token savings vs reading raw files")
     console.print("    - 155x faster queries with daemon mode")
@@ -1081,7 +1127,7 @@ async def run_setup_wizard() -> None:
                     console.print("  [green]OK[/green] TLDR hooks disabled")
 
     # Step 10: Diagnostics Tools (Shift-Left Feedback)
-    console.print("\n[bold]Step 11/13: Diagnostics Tools (Shift-Left Feedback)[/bold]")
+    console.print("\n[bold]Step 12/14: Diagnostics Tools (Shift-Left Feedback)[/bold]")
     console.print("  Claude gets immediate type/lint feedback after editing files.")
     console.print("  This catches errors before tests run (shift-left).")
     console.print("")
@@ -1119,7 +1165,7 @@ async def run_setup_wizard() -> None:
     console.print("  [dim]TypeScript, Go, Rust coming soon.[/dim]")
 
     # Step 11: Loogle (Lean 4 type search for /prove skill)
-    console.print("\n[bold]Step 12/13: Loogle (Lean 4 Type Search)[/bold]")
+    console.print("\n[bold]Step 13/14: Loogle (Lean 4 Type Search)[/bold]")
     console.print("  Loogle enables type-aware search of Mathlib theorems:")
     console.print("    - Used by /prove skill for theorem proving")
     console.print("    - Search by type signature (e.g., 'Nontrivial _ ↔ _')")
@@ -1260,6 +1306,19 @@ async def run_setup_wizard() -> None:
         console.print("  Skipped Loogle installation")
         console.print("  [dim]Install later by re-running the wizard[/dim]")
 
+    # Step 14: Summary
+    console.print("\n[bold]Step 14/14: Summary[/bold]")
+    if harness_targets:
+        for harness, scope in harness_targets.items():
+            scopes = ", ".join(
+                s for s, on in (("user", scope["user"]), ("project", scope["project"])) if on
+            )
+            console.print(f"  - {harness}: {scopes}")
+    else:
+        console.print("  - No target harness configured (opencode project config not generated)")
+    if want_claude:
+        console.print("  - claude: legacy integration target (removed at Step 11)")
+
     # Done!
     console.print("\n" + "=" * 60)
     console.print("[bold green]Setup complete![/bold green]")
@@ -1268,7 +1327,7 @@ async def run_setup_wizard() -> None:
     console.print("  [bold]tldr daemon start[/bold] - Start daemon (155x faster)")
     console.print("  [bold]tldr --help[/bold]       - See all commands")
     console.print("\nNext steps:")
-    console.print("  1. Start Claude Code: [bold]claude[/bold]")
+    console.print("  1. Start your target harness (opencode / codex / cline / claude)")
     console.print("  2. View docs: [bold]docs/QUICKSTART.md[/bold]")
 
 

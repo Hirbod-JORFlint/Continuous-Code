@@ -21,6 +21,9 @@ except ImportError:  # Python < 3.11
 _SCHEMA_URL = "https://opencode.ai/config.json"
 _SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
+# User-level (global) config root for opencode: ~/.config/opencode
+USER_CONFIG_DIR = Path.home() / ".config" / "opencode"
+
 _HERE = Path(__file__).resolve().parent
 REPO_ROOT = _HERE.parents[2]
 HARNESS_DIR = REPO_ROOT / "harness"
@@ -435,8 +438,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m scripts.harness.gen_opencode",
         description=(
-            "Generate the project-scoped OpenCode integration config "
-            "from the canonical harness tree"
+            "Generate the OpenCode integration config from the canonical harness tree "
+            "(project scope by default, or --user-level for the global config root)"
         ),
     )
     parser.add_argument(
@@ -444,7 +447,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="print the opencode.json that would be written",
     )
+    parser.add_argument(
+        "--user-level",
+        action="store_true",
+        help="emit to the user-global root (~/.config/opencode) instead of the project",
+    )
     args = parser.parse_args(argv)
+    if args.user_level:
+        _repoint(USER_CONFIG_DIR)
     cfg = _config()
     plugin_text = _emit_opencode_plugin()
     if args.dry_run:
@@ -452,6 +462,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("--- .opencode/plugins/opc-hooks.ts ---")
         print(plugin_text)
         return 0
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     PLUGINS_DST_DIR.mkdir(parents=True, exist_ok=True)
     PLUGIN_PATH.write_text(plugin_text, encoding="utf-8")
@@ -471,6 +482,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"skipped {len(skipped)}: {skipped_str}"
     )
     return _validate(cfg)
+
+
+def _repoint(root: Path) -> None:
+    """Rebind the destination constants to a non-project config root."""
+    globals().update(
+        {
+            "REPO_ROOT": root,
+            "CONFIG_PATH": root / "opencode.json",
+            "OPCODE_DIR": root,
+            "AGENTS_DST_DIR": root / "agents",
+            "SKILLS_DST_DIR": root / "skills",
+            "PLUGINS_DST_DIR": root / "plugins",
+            "PLUGIN_PATH": root / "plugins" / "opc-hooks.ts",
+        }
+    )
 
 
 if __name__ == "__main__":
