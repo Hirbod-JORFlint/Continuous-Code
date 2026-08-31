@@ -40,6 +40,7 @@ SKILLS_DST_DIR = OPCODE_DIR / "skills"
 PLUGINS_DST_DIR = OPCODE_DIR / "plugins"
 PLUGIN_PATH = PLUGINS_DST_DIR / "opc-hooks.ts"
 SCHEMA_PATH = _HERE / "schemas" / "opencode-config.json"
+MODEL_ID = ""
 
 _TOOL_PERMISSION_MAP = {
     "Read": "read",
@@ -351,6 +352,8 @@ def _config() -> Dict[str, object]:
     mcp = _mcp_config()
     if mcp:
         cfg["mcp"] = mcp
+    if MODEL_ID:
+        cfg["model"] = MODEL_ID
     return cfg
 
 
@@ -452,9 +455,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="emit to the user-global root (~/.config/opencode) instead of the project",
     )
+    parser.add_argument(
+        "--model",
+        default="",
+        help="pin a model id (top-level \"model\" field in opencode.json)",
+    )
     args = parser.parse_args(argv)
     if args.user_level:
         _repoint(USER_CONFIG_DIR)
+    globals().update({"MODEL_ID": args.model})
     cfg = _config()
     plugin_text = _emit_opencode_plugin()
     if args.dry_run:
@@ -473,6 +482,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         f"{CONFIG_PATH.name} with {len(cfg.get('mcp', {}))} mcp servers "
         f"and {len(cfg.get('instructions', []))} rules"
     )
+    if MODEL_ID:
+        print(f"  model={MODEL_ID}")
     print(f"wrote {PLUGIN_PATH.relative_to(REPO_ROOT)} (opencode hook bridge)")
     print(f"emitted {len(agents)} agents to {AGENTS_DST_DIR.relative_to(REPO_ROOT)}")
     skipped_str = ", ".join(skipped)

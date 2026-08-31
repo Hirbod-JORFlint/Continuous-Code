@@ -33,6 +33,8 @@ AGENTS_MD_PATH = CODEX_DIR / "AGENTS.md"
 # User-level (global) config root for Codex CLI: ~/.codex
 USER_CONFIG_DIR = Path.home() / ".codex"
 _SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+MODEL_ID = ""
+MODEL_PROVIDER = ""
 
 _NEUTRAL_TO_CODEX_EVENT = {
     "session_start": "SessionStart",
@@ -167,6 +169,10 @@ def _emit_hooks() -> dict[str, object]:
 
 def _config() -> dict[str, object]:
     cfg: dict[str, object] = {}
+    if MODEL_ID:
+        cfg["model"] = MODEL_ID
+    if MODEL_PROVIDER:
+        cfg["model_provider"] = MODEL_PROVIDER
     servers = {}
     registry = _load_registry()
     raw = registry.get("mcpServers", {})
@@ -290,9 +296,20 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="emit to the user-global root (~/.codex) instead of the project",
     )
+    parser.add_argument(
+        "--model",
+        default="",
+        help="pin a model id (top-level \"model\" in config.toml)",
+    )
+    parser.add_argument(
+        "--model-provider",
+        default="",
+        help="set the model provider (top-level \"model_provider\" in config.toml)",
+    )
     args = parser.parse_args(argv)
     if args.user_level:
         _repoint(USER_CONFIG_DIR)
+    globals().update({"MODEL_ID": args.model, "MODEL_PROVIDER": args.model_provider})
     cfg = _config()
     toml_text = _dump_toml(cfg)
     agenda = _agenda()
@@ -309,6 +326,8 @@ def main(argv: list[str] | None = None) -> int:
     AGENTS_MD_PATH.write_text(agenda, encoding="utf-8")
     print(f"wrote {CONFIG_PATH.relative_to(REPO_ROOT)}")
     print(f"wrote {AGENTS_MD_PATH.relative_to(REPO_ROOT)}")
+    if MODEL_ID or MODEL_PROVIDER:
+        print(f"  model={MODEL_ID} model_provider={MODEL_PROVIDER}")
     if args.user_level:
         copied, skipped = _copy_user_skills(CODEX_DIR / "skills")
         if copied:

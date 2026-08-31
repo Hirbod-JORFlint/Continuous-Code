@@ -690,22 +690,25 @@ async def run_setup_wizard() -> None:
             "codex": gen_codex,
             "cline": gen_cline,
         }
+        model = Prompt.ask("  Model to pin (empty to leave unpinned)", default="")
+        gen_args = [f"--model={model}"] if model else []
         for harness, scope in harness_targets.items():
             generator = generators[harness]
             if scope["project"]:
                 console.print(f"  Generating {harness} project config...")
-                rc = generator.main([])
+                rc = generator.main(gen_args)
                 if rc:
                     console.print(f"  [red]ERROR[/red] {harness} project generation failed (rc={rc})")
                 else:
                     console.print(f"  [green]OK[/green] {harness} project config generated")
             if scope["user"]:
                 console.print(f"  Generating {harness} user-level config...")
-                rc = generator.main(["--user-level"])
+                rc = generator.main(gen_args + ["--user-level"])
                 if rc:
                     console.print(f"  [red]ERROR[/red] {harness} user-level generation failed (rc={rc})")
                 else:
                     console.print(f"  [green]OK[/green] {harness} user-level config generated")
+        _codex_login_trust(harness_targets)
     else:
         console.print("  No harness selected (project files left unchanged)")
 
@@ -1388,6 +1391,35 @@ async def run_uninstall_wizard() -> None:
         console.print(f"\n[green]SUCCESS[/green]\n{result['message']}")
     else:
         console.print(f"\n[red]FAILED[/red]\n{result['message']}")
+
+
+def _codex_login_trust(harness_targets: dict[str, dict[str, bool]]) -> None:
+    """Offer Codex login + trust_level setup after harness generation."""
+    if "codex" not in harness_targets:
+        return
+    codex = shutil.which("codex")
+    if not codex:
+        console.print("\n[yellow]WARN[/yellow] codex CLI not found on PATH")
+        console.print("  [dim]Run `codex login` and `codex config set trust_level default` manually after installing.[/dim]")
+        return
+    console.print("\n  [bold]Codex trust/login flow[/bold]")
+    if Confirm.ask("  Log in to Codex (`codex login`) now?", default=False):
+        console.print("  Run `codex login` in a separate terminal (it is interactive):")
+        console.print("    codex login")
+    if Confirm.ask("  Set Codex trust_level?", default=False):
+        level = Prompt.ask(
+            "  Trust level",
+            choices=["yolo", "default", "confidenceThreshold"],
+            default="default",
+        )
+        cmd = f"codex config set trust_level {level}"
+        try:
+            subprocess.run(cmd, shell=True, check=False)
+        except OSError as exc:
+            console.print(f"  [yellow]WARN[/yellow] could not run `{cmd}`: {exc}")
+            console.print(f"  Run it manually: {cmd}")
+        else:
+            console.print(f"  Ran: {cmd}")
 
 
 async def main():

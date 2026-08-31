@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -30,7 +31,15 @@ MCP_JSON_PATH = REPO_ROOT / "cline_mcp_settings.json"
 # User-level (global) config roots for Cline
 USER_CLINE_DIR = Path.home() / ".cline"
 USER_RULES_DIR = Path.home() / ".clinerules"
-USER_MCP_PATH = USER_CLINE_DIR / "cline_mcp_settings.json"
+# Cline CLI/SDK resolves the user MCP settings via resolveMcpSettingsPath():
+#   $CLINE_MCP_SETTINGS_PATH if set, else <CLINE_DATA_DIR|~/.cline>/data/settings/cline_mcp_settings.json
+# (the docs' `~/.cline/mcp.json` path is NOT read by the CLI - cline/cline#11671, #7249)
+USER_MCP_PATH = Path(
+    os.environ.get(
+        "CLINE_MCP_SETTINGS_PATH",
+        str(Path(os.environ.get("CLINE_DATA_DIR", str(USER_CLINE_DIR))) / "data" / "settings" / "cline_mcp_settings.json"),
+    )
+)
 USER_SKILLS_DIR = USER_CLINE_DIR / "skills"
 _SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
@@ -263,7 +272,14 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="emit rules/skills/MCP to the user-global roots (~/.clinerules, ~/.cline) instead of the project",
     )
+    parser.add_argument(
+        "--model",
+        default="",
+        help="accepted for uniform generator CLI; model pinning is n/a for Cline config files",
+    )
     args = parser.parse_args(argv)
+    if args.model:
+        print("note: model pinning n/a for Cline config files (set provider/model in the Cline UI or ~/.cline/data/settings/providers.json)")
     cfg = _mcp_config()
     mcp_text = json.dumps(cfg, indent=2, ensure_ascii=False) + "\n"
     if args.dry_run:
