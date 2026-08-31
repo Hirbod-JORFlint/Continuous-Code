@@ -1,6 +1,6 @@
 # Quickstart: 5-Minute Setup
 
-Get Claude Code with persistent memory running in 5 minutes.
+Get the agent with persistent memory running in 5 minutes.
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ uv run python scripts/setup/wizard.py
 The wizard walks you through 12 configuration steps including:
 - Database setup (PostgreSQL via Docker)
 - Optional API keys (Braintrust, Perplexity, Nia)
-- Claude Code integration (32 agents, 108 skills, 36 hooks)
+- Harness integration (32 agents, 108 skills, 36 hooks)
 
 ## 3. Verify Installation (1 min)
 
@@ -48,7 +48,7 @@ cd opc && uv run python scripts/core/recall_learnings.py --query "setup"
 
 ## 4. Start Using (1 min)
 
-Claude Code now has:
+The system now has:
 
 - **Persistent Memory**: Learnings stored in PostgreSQL with vector search
 - **Handoff System**: Transfer context between sessions
@@ -57,7 +57,7 @@ Claude Code now has:
 
 ### Natural Language Commands
 
-Just say these phrases to Claude:
+Just say these phrases to the agent:
 
 | Say This | What Happens |
 |----------|--------------|

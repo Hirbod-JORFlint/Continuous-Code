@@ -18,7 +18,7 @@ Interactive discovery system for learning what tools, workflows, agents, and hoo
 
 ### Interactive Mode (no arguments)
 
-When you run `/help` without arguments, Claude asks what you're trying to accomplish:
+When you run `/help` without arguments, the agent asks what you're trying to accomplish:
 
 - **Explore/understand a codebase** - Routes to scout agent, tldr CLI, /explore workflow
 - **Fix a bug** - Routes to /fix workflow, sleuth agent, debug-agent
@@ -45,13 +45,13 @@ Pass a topic to get focused documentation:
 ### Find the right workflow
 ```
 User: /help
-Claude: What are you trying to do?
+Agent: What are you trying to do?
         [ ] Explore/understand a codebase
         [ ] Fix a bug
         [ ] Build a feature
         [x] Other: "optimize performance"
 
-Claude: For performance optimization, consider:
+Agent: For performance optimization, consider:
         - profiler agent: Performance analysis, race conditions
         - tldr arch: Detect architectural bottlenecks
         - /refactor workflow: Safe code transformations
@@ -61,7 +61,7 @@ Claude: For performance optimization, consider:
 ```
 User: /help kraken
 
-Claude: ## kraken - TDD Implementation Agent
+Agent: ## kraken - TDD Implementation Agent
 
         Purpose: Implementation and refactoring using test-driven development
         Model: sonnet
@@ -83,7 +83,7 @@ Claude: ## kraken - TDD Implementation Agent
 ```
 User: /help hooks
 
-Claude: ## Active Hooks
+Agent: ## Active Hooks
 
         ### Session Lifecycle
         - session-register: Register session in coordination DB

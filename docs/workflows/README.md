@@ -4,7 +4,7 @@ Workflow skills are multi-agent pipelines that orchestrate specialized agents to
 
 ## Overview
 
-Instead of manually coordinating multiple agents, simply describe your goal and Claude routes to the appropriate workflow. Each workflow handles the full lifecycle of its task type, from research to validation.
+Instead of manually coordinating multiple agents, simply describe your goal and the agent routes to the appropriate workflow. Each workflow handles the full lifecycle of its task type, from research to validation.
 
 ## Available Workflows
 
@@ -78,11 +78,11 @@ You don't need to invoke workflows explicitly. Just describe your goal:
 
 ```
 User: The login button isn't working
-Claude: [Activates /fix workflow]
+Agent: [Activates /fix workflow]
       scout → spark → arbiter
 
 User: Add user authentication
-Claude: [Activates /build workflow]
+Agent: [Activates /build workflow]
       plan-agent → kraken → arbiter → scribe
 ```
 

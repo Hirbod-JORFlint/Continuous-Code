@@ -1,8 +1,8 @@
-# Continuous Claude v3 - Architecture Guide
+# Continuous Code v3 - Architecture Guide
 
 ## Executive Summary
 
-Continuous Claude v3 is an **agentic AI development environment** built on top of Claude Code. It transforms a single AI assistant into a coordinated system of specialized agents, with automatic context management, semantic memory, and token-efficient code analysis. Think of it as "VS Code + GitHub Copilot, but the AI can delegate to specialist AIs, remember past sessions, and understand code at the AST level."
+Continuous Code v3 is an **agentic AI development environment** built on top of a harness-neutral agent engine. It transforms a single AI assistant into a coordinated system of specialized agents, with automatic context management, semantic memory, and token-efficient code analysis. Think of it as "VS Code + GitHub Copilot, but the AI can delegate to specialist AIs, remember past sessions, and understand code at the AST level."
 
 The system has four main layers: **Skills** (what users can trigger), **Hooks** (automatic behaviors), **Agents** (specialized sub-assistants), and **Infrastructure** (persistence and analysis tools).
 
@@ -428,7 +428,7 @@ User: "debug the authentication bug"
 ### Code Context Injection Flow
 
 ```
-Claude wants to Read file.py
+The agent wants to Read file.py
          |
          v
 +-------------------+
@@ -452,7 +452,7 @@ Claude wants to Read file.py
 ### Search Routing Flow
 
 ```
-Claude calls Grep("validateToken")
+The agent calls Grep("validateToken")
          |
          v
 +-------------------+

@@ -1,10 +1,10 @@
 # Multi-Session Architecture
 
-How handoffs and status lines work across multiple Claude Code instances.
+How handoffs and status lines work across multiple agent instances.
 
 ## Overview
 
-When multiple Claude Code instances work on the same project, they share workflow state through handoffs. The status line shows the **latest workflow checkpoint**, not per-instance state.
+When multiple agent instances work on the same project, they share workflow state through handoffs. The status line shows the **latest workflow checkpoint**, not per-instance state.
 
 ## Architecture
 

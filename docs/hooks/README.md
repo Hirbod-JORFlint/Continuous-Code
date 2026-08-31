@@ -1,11 +1,11 @@
 # Hook System
 
-Hooks are automatic behaviors triggered at specific lifecycle points during Claude sessions. They enable powerful features like smart search routing, file conflict prevention, real-time type checking, and multi-session coordination.
+Hooks are automatic behaviors triggered at specific lifecycle points during agent sessions. They enable powerful features like smart search routing, file conflict prevention, real-time type checking, and multi-session coordination.
 
 ## Overview
 
 Hooks run automatically at defined lifecycle events (session start, user prompt, tool use, etc.) and can:
-- Inject context into Claude's awareness
+- Inject context into the agent's awareness
 - Block/redirect tool calls to more efficient alternatives
 - Validate code changes in real-time
 - Coordinate across concurrent sessions
@@ -23,7 +23,7 @@ Triggered when a new session begins or a session is resumed.
 - **Source values**: `startup`, `resume`, `clear`, `compact`
 
 ### UserPromptSubmit
-Triggered when the user submits a prompt (before Claude responds).
+Triggered when the user submits a prompt (before the agent responds).
 - **Input**: `{ session_id, hook_event_name, prompt, cwd }`
 - **Use cases**: Skill activation suggestions, memory awareness, pattern inference
 
@@ -56,7 +56,7 @@ Triggered when a subagent completes.
 - **Use cases**: Learning extraction, pattern completion tracking
 
 ### Stop
-Triggered when Claude generates a stop sequence (task completion).
+Triggered when the agent generates a stop sequence (task completion).
 - **Input**: `{ session_id, transcript_path, stop_hook_active }`
 - **Use cases**: Auto-handoff creation, force continuation
 - **CRITICAL**: Check `stop_hook_active: true` to prevent infinite loops!
@@ -74,7 +74,7 @@ Triggered when a permission dialog would be shown to the user.
 - **Requires matcher**: YES (matches tool name)
 
 ### Notification
-Triggered when Claude Code sends a notification.
+Triggered when the engine sends a notification.
 - **Input**: `{ session_id, message, notification_type }`
 - **Notification types**: `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`
 - **Use cases**: Custom notification handling, alerts
@@ -117,7 +117,7 @@ Triggered when Claude Code sends a notification.
 - Extracts intent from user prompt (removes meta-language)
 - Fast text search against archival_memory database
 - Injects MEMORY MATCH context if relevant learnings found
-- Claude proactively discloses and uses memories
+- The agent proactively discloses and uses memories
 
 **premortem-suggest** (UserPromptSubmit)
 - Suggests running premortem analysis for complex tasks
@@ -149,7 +149,7 @@ Triggered when Claude Code sends a notification.
 - Extracts function calls from edit content
 - Looks up function signatures from symbol index
 - Injects signatures as additional context
-- Helps Claude use correct parameters without reading definition files
+- Helps the agent use correct parameters without reading definition files
 
 **import-validator** (PostToolUse:Edit, PostToolUse:Write)
 - Validates import statements in edited files
@@ -161,7 +161,7 @@ Triggered when Claude Code sends a notification.
 **typescript-preflight** (PostToolUse:Edit, PostToolUse:Write)
 - Runs tsc + qlty after TypeScript file edits
 - Returns type errors and lint issues immediately
-- Blocks with error message so Claude can fix before proceeding
+- Blocks with error message so the agent can fix before proceeding
 - Skips node_modules and test files
 
 **compiler-in-the-loop** (PostToolUse, Stop)
@@ -271,12 +271,12 @@ Hooks execute in the order listed. For PreToolUse, if any hook returns `deny`, s
 
 | Hook Event | Effect of Exit Code 2 |
 |------------|----------------------|
-| PreToolUse | Blocks tool, stderr shown to Claude |
-| PermissionRequest | Denies permission, stderr shown to Claude |
-| PostToolUse | stderr shown to Claude (tool already ran) |
+| PreToolUse | Blocks tool, stderr shown to the agent |
+| PermissionRequest | Denies permission, stderr shown to the agent |
+| PostToolUse | stderr shown to the agent (tool already ran) |
 | UserPromptSubmit | Blocks prompt, erases it, stderr shown to user only |
-| Stop | Blocks stoppage, stderr shown to Claude |
-| SubagentStop | Blocks stoppage, stderr shown to Claude subagent |
+| Stop | Blocks stoppage, stderr shown to the agent |
+| SubagentStop | Blocks stoppage, stderr shown to the agent subagent |
 | Notification | stderr shown to user only |
 | PreCompact | stderr shown to user only |
 | SessionStart | stderr shown to user only |
@@ -303,7 +303,7 @@ Use an LLM (Haiku) to make context-aware decisions. Best for Stop and SubagentSt
 ```json
 {
   "type": "prompt",
-  "prompt": "Evaluate if Claude should stop. Context: $ARGUMENTS. Check if all tasks are complete.",
+  "prompt": "Evaluate if the agent should stop. Context: $ARGUMENTS. Check if all tasks are complete.",
   "timeout": 30
 }
 ```
@@ -378,7 +378,7 @@ interface UserPromptSubmitInput {
 ```typescript
 interface HookOutput {
   result?: 'continue' | 'block';
-  message?: string;  // Injected into Claude's context
+  message?: string;  // Injected into the agent's context
   hookSpecificOutput?: {
     hookEventName: string;
     permissionDecision?: 'allow' | 'deny' | 'ask';
@@ -468,27 +468,27 @@ main();
 2. **Timeout Awareness**: Keep execution under timeout limit. Use async spawn for slow tasks.
 3. **Silent Failures**: Log errors to stderr, not stdout (stdout is parsed as JSON).
 4. **Idempotency**: Hooks may run multiple times. Design for idempotent behavior.
-5. **Context Injection**: Use `message` for user-visible output, `additionalContext` for Claude-only context.
+5. **Context Injection**: Use `message` for user-visible output, `additionalContext` for agent-only context.
 6. **Token Efficiency**: Keep injected context concise. TLDR hooks save 95% tokens vs raw files.
 
 ## Hook Behavior Examples
 
 ### TLDR Read Enforcement
 
-When Claude tries to read a code file:
+When the agent tries to read a code file:
 
 ```
 Read → tldr-read-enforcer hook intercepts
      → Analyzes search context (from smart-search-router)
      → Returns structured context (L1:AST + L2:CallGraph)
-     → Claude receives function signatures + call graph (500 tokens)
+     → The agent receives function signatures + call graph (500 tokens)
      → vs raw file read (5000 tokens)
      → 90% token savings
 ```
 
 ### Smart Search Routing
 
-When Claude tries to grep:
+When the agent tries to grep:
 
 ```
 Grep "process_data" → smart-search-router hook intercepts
@@ -501,26 +501,26 @@ Grep "process_data" → smart-search-router hook intercepts
 
 ### Multi-Session Coordination
 
-When Claude tries to edit a file:
+When the agent tries to edit a file:
 
 ```
 Edit file.py → file-claims hook intercepts
             → Checks PostgreSQL for file claim
             → Session A already editing file.py
             → Warns: "File conflict: Session A is editing file.py"
-            → Claude can coordinate or edit different file
+            → The agent can coordinate or edit different file
 ```
 
 ### Type Checking
 
-When Claude edits a TypeScript file:
+When the agent edits a TypeScript file:
 
 ```
 Edit hook.ts → typescript-preflight hook runs after edit
             → Executes: tsc --noEmit hook.ts
             → Finds: "Type 'string' not assignable to 'number'"
             → Blocks with error message
-            → Claude sees error immediately and fixes in next turn
+            → The agent sees error immediately and fixes in next turn
 ```
 
 ### Skill Activation
@@ -532,7 +532,7 @@ Prompt: "refactor this code" → skill-activation-prompt hook runs
                              → Matches "refactor" keyword
                              → Suggests: refactor skill (high priority)
                              → Suggests: premortem skill (medium priority)
-                             → Claude: /refactor before responding
+                             → The agent: /refactor before responding
 ```
 
 ## Advanced Features
@@ -638,7 +638,7 @@ Comment out in `.claude/settings.json`:
 
 ### Check Hook Timeout
 
-If hook exceeds timeout, it's killed and Claude continues. Increase timeout if needed:
+If hook exceeds timeout, it's killed and the agent continues. Increase timeout if needed:
 
 ```json
 {

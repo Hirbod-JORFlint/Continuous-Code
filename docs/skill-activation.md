@@ -1,12 +1,12 @@
-# How to Talk to Claude
+# How to Talk to the Agent
 
 **You don't need to memorize slash commands.** Just describe what you want naturally.
 
 ## The Skill Activation System
 
-When you send a message, a hook injects context that tells **Claude** which skills and agents are relevant. Claude infers from a rule-based system and decides which tools to use.
+When you send a message, a hook injects context that tells **the agent** which skills and agents are relevant. The agent infers from a rule-based system and decides which tools to use.
 
-### What Claude Sees
+### What the Agent Sees
 
 ```
 > "Fix the login bug in auth.py"
@@ -76,7 +76,7 @@ When your context usage hits thresholds, you'll see tiered warnings:
 | 80-89% | Warning | "Recommend: /create-handoff then /clear soon" |
 | 90%+ | **CRITICAL** | "Run /create-handoff NOW before auto-compact!" |
 
-These ensure you preserve state before Claude Code's automatic compaction.
+These ensure you preserve state before the agent's automatic compaction.
 
 ## Natural Language Examples
 
@@ -214,14 +214,14 @@ Then adjust the threshold in `.claude/hooks/src/skill-activation-prompt.ts` (lin
 The complete flow:
 
 1. **You type**: "Fix the broken login"
-2. **UserPromptSubmit hook fires**: Reads your message before Claude sees it
+2. **prompt_submit hook fires**: Reads your message before the agent sees it
 3. **Pattern matching**: Checks 108 skills + 32 agents against keywords/intent
 4. **Validation**: Filters ambiguous matches (e.g., "test" in casual speech)
 5. **Priority sorting**: Groups by CRITICAL → RECOMMENDED → SUGGESTED → OPTIONAL
 6. **Context check**: Reads temp file from status.py for usage %
 7. **Resource check**: Checks active agent count vs limit
-8. **Output injected**: Suggestions appear above Claude's response
-9. **Claude responds**: With skill/agent recommendations in context
+8. **Output injected**: Suggestions appear above the agent's response
+9. **The agent responds**: With skill/agent recommendations in context
 
 This happens in **~50ms** and costs **zero tokens** (pre-prompt injection).
 

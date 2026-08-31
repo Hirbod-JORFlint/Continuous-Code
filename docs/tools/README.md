@@ -505,4 +505,3 @@ tail -f ~/.claude/logs/mcp-*.log
 - [Skills Documentation](/docs/skills/) - Workflow automation
 - [Hooks Documentation](/docs/hooks/) - Lifecycle extensions
 - [Agent Documentation](/docs/agents/) - Specialist agents
-- [CLAUDE.md](/.claude/CLAUDE.md) - Project configuration

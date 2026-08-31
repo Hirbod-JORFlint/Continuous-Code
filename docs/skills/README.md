@@ -2,7 +2,7 @@
 
 **Total Skills: 111+**
 
-This document organizes all Claude Code skills into a clear hierarchy: Meta-Skills (workflows), Key Skills (high-value tools), and Domain Skills (specialized capabilities).
+This document organizes all harness skills into a clear hierarchy: Meta-Skills (workflows), Key Skills (high-value tools), and Domain Skills (specialized capabilities).
 
 ---
 
@@ -83,7 +83,7 @@ Skills that provide exceptional value across multiple workflows.
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| **commit** | Git commits with user approval (no Claude attribution) | After implementation phases |
+| **commit** | Git commits with user approval (no AI attribution) | After implementation phases |
 | **describe-pr** | Generate comprehensive PR descriptions | Creating/updating pull requests |
 | **git-commits** | Git best practices and patterns | Reference for commit message format |
 
@@ -166,7 +166,7 @@ Specialized capabilities organized by domain.
 
 | Skill | Purpose |
 |-------|---------|
-| **hook-developer** | Developing Claude Code hooks |
+| **hook-developer** | Developing harness lifecycle hooks |
 | **debug-hooks** | Debugging hook issues |
 | **hooks** | Hook system architecture and patterns |
 | **braintrust-tracing** | Tracing hook execution |
@@ -487,7 +487,7 @@ Many meta-skills internally compose other skills:
 - Use `continuity-ledger` during long sessions before `/clear`
 
 ### Git Workflow
-- `commit` skill handles user approval and Claude attribution removal
+- `commit` skill handles user approval and AI attribution removal
 - `describe-pr` generates comprehensive PR descriptions from git diff
 - Both skills are checkpointed in meta-workflows
 

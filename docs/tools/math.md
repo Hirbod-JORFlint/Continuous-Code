@@ -1,6 +1,6 @@
 # Mathematical Computation and Formal Verification
 
-Continuous Claude provides a complete mathematical stack combining symbolic computation, constraint solving, unit arithmetic, computational geometry, and machine-verified proofs.
+Continuous Code provides a complete mathematical stack combining symbolic computation, constraint solving, unit arithmetic, computational geometry, and machine-verified proofs.
 
 ## Overview
 

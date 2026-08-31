@@ -8,7 +8,7 @@ Stop burning context windows. Start shipping features.
 
 ## The Problem: Context Window Bankruptcy
 
-Your codebase is 100,000 lines. Claude can read ~200,000 tokens. Math says you're already in trouble.
+Your codebase is 100,000 lines. An LLM can read ~200,000 tokens. Math says you're already in trouble.
 
 | Approach | Tokens | What You Get |
 |----------|--------|--------------|
@@ -566,7 +566,7 @@ Compare to **30 seconds** per CLI spawn.
 
 ---
 
-## Integration with Claude Code
+## Integration with the Harness
 
 TLDR integrates via TypeScript hooks that query the daemon for zero-overhead code understanding:
 
@@ -596,7 +596,7 @@ const result = queryDaemonSync(projectDir, {
 // Fallback: If daemon not running, client auto-spawns CLI
 ```
 
-**Result:** Claude gets code understanding automatically, without manual commands, without 30-second waits.
+**Result:** The agent gets code understanding automatically, without manual commands, without 30-second waits.
 
 ### Shift-Left Validation
 
@@ -921,7 +921,7 @@ python /path/to/opc/scripts/benchmark_tokens.py
 | Tokens for function context | 21K | 175 | **99% savings** |
 | Tokens for codebase overview | 104K | 12K | **89% savings** |
 
-**Cost impact:** At Claude Sonnet rates (~$3/M input tokens), saving 166K tokens per session = ~$0.50/session. Over 1,000 sessions, that's $500.
+**Cost impact:** At model rates (~$3/M input tokens), saving 166K tokens per session = ~$0.50/session. Over 1,000 sessions, that's $500.
 
 ---
 

@@ -503,7 +503,7 @@ critic:
 
 #### session-analyst
 - **Model:** Opus
-- **Purpose:** Analyze Claude Code sessions via Braintrust
+- **Purpose:** Analyze agent sessions via Braintrust
 - **When to use:** Need to analyze session data from Braintrust
 - **Output:** `.claude/cache/agents/session-analyst/latest-output.md`
 
@@ -730,7 +730,7 @@ kraken (implement) → review-agent (verify) → arbiter (test)
 
 ### Agent output file empty
 - **Cause:** Agent failed before writing output
-- **Fix:** Check Claude Code logs for error
+- **Fix:** Check the harness/agent logs for errors
 
 ## Migration Notes
 

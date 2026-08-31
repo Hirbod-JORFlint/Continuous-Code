@@ -1,6 +1,6 @@
 # OPC-Dev Documentation
 
-Extended Claude Code workspace with workflow orchestration, specialist agents, and development automation.
+Extended agent workspace with workflow orchestration, specialist agents, and development automation.
 
 ## Quick Start
 
@@ -61,7 +61,7 @@ Lifecycle extensions for validation, coordination, and automation.
 ## Getting Started
 
 1. Run `/help` to discover capabilities interactively
-2. Describe your goal - Claude routes to the right workflow
+2. Describe your goal - the agent routes to the right workflow
 3. Or invoke specific workflows: `/fix`, `/build`, `/prove`
 
 ## Requirements
