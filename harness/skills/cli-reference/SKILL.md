@@ -1,21 +1,21 @@
 ---
 name: cli-reference
-description: Claude Code CLI commands, flags, headless mode, and automation patterns
+description: Legacy driver CLI reference (Claude CLI, until Step 11) - flags, headless mode, automation patterns
 allowed-tools: [Read]
 ---
 
 # CLI Reference
 
-Complete reference for Claude Code command-line interface.
+Legacy driver CLI reference. Documents the `claude` command-line interface that drives the current runtime until the multi-driver harness is fully active (Step 11). In harness terms, this is the driver-native transport; generic agent spawn/handoff patterns live in `opc-architecture` and `hooks`.
 
 ## When to Use
 
 - "What CLI flags are available?"
 - "How do I use headless mode?"
-- "Claude in automation/CI/CD"
+- "CLI in automation/CI/CD"
 - "Output format options"
 - "System prompt via CLI"
-- "How do I spawn agents properly?"
+- "How do I spawn agents properly?" (see `opc-architecture` for the harness way)
 
 ## Core Commands
 
@@ -99,7 +99,7 @@ When Lead uses Task tool, it auto-spawns from these definitions. No manual spawn
 | `--system-prompt-file` | **Replace** from file | Print only |
 | `--append-system-prompt` | **Append** to default (recommended) | Interactive + Print |
 
-**Use `--append-system-prompt`** for most cases - preserves Claude Code capabilities.
+**Use `--append-system-prompt`** for most cases - preserves driver capabilities.
 
 ## Model Selection
 

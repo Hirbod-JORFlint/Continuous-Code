@@ -267,7 +267,7 @@ tldr semantic search "database connection" --expand  # Follow call graph
 
 ### Configuration
 
-In `.claude/settings.json`:
+Example keys (not yet wired to any driver config — reserved for future use):
 ```json
 {
   "semantic_search": {

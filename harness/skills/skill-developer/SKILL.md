@@ -1,12 +1,12 @@
 ---
 name: skill-developer
-description: Meta-skill for creating and managing Claude Code skills
+description: Meta-skill for creating and managing skills
 allowed-tools: [Bash, Read, Write, Edit]
 ---
 
 # Skill Developer
 
-Meta-skill for creating new Claude Code skills, including skills that wrap MCP pipelines.
+Meta-skill for creating new skills, including skills that wrap MCP pipelines.
 
 ## When to Use
 
@@ -38,10 +38,10 @@ allowed-tools: [Bash, Read, Write]  # Optional: restrict tools
 # Skill Name
 
 ## When to Use
-[When Claude should discover this skill]
+[When the agent should discover this skill]
 
 ## Instructions
-[Step-by-step instructions for Claude to follow]
+[Step-by-step instructions for the agent to follow]
 
 ## Examples
 [Usage examples]

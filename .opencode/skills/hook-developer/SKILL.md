@@ -1,19 +1,20 @@
 ---
 name: hook-developer
-description: Complete Claude Code hooks reference - input/output schemas, registration, testing patterns
+description: Legacy hooks transport reference (until Step 11) - input/output schemas, registration, testing. For manifest-first development see the `hooks` skill.
 ---
 
 # Hook Developer
 
-Complete reference for developing Claude Code hooks. Use this to write hooks with correct input/output schemas.
+Legacy-transport reference for the current `.claude/settings.json` + `.claude/hooks/` bridge. Use this while the legacy bridge is live; it is superseded by the manifest-first `hooks` skill once the bridge is re-homed (Step 11).
+
+> **Prefer `hooks` skill for new work:** New hooks should be Python handlers in `harness/lifecycle/hooks/`, registered in `harness/lifecycle/hooks.toml`, and activated by regenerating driver configs. This file documents the legacy transport that still drives the current runtime.
 
 ## When to Use
 
-- Creating a new hook
-- Debugging hook input/output format
-- Understanding what fields are available
-- Setting up hook registration in settings.json
-- Learning what hooks can block vs inject context
+- Debugging a hook that currently runs through the legacy bridge
+- Reading legacy `settings.json` / `.claude/hooks` wiring (pre-Step-11)
+- Understanding the existing runtime payload contract
+- **For new hooks:** use the `hooks` skill instead
 
 ## Quick Reference
 
@@ -382,7 +383,7 @@ Plain text stdout is added as context.
 
 ---
 
-## Registration in settings.json
+## Registration in settings.json (legacy transport, until Step 11)
 
 ### Standard Structure
 

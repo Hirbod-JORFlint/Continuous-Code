@@ -1,6 +1,6 @@
 ---
 name: sub-agents
-description: Create and configure Claude Code sub-agents with custom prompts, tools, and models
+description: Create and configure engine sub-agents with custom prompts, tools, and models
 allowed-tools: [Read, Write, Bash]
 user-invocable: false
 ---
@@ -23,11 +23,11 @@ Create specialized AI agents with isolated contexts for specific tasks.
 ```bash
 /agents
 ```
-Opens menu to create, edit, and manage agents.
+Open the driver's agent menu (legacy: `/agents` in Claude Code until Step 11) to create, edit, and manage agents.
 
 ### Manual Creation
 ```bash
-mkdir -p .claude/agents
+mkdir -p harness/agents
 cat > harness/agents/reviewer.md << 'EOF'
 ---
 name: reviewer
@@ -46,8 +46,12 @@ You are a senior code reviewer focusing on quality and security.
 EOF
 ```
 
-### CLI-Based
+Then activate via the harness generator (`gen_opencode.py` etc.) or the driver's native agent CLI
+(legacy: `claude --agents '{...}'` until Step 11).
+
+### Legacy CLI-Based
 ```bash
+# Legacy driver CLI until Step 11
 claude --agents '{
   "reviewer": {
     "description": "Code reviewer",
@@ -150,8 +154,8 @@ Debugging process:
 
 | Type | Location | Priority |
 |------|----------|----------|
-| Project | `harness/agents/` | Highest |
-| User | `~/.claude/agents/` | Lower |
+| Harness project | `harness/agents/` | Highest |
+| User-global (Tier-3, until Step 9) | `~/.claude/agents/` | Lower |
 
 ## Advanced Patterns
 
@@ -159,7 +163,7 @@ Debugging process:
 ```
 [Agent returns agentId: "abc123"]
 
-# Later: resume with context
+# Later: resume with context (legacy driver CLI until Step 11)
 claude -r "abc123" "Continue analysis"
 ```
 

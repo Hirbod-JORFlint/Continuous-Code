@@ -1,6 +1,6 @@
 ---
 name: slash-commands
-description: Create and use Claude Code slash commands - quick prompts, bash execution, file references
+description: Create and use slash commands (native driver format) - quick prompts, bash execution, file references
 allowed-tools: [Read, Write, Bash]
 user-invocable: false
 ---
@@ -8,6 +8,8 @@ user-invocable: false
 # Slash Commands Reference
 
 Create and use user-triggered prompts with `/command-name` syntax.
+
+> **Transport note:** This reference documents Claude Code's native `.claude/commands/` format — the legacy command transport. A harness-neutral commands emitter (`harness/commands/` → per-driver configs, like `_emit_skills`) is not yet implemented; the `.opencode/commands/` port is an open tracker item. Until then, commands ship via the driver-native locations below.
 
 ## When to Use
 
@@ -35,7 +37,7 @@ Create and use user-triggered prompts with `/command-name` syntax.
 
 ## Creating Commands
 
-### Project Commands
+### Project Commands (driver-native)
 ```bash
 mkdir -p .claude/commands
 cat > .claude/commands/optimize.md << 'EOF'
@@ -50,7 +52,7 @@ Review this code for:
 EOF
 ```
 
-### Personal Commands
+### Personal Commands (user-global, Tier-3 until Step 9)
 ```bash
 mkdir -p ~/.claude/commands
 cat > ~/.claude/commands/review.md << 'EOF'
@@ -98,14 +100,14 @@ Based on these changes, suggest a commit message.
 **Rules:**
 - Must declare `allowed-tools: Bash(...)` in frontmatter
 - Use backticks: `` !`command` ``
-- Output is included in Claude's context
+- Output is included in the agent's context
 
 ## File References
 
 Include files with `@` prefix:
 
 ```markdown
-Review against @.claude/STYLE_GUIDE.md
+Review against @docs/STYLE_GUIDE.md
 
 Compare:
 - @src/old.js

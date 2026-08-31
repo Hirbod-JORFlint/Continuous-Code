@@ -127,8 +127,8 @@ def box_line(left: str, right: str, width: int = 60) -> str:
 # Data Collection
 # ============================================================================
 
-def get_claude_stats(session_id: str) -> dict:
-    """Get Claude Code session stats from temp file."""
+def get_session_stats(session_id: str) -> dict:
+    """Get current engine session stats from temp file."""
     tmp_dir = Path(tempfile.gettempdir())
     stats_file = tmp_dir / f'opc-session-stats-{session_id}.json'
 
@@ -275,14 +275,14 @@ def main():
     session_id = os.environ.get('OPC_SESSION_ID', 'unknown')[:8]
 
     # Collect data
-    claude_stats = get_claude_stats(session_id)
+    session_stats = get_session_stats(session_id)
     historical, global_totals = get_historical_stats()
 
-    # Extract metrics - prefer claude_stats, fallback to JSONL parsing
-    input_tokens = claude_stats.get('total_input_tokens', 0)
-    output_tokens = claude_stats.get('total_output_tokens', 0)
-    actual_cost = claude_stats.get('total_cost_usd', 0)
-    model_id = claude_stats.get('model_id', 'unknown')
+    # Extract metrics - prefer session_stats, fallback to JSONL parsing
+    input_tokens = session_stats.get('total_input_tokens', 0)
+    output_tokens = session_stats.get('total_output_tokens', 0)
+    actual_cost = session_stats.get('total_cost_usd', 0)
+    model_id = session_stats.get('model_id', 'unknown')
 
     # Fallback: if no stats file, parse JSONL directly
     if input_tokens == 0 and output_tokens == 0:
@@ -303,7 +303,7 @@ def main():
                           (output_tokens / 1_000_000) * 15.0
 
     # Price for savings estimate ($/M tokens as of Jan 2026)
-    # Claude 4.5 pricing from anthropic.com/pricing:
+    # Model pricing from anthropic.com/pricing:
     #   Haiku:  $1 input,  $5 output
     #   Sonnet: $3 input, $15 output
     #   Opus:   $5 input, $25 output

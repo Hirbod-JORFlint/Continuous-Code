@@ -20,7 +20,7 @@ Show a beautiful dashboard with token usage, actual API costs, TLDR savings, and
 
 1. Run the stats script:
 ```bash
-python3 $OPC_PROJECT_DIR/.claude/scripts/tldr_stats.py
+python3 $OPC_PROJECT_DIR/opc/scripts/tldr_stats.py
 ```
 
 2. **Copy the full output into your response** so the user sees the dashboard directly in the chat. Do not just run the command silently - the user wants to see the stats.
@@ -35,7 +35,7 @@ python3 $OPC_PROJECT_DIR/.claude/scripts/tldr_stats.py
   You've spent  $96.52  this session
 
   Tokens Used
-        1.2M sent to Claude
+        1.2M sent to model
       416.3K received back
        97.8K from prompt cache (8% reused)
 
@@ -63,7 +63,7 @@ python3 $OPC_PROJECT_DIR/.claude/scripts/tldr_stats.py
 
 | Metric | What it means |
 |--------|---------------|
-| **You've spent** | Actual $ spent on Claude API this session |
+| **You've spent** | Actual $ spent on the model API this session |
 | **You sent / Without TLDR** | Actual tokens vs what it would have been |
 | **TLDR saved you** | Money saved by compressing file reads |
 | **File reads X → Y** | Raw file tokens compressed to TLDR summary |

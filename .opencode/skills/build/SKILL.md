@@ -598,7 +598,7 @@ This reads `orchestration.yaml` and continues from the last incomplete phase.
 ```
 User: /build greenfield Add user authentication with OAuth
 
-Claude: Starting greenfield workflow for "Add user authentication with OAuth"
+Agent: Starting greenfield workflow for "Add user authentication with OAuth"
 
 Creating session: build-20260108-user-auth-oauth
 Chain: discovery-interview -> plan-agent -> validate-agent -> implement-plan -> commit -> describe-pr
@@ -674,7 +674,7 @@ PR #42: https://github.com/user/repo/pull/42
 ```
 User: /build tdd Add rate limiting to API endpoints
 
-Claude: Starting TDD workflow for "Add rate limiting to API endpoints"
+Agent: Starting TDD workflow for "Add rate limiting to API endpoints"
 
 Phase 1/3: Planning
 [Creates plan with test specifications]
@@ -721,7 +721,7 @@ Build complete!
 ```
 User: /build refactor Extract auth logic into separate module
 
-Claude: Starting refactor workflow for "Extract auth logic into separate module"
+Agent: Starting refactor workflow for "Extract auth logic into separate module"
 
 Phase 1/4: Impact Analysis
 Running: tldr impact auth src/ --depth 3
@@ -804,7 +804,7 @@ Only truly independent phases run in parallel. Dependencies are respected.
 
 ### Default mode preferences
 
-Set in `.claude/settings.json`:
+Set in driver plugin/config (manifest-owned, per driver):
 
 ```json
 {

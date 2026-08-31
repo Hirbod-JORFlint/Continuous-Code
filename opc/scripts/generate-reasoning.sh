@@ -9,7 +9,7 @@ set -e
 
 COMMIT_HASH="$1"
 COMMIT_MSG="$2"
-GIT_CLAUDE_DIR=".git/opc"
+GIT_OPC_DIR=".git/opc"
 
 if [[ -z "$COMMIT_HASH" ]]; then
     echo "Usage: generate-reasoning.sh <commit-hash> <commit-message>"
@@ -21,8 +21,8 @@ current_branch=$(git branch --show-current 2>/dev/null || echo "detached")
 safe_branch=$(echo "$current_branch" | tr '/' '-')
 
 # Branch-keyed attempts file
-ATTEMPTS_FILE="$GIT_CLAUDE_DIR/branches/$safe_branch/attempts.jsonl"
-OUTPUT_DIR="$GIT_CLAUDE_DIR/commits/$COMMIT_HASH"
+ATTEMPTS_FILE="$GIT_OPC_DIR/branches/$safe_branch/attempts.jsonl"
+OUTPUT_DIR="$GIT_OPC_DIR/commits/$COMMIT_HASH"
 
 mkdir -p "$OUTPUT_DIR"
 

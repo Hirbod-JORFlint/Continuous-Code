@@ -24,7 +24,7 @@ Pass explicit identifiers through the entire pipeline. "Most recent" is a race c
 - Query for "most recent session" at execution time
 - Assume the current context will still be current after await/spawn
 - Collapse different ID types:
-  - `session_id` = Claude Code session (human-facing)
+  - `session_id` = driver session (human-facing)
   - `root_span_id` = Braintrust trace (query key)
   - `turn_span_id` = Braintrust turn within session
 

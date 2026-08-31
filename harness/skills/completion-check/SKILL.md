@@ -17,17 +17,16 @@ Infrastructure is not done when the code is written - it's done when it's wired 
 1. **Trace the execution path** - Follow from user intent to actual code execution:
    ```bash
    # Example: Verify Task tool spawns correctly
-   grep -r "claude -p" src/
-   grep -r "Task(" src/
+   grep -r "subprocess\|spawn\|Task(" src/
    ```
 
 2. **Check hooks are registered**, not just implemented:
    ```bash
-   # Hook exists?
-   ls -la .claude/hooks/my-hook.sh
+   # Handler exists?
+   ls -la harness/lifecycle/hooks/pre-tool-use.py
 
-   # Hook registered in settings?
-   grep "my-hook" .claude/settings.json
+   # Handler registered in manifest?
+   grep "pre-tool-use" harness/lifecycle/hooks.toml
    ```
 
 3. **Verify database connections** - Ensure infrastructure uses the right backend:
@@ -60,7 +59,7 @@ Infrastructure is not done when the code is written - it's done when it's wired 
 
 - Mark infrastructure "complete" without testing execution path
 - Assume code is wired just because it exists
-- Build parallel systems (Task tool vs claude -p spawn)
+- Build parallel systems (driver-native spawn vs. a second bespoke spawn path)
 - Use wrong backends (SQLite when PostgreSQL is architected)
 - Skip end-to-end testing ("it compiles" ≠ "it runs")
 
@@ -69,7 +68,7 @@ Infrastructure is not done when the code is written - it's done when it's wired 
 Before declaring infrastructure complete:
 
 - [ ] Traced execution path from entry point to infrastructure
-- [ ] Verified hooks are registered in .claude/settings.json
+- [ ] Verified hooks are registered in `harness/lifecycle/hooks.toml`
 - [ ] Confirmed correct database/backend in use
 - [ ] Ran end-to-end test showing infrastructure invoked
 - [ ] Searched for dead code or parallel implementations
@@ -90,9 +89,9 @@ Before declaring infrastructure complete:
 ```
 ✓ Built BeadsTaskGraph class
 ✓ Wired into Task tool execution path
-✓ Verified claude -p spawn is called
+✓ Verified driver-native sub-agent spawn is called
 ✓ Confirmed PostgreSQL backend in use
-✓ Tested: user calls Task() → DAG spawns → beads execute
+✓ Tested: user calls Task → DAG spawns → beads execute
 ✓ No parallel implementations found
 ```
 

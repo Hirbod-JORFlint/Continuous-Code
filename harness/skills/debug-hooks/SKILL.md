@@ -6,7 +6,7 @@ allowed-tools: [Bash, Read, Grep]
 
 # Debug Hooks
 
-Systematic workflow for debugging Claude Code hooks.
+Systematic workflow for debugging lifecycle hooks.
 
 ## When to Use
 
@@ -30,38 +30,40 @@ ls -la $OPC_PROJECT_DIR/.opc/cache/learnings/
 # Check for debug logs
 tail $OPC_PROJECT_DIR/.opc/cache/*.log 2>/dev/null
 
-# Also check global (common mistake: wrong path)
+# Also check global state (Tier-3 user-global, re-homed in Step 9)
 ls -la ~/.claude/cache/ 2>/dev/null
 ```
 
 ### 2. Verify Hook Registration
 
-```bash
-# Project settings
-cat $OPC_PROJECT_DIR/.claude/settings.json | grep -A 20 '"SessionEnd"\|"PostToolUse"\|"UserPromptSubmit"'
+The source of truth is the neutral manifest `harness/lifecycle/hooks.toml`:
 
-# Global settings (hooks merge from both)
-cat ~/.claude/settings.json | grep -A 20 '"SessionEnd"\|"PostToolUse"\|"UserPromptSubmit"'
+```bash
+# Which hooks are declared per event?
+grep -A 8 "\[\[hooks.post_tool_use\]\]" $OPC_PROJECT_DIR/harness/lifecycle/hooks.toml
+
+# List every declared handler id
+grep -E '^id = "|hook_launcher.py ' $OPC_PROJECT_DIR/harness/lifecycle/hooks.toml
 ```
 
 ### 3. Check Hook Files Exist
 
 ```bash
-# Shell wrappers
-ls -la $OPC_PROJECT_DIR/.claude/hooks/*.sh
+# Re-homed Python handlers
+ls -la $OPC_PROJECT_DIR/harness/lifecycle/hooks/*.py
 
-# Compiled bundles (if using TypeScript)
+# Legacy bridge bundles (until Step 11)
 ls -la $OPC_PROJECT_DIR/.claude/hooks/dist/*.mjs
 ```
 
 ### 4. Test Hook Manually
 
 ```bash
-# SessionEnd hook
-echo '{"session_id": "test-123", "reason": "clear", "transcript_path": "/tmp/test"}' | \
-  $OPC_PROJECT_DIR/.claude/hooks/session-end-cleanup.sh
+# Re-homed handler through the canonical launcher
+echo '{"project_dir": "'"$OPC_PROJECT_DIR"'", "session_id": "test-123"}' | \
+  uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker
 
-# PostToolUse hook (Write tool example)
+# Legacy bridge handler (until Step 11)
 echo '{"tool_name": "Write", "tool_input": {"file_path": "test.md"}, "session_id": "test-123"}' | \
   $OPC_PROJECT_DIR/.claude/hooks/handoff-index.sh
 ```
@@ -87,7 +89,8 @@ spawn(cmd, args, {
 
 ### 6. Rebuild After Edits
 
-If you edited TypeScript source, you MUST rebuild:
+Re-homed Python handlers run directly (no build step). Only legacy
+TypeScript-based hooks need a rebuild (until Step 11):
 
 ```bash
 cd $OPC_PROJECT_DIR/.claude/hooks
@@ -96,25 +99,25 @@ npx esbuild src/session-end-cleanup.ts \
   --outfile=dist/session-end-cleanup.mjs
 ```
 
-Source edits alone don't take effect - the shell wrapper runs the bundled `.mjs`.
-
 ## Common Issues
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| Hook never runs | Not registered in settings.json | Add to correct event in settings |
+| Hook never runs | Not registered in `harness/lifecycle/hooks.toml` | Add a `[[hooks.<event>]]` entry, regenerate driver configs |
+| Handler not found | Launcher id ≠ handler filename | `hook_launcher.py <name>` requires `harness/lifecycle/hooks/<name>.py` |
 | Hook runs but no output | Detached spawn hiding errors | Add logging, check manually |
 | Wrong session ID | Using "most recent" query | Pass ID explicitly |
-| Works locally, not in CI | Missing dependencies | Check npx/node availability |
-| Runs twice | Registered in both global + project | Remove duplicate |
+| Works locally, not in CI | Missing deps (uv run / node) | Check uv/npx availability |
+| Runs twice | Registered in both manifest and legacy settings.json | Remove duplicate / legacy entry |
 
 ## Debug Checklist
 
 - [ ] Outputs exist? (`ls -la .opc/cache/`)
-- [ ] Registered? (`grep -A10 '"hooks"' .claude/settings.json`)
-- [ ] Files exist? (`ls .claude/hooks/*.sh`)
-- [ ] Bundle current? (`ls -la .claude/hooks/dist/`)
-- [ ] Manual test works? (`echo '{}' | ./hook.sh`)
+- [ ] Registered? (`grep -A8 '\[\[hooks.<event>\]\]' harness/lifecycle/hooks.toml`)
+- [ ] Handler exists? (`ls harness/lifecycle/hooks/*.py`)
+- [ ] Launcher resolves? (`uv run $HOME/.opc/hooks/hook_launcher.py <name>`)
+- [ ] Manual test works? (`echo '{}' | uv run $HOME/.opc/hooks/hook_launcher.py <name>`)
+- [ ] Regenerated driver config? (run the three `gen_*.py` after manifest edits)
 - [ ] No silent failures? (check for `stdio: 'ignore'`)
 
 ## Source Sessions

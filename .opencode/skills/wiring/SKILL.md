@@ -26,11 +26,11 @@ Before marking infrastructure "done", verify:
 ### Verify Entry Points
 
 ```bash
-# Hook registered?
-grep -r "orchestration" .claude/settings.json
+# Hook registered in manifest?
+grep -r "orchestration" harness/lifecycle/hooks.toml
 
 # Skill activated?
-grep -r "skill-name" .claude/skill-rules.json
+grep -r "skill-name" harness/skills/skill-rules.json
 
 # Script executable?
 ls -la scripts/orchestrate.py
@@ -42,13 +42,13 @@ grep -r "from orchestration_layer import" .
 ### Trace Call Graphs
 
 ```python
-# Entry point (hook)
-.claude/hooks/pre-tool-use.sh
+# Entry point (hook) — declared in manifest
+harness/lifecycle/hooks.toml
   ↓
-# Shell wrapper calls TypeScript
-npx tsx pre-tool-use.ts
+# Re-homed Python handler via canonical launcher
+uv run $HOME/.opc/hooks/hook_launcher.py <name>
   ↓
-# TypeScript calls Python script
+# Handler calls Python script
 spawn('scripts/orchestrate.py')
   ↓
 # Script imports module
@@ -64,8 +64,9 @@ dispatch(agent_type, task)
 # Don't just unit test the module
 pytest tests/unit/orchestration_layer_test.py  # NOT ENOUGH
 
-# Test the full invocation path
-echo '{"tool": "Task"}' | .claude/hooks/pre-tool-use.sh  # VERIFY THIS WORKS
+# Test the full invocation path (payload → handler → script)
+echo '{"project_dir": "/path/to/project", "matcher": "Task"}' | \
+  uv run $HOME/.opc/hooks/hook_launcher.py pre-tool-use  # VERIFY THIS WORKS
 ```
 
 ### Document Wiring
@@ -73,9 +74,9 @@ echo '{"tool": "Task"}' | .claude/hooks/pre-tool-use.sh  # VERIFY THIS WORKS
 ```markdown
 ## Wiring
 
-- **Entry Point**: PreToolUse hook on Task tool
-- **Registration**: `.claude/settings.json` line 45
-- **Call Path**: hook → pre-tool-use.ts → scripts/orchestrate.py → orchestration_layer.py
+- **Entry Point**: pre_tool_use hook on Task tool
+- **Registration**: `harness/lifecycle/hooks.toml` (pre_tool_use section)
+- **Call Path**: manifest → hook_launcher.py → scripts/orchestrate.py → orchestration_layer.py
 - **Test**: `tests/integration/task_orchestration_test.py`
 ```
 
@@ -132,29 +133,21 @@ pytest tests/integration/  # Verify full call path
 
 ### Hook Not Registered
 
-```json
-// .claude/settings.json - hook definition exists but not in hooks section
-{
-  "hooks": {
-    "PreToolUse": []  // Empty! Your hook never fires
-  }
-}
+```toml
+# harness/lifecycle/hooks.toml - handler exists but no [hooks.*] entry references it
+[[hooks.pre_tool_use]]
+# ...orchestration entry MISSING - your handler never fires
 ```
 
-**Fix**: Add hook registration:
-```json
-{
-  "hooks": {
-    "PreToolUse": [{
-      "matcher": ["Task"],
-      "hooks": [{
-        "type": "command",
-        "command": "$OPC_PROJECT_DIR/.claude/hooks/orchestration.sh"
-      }]
-    }]
-  }
-}
+**Fix**: Add the hook to the manifest:
+```toml
+[[hooks.pre_tool_use]]
+id = "orchestration"
+description = "Dispatch Task-tool work to the agent router"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py orchestration"
+matcher = "Task"
 ```
+Then regenerate driver configs (`gen_opencode.py`, `gen_codex.py`, `gen_cline.py`).
 
 ### Script Not Executable
 
@@ -205,7 +198,7 @@ Before marking infrastructure "complete":
 - [ ] Call graph documented (entry → module execution)
 - [ ] Integration test exercises full path
 - [ ] No orphaned modules (everything imported/called)
-- [ ] Registration complete (settings.json/skill-rules.json)
+- [ ] Registration complete (manifest: `harness/lifecycle/hooks.toml` / skill-rules.json)
 - [ ] Permissions correct (scripts executable)
 - [ ] Import paths verified (manual import test passes)
 
@@ -266,13 +259,15 @@ done
 ### Check Hook Registration
 
 ```bash
-# List all hooks in .claude/hooks/
-ls .claude/hooks/*.sh
+# List all hooks declared in the manifest
+grep -oE '^\[\[hooks\.[a-z_]+\]\]' harness/lifecycle/hooks.toml | sort -u
 
-# Check each is registered
-for hook in $(ls .claude/hooks/*.sh); do
-  basename_hook=$(basename $hook)
-  grep -q "$basename_hook" .claude/settings.json || echo "UNREGISTERED: $hook"
+# Check handlers exist for each declared id
+for id in $(grep -oE '^id = "[a-z0-9-]+"' harness/lifecycle/hooks.toml | cut -d'"' -f2); do
+  handler=$(grep -A5 "id = \"$id\"" harness/lifecycle/hooks.toml | grep -oE 'hook_launcher.py [a-z0-9-]+' | awk '{print $2}')
+  if [ -n "$handler" ] && [ ! -f "harness/lifecycle/hooks/$handler.py" ]; then
+    echo "MISSING HANDLER: $id -> $handler.py"
+  fi
 done
 ```
 

@@ -1,11 +1,11 @@
 ---
 name: braintrust-analyze
-description: Analyze Claude Code sessions via Braintrust
+description: Analyze engine sessions via Braintrust
 ---
 
 # Braintrust Analysis
 
-Analyze your Claude Code sessions for patterns, issues, and insights using Braintrust tracing data.
+Analyze your engine sessions for patterns, issues, and insights using Braintrust tracing data.
 
 ## When to Use
 

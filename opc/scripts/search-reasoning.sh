@@ -9,7 +9,7 @@
 # - Decisions and their rationale
 
 QUERY="$1"
-GIT_CLAUDE_DIR=".git/opc"
+GIT_OPC_DIR=".git/opc"
 
 if [[ -z "$QUERY" ]]; then
     echo "Usage: search-reasoning.sh <query>"
@@ -25,7 +25,7 @@ echo "Searching past reasoning for: \"$QUERY\""
 echo "==========================================="
 
 # Check if any reasoning files exist
-if ! ls "$GIT_CLAUDE_DIR/commits/"*/reasoning.md >/dev/null 2>&1; then
+if ! ls "$GIT_OPC_DIR/commits/"*/reasoning.md >/dev/null 2>&1; then
     echo ""
     echo "No reasoning files found."
     echo ""
@@ -35,14 +35,14 @@ if ! ls "$GIT_CLAUDE_DIR/commits/"*/reasoning.md >/dev/null 2>&1; then
 fi
 
 # Find all reasoning files and search
-matches=$(grep -l -i "$QUERY" "$GIT_CLAUDE_DIR/commits/"*/reasoning.md 2>/dev/null || echo "")
+matches=$(grep -l -i "$QUERY" "$GIT_OPC_DIR/commits/"*/reasoning.md 2>/dev/null || echo "")
 
 if [[ -z "$matches" ]]; then
     echo ""
     echo "No matches found for: \"$QUERY\""
     echo ""
     echo "Try different search terms or check available reasoning files:"
-    echo "  ls $GIT_CLAUDE_DIR/commits/*/reasoning.md"
+    echo "  ls $GIT_OPC_DIR/commits/*/reasoning.md"
     exit 0
 fi
 

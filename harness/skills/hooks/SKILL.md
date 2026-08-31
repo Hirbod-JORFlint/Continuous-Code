@@ -6,65 +6,84 @@ user-invocable: false
 
 # Hook Development Rules
 
-When working with files in `.claude/hooks/`:
+When working with lifecycle hooks:
+
+## Source of Truth
+
+- **Manifest**: `harness/lifecycle/hooks.toml` — declares event wiring per hook.
+- **Canonical handlers dir**: `harness/lifecycle/hooks/` — Python handlers + launcher.
+- **Generator flow**: `opc/scripts/harness/gen_{opencode,codex,cline}.py` translate the
+  manifest into each driver's hook configuration; `gen_claude` emits the live
+  (legacy) `settings.json` wiring. Do not edit generated configs directly.
 
 ## Pattern
-Shell wrapper (.sh) → TypeScript (.ts) via `npx tsx`
 
-## Shell Wrapper Template
+Re-homed Python handlers run through the canonical launcher:
+
 ```bash
-#!/bin/bash
-set -e
-cd "$OPC_PROJECT_DIR/.claude/hooks"
-cat | npx tsx <handler>.ts
+uv run $HOME/.opc/hooks/hook_launcher.py <handler-name>
 ```
 
-## TypeScript Handler Pattern
-```typescript
-interface HookInput {
-  // Event-specific fields
-}
+(`~/.opc/hooks` is a junction → `harness/lifecycle/hooks` today; copied by the
+Step 9 installer on other machines.)
 
-async function main() {
-  const input: HookInput = JSON.parse(await readStdin());
+## Handler Template (Python)
 
-  // Process input
+```python
+import sys
+from pathlib import Path
 
-  const output = {
-    result: 'continue',  // or 'block'
-    message: 'Optional system reminder'
-  };
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import project_dir  # noqa: E402
 
-  console.log(JSON.stringify(output));
-}
+def main():
+    pdir = Path(project_dir({}))
+    # read stdin payload, process, print JSON result
+
+if __name__ == '__main__':
+    main()
 ```
 
 ## Hook Events
-- **PreToolUse** - Before tool execution (can block)
-- **PostToolUse** - After tool execution
-- **UserPromptSubmit** - Before processing user prompt
-- **PreCompact** - Before context compaction
-- **SessionStart** - On session start/resume/compact
-- **Stop** - When agent finishes
+
+- **session_start** - On session start/resume/compact
+- **prompt_submit** - Before processing user prompt
+- **pre_tool_use** - Before tool execution (can block)
+- **post_tool_use** - After tool execution
+- **pre_compact** - Before context compaction
+- **stop** - When the agent finishes
+- **session_stop** - When the session ends
 
 ## Testing
-Test hooks manually:
+
+Run a handler directly by piping an event payload to the launcher:
+
 ```bash
-echo '{"type": "resume"}' | .claude/hooks/session-start-continuity.sh
+echo '{"project_dir": "/path/to/project", "matcher": "resume"}' | \
+  uv run $HOME/.opc/hooks/hook_launcher.py <handler-name>
 ```
 
 ## Registration
-Add hooks to `.claude/settings.json`:
-```json
-{
-  "hooks": {
-    "EventName": [{
-      "matcher": ["pattern"],  // Optional
-      "hooks": [{
-        "type": "command",
-        "command": "$OPC_PROJECT_DIR/.claude/hooks/hook.sh"
-      }]
-    }]
-  }
-}
+
+Add a handler to `harness/lifecycle/hooks/<name>.py`, then register it in
+`harness/lifecycle/hooks.toml`:
+
+```toml
+[[hooks.<event>]]
+id = "<name>"
+description = "What this hook does"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py <name>"
+timeout = 5
 ```
+
+Then regenerate driver configs:
+
+```bash
+python opc/scripts/harness/gen_opencode.py
+python opc/scripts/harness/gen_codex.py
+python opc/scripts/harness/gen_cline.py
+```
+
+Hooks that still need the legacy TS/bash transport carry a
+`transport = "legacy $HOME/.claude path until dist re-home (Step 11)"` key —
+extend re-homed hooks via the Python launcher path instead.

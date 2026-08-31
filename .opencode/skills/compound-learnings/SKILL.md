@@ -177,33 +177,34 @@ Create `harness/skills/<name>/SKILL.md` with:
 Add triggers to `skill-rules.json` if appropriate.
 
 #### For Hooks:
-Create shell wrapper + TypeScript handler:
+Create a Python handler in the canonical hooks dir + register in the manifest:
 
 ```bash
-# Shell wrapper
-cat > $OPC_PROJECT_DIR/.claude/hooks/<name>.sh << 'EOF'
-#!/bin/bash
-set -e
-cd "$OPC_PROJECT_DIR/.claude/hooks"
-cat | node dist/<name>.mjs
+# Python handler (re-homed path)
+cat > $OPC_PROJECT_DIR/harness/lifecycle/hooks/<name>.py << 'EOF'
+#!/usr/bin/env python3
+import json, sys
+
+# Read hook payload from stdin
+data = json.load(sys.stdin)
+# ... process ...
+
+# Optional output
+print(json.dumps({"permissionDecision": "allow"}))
 EOF
-chmod +x $OPC_PROJECT_DIR/.claude/hooks/<name>.sh
 ```
 
-Then create `src/<name>.ts`, build with esbuild, and register in `settings.json`:
+Then register in `harness/lifecycle/hooks.toml`:
 
-```json
-{
-  "hooks": {
-    "EventName": [{
-      "hooks": [{
-        "type": "command",
-        "command": "$OPC_PROJECT_DIR/.claude/hooks/<name>.sh"
-      }]
-    }]
-  }
-}
+```toml
+[[hooks.<event>]]
+id = "<name>"
+description = "..."
+command = "uv run $HOME/.opc/hooks/hook_launcher.py <name>"
+matcher = "<tool-or-event>"
 ```
+
+Activate by regenerating driver configs (`gen_opencode.py`, `gen_codex.py`, `gen_cline.py`).
 
 #### For Agent Updates:
 Edit existing agent in `harness/agents/<name>.md` to add the learned capability.
@@ -241,7 +242,7 @@ Before creating any artifact:
 - Learnings: `.opc/cache/learnings/*.md`
 - Skills: `harness/skills/<name>/SKILL.md`
 - Rules: `harness/rules/<name>.md`
-- Hooks: `.claude/hooks/<name>.sh` + `src/<name>.ts` + `dist/<name>.mjs`
+- Hooks: `harness/lifecycle/hooks/<name>.py` (handler) + `harness/lifecycle/hooks.toml` (registration)
 - Agents: `harness/agents/<name>.md`
 - Skill triggers: `harness/skills/skill-rules.json`
-- Hook registration: `.claude/settings.json` → `hooks` section
+- Hook activation: regenerate driver configs (gen_opencode/gen_codex/gen_cline)

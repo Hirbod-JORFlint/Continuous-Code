@@ -1,11 +1,11 @@
 ---
 name: system-overview
-description: Show users how Continuous Claude works - the opinionated setup with hooks, memory, and coordination
+description: Show users how Continuous Code works - the opinionated setup with hooks, memory, and coordination
 ---
 
 # System Overview
 
-Show users how Continuous Claude works - the opinionated setup with hooks, memory, and coordination.
+Show users how Continuous Code works - the opinionated setup with hooks, memory, and coordination.
 
 ## When to Use
 
@@ -17,7 +17,7 @@ Show users how Continuous Claude works - the opinionated setup with hooks, memor
 ## Response
 
 ```
-CONTINUOUS CLAUDE SYSTEM OVERVIEW
+CONTINUOUS CODE SYSTEM OVERVIEW
 =================================
 
 MEMORY LAYER (PostgreSQL + pgvector)
@@ -55,7 +55,8 @@ TLDR CODE INTELLIGENCE
 95% token savings vs reading raw files
 Auto-intercepts Grep for .py/.ts/.go/.rs files
 
-Pre-built index: /tmp/claude-symbol-index/symbols.json
+Pre-built tldr index: `.opc/cache/tldr/` (semantic index under `semantic/`)
+Warmed by the session-start hook via `tldr daemon warm <project>`
 
 SETUP
 -----
@@ -70,14 +71,14 @@ Options:
 
 | Component | Location |
 |-----------|----------|
-| Hook registration | `.claude/settings.json` |
-| Hook implementations | `.claude/hooks/src/*.ts` |
+| Hook manifest | `harness/lifecycle/hooks.toml` |
+| Hook implementations | `harness/lifecycle/hooks/` |
 | Rules (auto-injected) | `harness/rules/*.md` |
 | Skills | `harness/skills/*/SKILL.md` |
 | Setup wizard | `opc/scripts/setup/wizard.py` |
 | Recall script | `opc/scripts/recall_temporal_facts.py` |
 | Store learning | `opc/scripts/core/store_learning.py` |
-| Symbol index builder | `opc/scripts/build_symbol_index.py` |
+| Symbol/tldr index builder | `opc/scripts/tldr/build_symbol_index.py` |
 
 ## Environment Variables
 
@@ -86,4 +87,4 @@ Options:
 | `DATABASE_URL` | PostgreSQL connection |
 | `VOYAGE_API_KEY` | Embeddings (optional) |
 | `BRAINTRUST_API_KEY` | Tracing (optional) |
-| `OPC_PROJECT_DIR` | Auto-set by Claude Code |
+| `OPC_PROJECT_DIR` | Auto-set by the driver at session start |

@@ -1,12 +1,12 @@
 ---
 name: braintrust-tracing
-description: Braintrust tracing for Claude Code - hook architecture, sub-agent correlation, debugging
+description: Braintrust tracing for sessions - hook architecture, sub-agent correlation, debugging
 user-invocable: false
 ---
 
-# Braintrust Tracing for Claude Code
+# Braintrust Tracing for Sessions
 
-Comprehensive guide to tracing Claude Code sessions in Braintrust, including sub-agent correlation.
+Comprehensive guide to tracing engine sessions in Braintrust, including sub-agent correlation.
 
 ## Architecture Overview
 

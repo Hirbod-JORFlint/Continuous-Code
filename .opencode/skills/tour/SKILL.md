@@ -25,7 +25,7 @@ Give a warm, practical overview:
 
 ## What I Can Do
 
-I'm Claude Code with persistent memory and specialized capabilities. Here's what makes me useful:
+I'm your coding assistant with persistent memory and specialized capabilities. Here's what makes me useful:
 
 ### Code & Development
 - **Write & edit code** - any language, any framework

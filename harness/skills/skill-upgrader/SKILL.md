@@ -272,7 +272,7 @@ version: 5.1-hybrid
 ```
 User: "Upgrade harness/skills/implement-plan/SKILL.md to v5 Hybrid"
 
-Claude:
+Agent:
 1. Creates session directory
 2. Initializes blackboard
 3. Launches 4 agents in parallel (Task tool)

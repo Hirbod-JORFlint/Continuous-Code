@@ -7,7 +7,7 @@ allowed-tools: [Read, Bash, Glob, Grep]
 
 # MOT - System Health Check
 
-Run comprehensive health checks on all Claude Code components.
+Run comprehensive health checks on all engine components.
 
 ## Usage
 
@@ -27,12 +27,12 @@ Run comprehensive health checks on all Claude Code components.
 ```bash
 # Count skills
 echo "=== SKILLS ==="
-SKILL_COUNT=$(find .claude/skills -name "SKILL.md" | wc -l | xargs)
+SKILL_COUNT=$(find harness/skills -name "SKILL.md" | wc -l | xargs)
 echo "Found $SKILL_COUNT skill files"
 
 # Check frontmatter parsing
 FAIL=0
-for skill in $(find .claude/skills -name "SKILL.md"); do
+for skill in $(find harness/skills -name "SKILL.md"); do
   if ! head -1 "$skill" | grep -q "^---$"; then
     echo "FAIL: No frontmatter: $skill"
     FAIL=$((FAIL+1))
@@ -42,7 +42,7 @@ echo "Frontmatter: $((SKILL_COUNT - FAIL)) pass, $FAIL fail"
 
 # Check name matches directory
 FAIL=0
-for skill in $(find .claude/skills -name "SKILL.md"); do
+for skill in $(find harness/skills -name "SKILL.md"); do
   dir=$(basename $(dirname "$skill"))
   name=$(grep "^name:" "$skill" 2>/dev/null | head -1 | cut -d: -f2 | xargs)
   if [ -n "$name" ] && [ "$dir" != "$name" ]; then
@@ -98,41 +98,31 @@ done
 ```bash
 echo "=== HOOKS ==="
 
-# Check TypeScript source count
-TS_COUNT=$(ls .claude/hooks/src/*.ts 2>/dev/null | wc -l | xargs)
-echo "Found $TS_COUNT TypeScript source files"
+# Check manifest is valid (each id has a handler when launcher-based)
+TS_COUNT=$(grep -cE '^\[\[hooks\.' harness/lifecycle/hooks.toml 2>/dev/null | xargs)
+echo "Found $TS_COUNT hook entries in manifest"
 
-# Check bundles exist
-BUNDLE_COUNT=$(ls .claude/hooks/dist/*.mjs 2>/dev/null | wc -l | xargs)
-echo "Found $BUNDLE_COUNT built bundles"
-
-# Check shell wrappers are executable
+# Check re-homed launcher handlers exist
 FAIL=0
-for sh in .claude/hooks/*.sh; do
-  [ -f "$sh" ] || continue
-  if [ ! -x "$sh" ]; then
-    echo "FAIL: Not executable: $sh"
+for id in $(grep -oE '^id = "[a-z0-9-]+"' harness/lifecycle/hooks.toml | cut -d'"' -f2); do
+  handler=$(grep -A 8 "id = \"$id\"" harness/lifecycle/hooks.toml | grep -oE 'hook_launcher.py [a-z0-9-]+' | awk '{print $2}' | head -1)
+  if [ -n "$handler" ] && [ ! -f "harness/lifecycle/hooks/$handler.py" ]; then
+    echo "FAIL: Missing handler for $id: $handler.py"
     FAIL=$((FAIL+1))
   fi
 done
-SH_COUNT=$(ls .claude/hooks/*.sh 2>/dev/null | wc -l | xargs)
-echo "Shell wrappers: $((SH_COUNT - FAIL)) executable, $FAIL need chmod +x"
+echo "Launcher handlers: PASS check for $TS_COUNT manifest entries ($FAIL missing)"
 
-# Check hooks registered in settings.json exist
-echo "Checking registered hooks..."
-FAIL=0
-# Extract hook commands from settings.json and verify files exist
-grep -oE '"command":\s*"[^"]*\.sh"' .claude/settings.json 2>/dev/null | \
-  sed 's/.*"\([^"]*\.sh\)".*/\1/' | \
-  sed 's|\$OPC_PROJECT_DIR|.claude|g' | \
-  sed "s|\$HOME|$HOME|g" | \
-  sort -u | while read hook; do
-    # Resolve to actual path
-    resolved=$(echo "$hook" | sed 's|^\./||')
-    if [ ! -f "$resolved" ] && [ ! -f "./$resolved" ]; then
-      echo "WARN: Registered hook not found: $hook"
-    fi
-  done
+# Check legacy bridge entries still exist (.claude, until Step 11)
+LB_FAIL=0
+for cmd in $(grep -oE '"(bash|node) \$HOME/\.claude[^"]*"' harness/lifecycle/hooks.toml 2>/dev/null | sed 's/.*\$HOME//;s/"$//'); do
+  resolved=".claude${cmd#/.claude}"
+  if [ -n "$cmd" ] && [ ! -e "$resolved" ]; then
+    echo "WARN: Legacy bridge path missing (Step 11): $resolved"
+    LB_FAIL=$((LB_FAIL+1))
+  fi
+done
+echo "Legacy bridge paths (Step 11): $LB_FAIL missing"
 ```
 
 ### Phase 4: Memory Audit
@@ -185,7 +175,7 @@ echo "=== CROSS-REFERENCES ==="
 # Check skills reference valid agents
 echo "Checking skill → agent references..."
 FAIL=0
-for skill in $(find .claude/skills -name "SKILL.md"); do
+for skill in $(find harness/skills -name "SKILL.md"); do
   refs=$(grep -oE 'subagent_type[=:]["'\'']*([a-z-]+)' "$skill" 2>/dev/null | sed 's/.*["'\'']//' | sed 's/["'\'']$//')
   for ref in $refs; do
     if [ -n "$ref" ] && [ ! -f "harness/agents/$ref.md" ]; then
@@ -201,12 +191,12 @@ echo "Skill→Agent refs: $FAIL broken"
 
 If `--fix` is specified, automatically fix:
 
-1. **Make shell wrappers executable**
+1. **Make shell wrappers executable** (legacy bridge, until Step 11)
    ```bash
    chmod +x .claude/hooks/*.sh
    ```
 
-2. **Rebuild hooks if TypeScript newer than bundles**
+2. **Rebuild legacy hooks if TypeScript newer than bundles** (until Step 11)
    ```bash
    cd .claude/hooks && npm run build
    ```
@@ -259,6 +249,6 @@ Generated: {timestamp}
 
 Only run P0 checks:
 1. Frontmatter parses
-2. Hooks build
-3. Shell wrappers executable
+2. Manifest hooks have handlers (launcher-backed)
+3. Legacy bridge wrappers exist (until Step 11)
 4. PostgreSQL reachable

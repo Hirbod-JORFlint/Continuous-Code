@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create git commits with user approval and no Claude attribution
+description: Create git commits with user approval and no AI attribution
 ---
 
 # Commit Changes
@@ -32,15 +32,15 @@ You are tasked with creating git commits for the changes made during this sessio
    - Show the result with `git log --oneline -n [number]`
 
 5. **Generate reasoning (after each commit):**
-   - Run: `bash "$OPC_PROJECT_DIR/.claude/scripts/generate-reasoning.sh" <commit-hash> "<commit-message>"`
+   - Run: `bash "$OPC_PROJECT_DIR/opc/scripts/generate-reasoning.sh" <commit-hash> "<commit-message>"`
    - This captures what was tried during development (build failures, fixes)
    - The reasoning file helps future sessions understand past decisions
    - Stored in `.git/opc/commits/<hash>/reasoning.md`
 
 ## Important:
-- **NEVER add co-author information or Claude attribution**
+- **NEVER add co-author information or AI attribution**
 - Commits should be authored solely by the user
-- Do not include any "Generated with Claude" messages
+- Do not include any "Generated with ..." messages
 - Do not add "Co-Authored-By" lines
 - Write commit messages as if the user wrote them
 

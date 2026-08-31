@@ -6,7 +6,7 @@ set -e
 # Used by /describe_pr to include "Approaches Tried" section in PR descriptions
 
 BASE="${1:-main}"
-GIT_CLAUDE_DIR=".git/opc"
+GIT_OPC_DIR=".git/opc"
 
 echo "## Approaches Tried"
 echo ""
@@ -25,7 +25,7 @@ if [[ -z "$commits" ]]; then
 fi
 
 for commit in $commits; do
-    reasoning_file="$GIT_CLAUDE_DIR/commits/$commit/reasoning.md"
+    reasoning_file="$GIT_OPC_DIR/commits/$commit/reasoning.md"
 
     if [[ -f "$reasoning_file" ]]; then
         found_any=true
