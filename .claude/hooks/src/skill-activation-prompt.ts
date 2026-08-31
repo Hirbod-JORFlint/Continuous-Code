@@ -494,7 +494,7 @@ async function main() {
         // OPC_PPID kept for backwards compatibility with bash wrapper
         const rawSessionId = data.session_id || process.env.OPC_SESSION_ID || process.env.OPC_PPID || 'default';
         const sessionId = rawSessionId.slice(0, 8);  // Match status.py truncation
-        const contextFile = join(tmpdir(), `claude-context-pct-${sessionId}.txt`);
+        const contextFile = join(tmpdir(), `opc-context-pct-${sessionId}.txt`);
         if (existsSync(contextFile)) {
             try {
                 const pct = parseInt(readFileSync(contextFile, 'utf-8').trim(), 10);

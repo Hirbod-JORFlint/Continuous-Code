@@ -73,7 +73,7 @@ async function main() {
     // Update continuity ledger with session end
     const ledgerDir = path.join(projectDir, 'thoughts', 'ledgers');
     const ledgerFiles = fs.readdirSync(ledgerDir)
-      .filter(f => f.startsWith('CONTINUITY_CLAUDE-') && f.endsWith('.md'));
+      .filter(f => f.startsWith('CONTINUITY-') && f.endsWith('.md'));
 
     if (ledgerFiles.length > 0) {
       const mostRecent = ledgerFiles.sort((a, b) => {
@@ -99,7 +99,7 @@ async function main() {
     }
 
     // Clean up old agent cache files (older than 7 days)
-    const agentCacheDir = path.join(projectDir, '.claude', 'cache', 'agents');
+    const agentCacheDir = path.join(projectDir, '.opc', 'cache', 'agents');
     if (fs.existsSync(agentCacheDir)) {
       const now = Date.now();
       const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days

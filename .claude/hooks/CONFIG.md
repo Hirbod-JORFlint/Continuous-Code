@@ -306,17 +306,17 @@ You don't need all hooks. Choose what works for your project:
 ### Cache Location
 
 ```
-$OPC_PROJECT_DIR/.claude/tsc-cache/[session_id]/
+$OPC_PROJECT_DIR/.opc/cache/tsc-cache/[session_id]/
 ```
 
 ### Manual Cache Cleanup
 
 ```bash
 # Remove all cached data
-rm -rf $OPC_PROJECT_DIR/.claude/tsc-cache/*
+rm -rf $OPC_PROJECT_DIR/.opc/cache/tsc-cache/*
 
 # Remove specific session
-rm -rf $OPC_PROJECT_DIR/.claude/tsc-cache/[session-id]
+rm -rf $OPC_PROJECT_DIR/.opc/cache/tsc-cache/[session-id]
 ```
 
 ### Automatic Cleanup

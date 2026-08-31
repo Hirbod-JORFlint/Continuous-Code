@@ -484,7 +484,7 @@ async function main() {
     }
     const rawSessionId = data.session_id || process.env.OPC_SESSION_ID || process.env.OPC_PPID || "default";
     const sessionId = rawSessionId.slice(0, 8);
-    const contextFile = join2(tmpdir2(), `claude-context-pct-${sessionId}.txt`);
+    const contextFile = join2(tmpdir2(), `opc-context-pct-${sessionId}.txt`);
     if (existsSync2(contextFile)) {
       try {
         const pct = parseInt(readFileSync2(contextFile, "utf-8").trim(), 10);

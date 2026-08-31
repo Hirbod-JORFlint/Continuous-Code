@@ -218,7 +218,7 @@ async function main() {
   const input = JSON.parse(await readStdin());
   const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   const ledgerDir = path.join(projectDir, "thoughts", "ledgers");
-  const ledgerFiles = fs2.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md"));
+  const ledgerFiles = fs2.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY-") && f.endsWith(".md"));
   if (ledgerFiles.length === 0) {
     const output = {
       continue: true,
@@ -234,7 +234,7 @@ async function main() {
   })[0];
   const ledgerPath = path.join(ledgerDir, mostRecent);
   if (input.trigger === "auto") {
-    const sessionName = mostRecent.replace("CONTINUITY_CLAUDE-", "").replace(".md", "");
+    const sessionName = mostRecent.replace("CONTINUITY-", "").replace(".md", "");
     let handoffFile = "";
     if (input.transcript_path && fs2.existsSync(input.transcript_path)) {
       const summary = parseTranscript(input.transcript_path);
@@ -273,7 +273,7 @@ Ledger: ${mostRecent}`
 function generateAutoSummary(projectDir, sessionId) {
   const timestamp = (/* @__PURE__ */ new Date()).toISOString();
   const lines = [];
-  const cacheDir = path.join(projectDir, ".claude", "tsc-cache", sessionId || "default");
+  const cacheDir = path.join(projectDir, ".opc", "cache", "tsc-cache", sessionId || "default");
   const editedFilesPath = path.join(cacheDir, "edited-files.log");
   let editedFiles = [];
   if (fs2.existsSync(editedFilesPath)) {
@@ -285,7 +285,7 @@ function generateAutoSummary(projectDir, sessionId) {
       }).filter((f) => f)
     )];
   }
-  const gitClaudeDir = path.join(projectDir, ".git", "claude", "branches");
+  const gitClaudeDir = path.join(projectDir, ".git", "opc", "branches");
   let buildAttempts = { passed: 0, failed: 0 };
   if (fs2.existsSync(gitClaudeDir)) {
     try {

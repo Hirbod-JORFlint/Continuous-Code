@@ -9,7 +9,7 @@
 # - Decisions and their rationale
 
 QUERY="$1"
-GIT_CLAUDE_DIR=".git/claude"
+GIT_CLAUDE_DIR=".git/opc"
 
 if [[ -z "$QUERY" ]]; then
     echo "Usage: search-reasoning.sh <query>"

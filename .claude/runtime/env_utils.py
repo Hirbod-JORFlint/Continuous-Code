@@ -85,7 +85,7 @@ def load_project_env(start_path: Path | None = None) -> bool:
 
     Searches for .env in:
     1. Current directory or specified path
-    2. ~/.claude/.env (global fallback)
+    2. ~/.opc/.env (global fallback)
 
     Does not override existing environment variables.
 

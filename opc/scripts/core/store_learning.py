@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Store session learnings in PostgreSQL with pgvector embeddings.
 
-Claude-native learning storage - called by stop-learnings hook or memory extractor.
+Neutral learning storage - called by stop-learnings hook or memory extractor.
 Stores learnings in memory for semantic recall in future sessions.
 
 Usage (legacy):
@@ -47,7 +47,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load global ~/.claude/.env first, then local .env
+# Load global ~/.opc/.env first, then local .env
 global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)

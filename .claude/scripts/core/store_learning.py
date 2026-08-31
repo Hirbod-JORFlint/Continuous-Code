@@ -47,7 +47,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load global ~/.claude/.env first, then local .env
+# Load global ~/.opc/.env first, then local .env
 global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)

@@ -83,7 +83,7 @@ $OPC_PROJECT_DIR/thoughts/shared/plans/[feature-name]-plan.md
 
 **Also write summary to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/architect/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/architect/output-{timestamp}.md
 ```
 
 ## Output Format

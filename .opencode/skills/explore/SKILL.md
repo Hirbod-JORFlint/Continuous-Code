@@ -207,7 +207,7 @@ Comprehensive exploration with documentation output. Best for:
 - Creating reference documentation
 
 **Steps:**
-1. Check if onboarded (look for `.claude/cache/tldr/`), if not run onboard
+1. Check if onboarded (look for `.opc/cache/tldr/`), if not run onboard
 2. Run tldr-explorer for structure
 3. Spawn research-codebase agent for patterns
 4. Write findings to doc or handoff
@@ -215,7 +215,7 @@ Comprehensive exploration with documentation output. Best for:
 **Subprocess:**
 ```
 # 1. Onboard check
-if [ ! -f .claude/cache/tldr/arch.json ]; then
+if [ ! -f .opc/cache/tldr/arch.json ]; then
     # Spawn onboard agent
 fi
 
@@ -392,7 +392,7 @@ fi
 **Deep:**
 ```bash
 # 1. Check/run onboard
-if [ ! -f .claude/cache/tldr/meta.json ]; then
+if [ ! -f .opc/cache/tldr/meta.json ]; then
     # Spawn onboard agent via Task tool
 fi
 

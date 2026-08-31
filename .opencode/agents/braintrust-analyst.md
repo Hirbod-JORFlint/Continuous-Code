@@ -40,7 +40,7 @@ Other analyses (run as needed):
 
 **ALWAYS write your findings to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/braintrust-analyst/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/braintrust-analyst/output-{timestamp}.md
 ```
 
 Use Read-then-Write pattern:

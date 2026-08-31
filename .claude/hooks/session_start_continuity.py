@@ -332,7 +332,7 @@ def get_instance_session(terminal_pid: int) -> str | None:
         Session name if found, None otherwise
     """
     project_dir = get_project_dir()
-    db_path = project_dir / ".claude" / "cache" / "artifact-index" / "context.db"
+    db_path = project_dir / ".opc" / "cache" / "artifact-index" / "context.db"
 
     if not db_path.exists():
         return None
@@ -363,7 +363,7 @@ def set_instance_session(terminal_pid: int, session_name: str) -> bool:
         True if successful, False otherwise
     """
     project_dir = get_project_dir()
-    db_dir = project_dir / ".claude" / "cache" / "artifact-index"
+    db_dir = project_dir / ".opc" / "cache" / "artifact-index"
     db_path = db_dir / "context.db"
 
     try:
@@ -508,7 +508,7 @@ def get_unmarked_handoffs() -> list[dict[str, Any]]:
     """Query artifact index for unmarked handoffs."""
     try:
         project_dir = get_project_dir()
-        db_path = project_dir / ".claude" / "cache" / "artifact-index" / "context.db"
+        db_path = project_dir / ".opc" / "cache" / "artifact-index" / "context.db"
 
         if not db_path.exists():
             return []
@@ -765,7 +765,7 @@ def main() -> None:
         if ledger_dir.exists():
             ledger_files = sorted(
                 [f for f in ledger_dir.iterdir()
-                 if f.name.startswith("CONTINUITY_CLAUDE-") and f.suffix == ".md"],
+                 if f.name.startswith("CONTINUITY-") and f.suffix == ".md"],
                 key=lambda f: f.stat().st_mtime,
                 reverse=True
             )
@@ -773,7 +773,7 @@ def main() -> None:
             if ledger_files and session_type != "startup":
                 print("DEPRECATED: Using legacy ledger. Migrate with /create_handoff", file=sys.stderr)
                 ledger_path = ledger_files[0]
-                session_name = ledger_path.stem.replace("CONTINUITY_CLAUDE-", "")
+                session_name = ledger_path.stem.replace("CONTINUITY-", "")
                 message = f"[{session_type}] Legacy ledger: {session_name} (migrate with /create_handoff)"
 
     # No handoff/ledger found

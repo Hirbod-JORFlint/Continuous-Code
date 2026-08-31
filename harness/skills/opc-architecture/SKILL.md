@@ -72,7 +72,7 @@ opc/
 5. PreToolUse hook fires, checks resources
 6. Hook spawns `claude -p "research..."` as subprocess
 7. Hook stores PID in PostgreSQL
-8. Child agent runs, writes output to `.claude/cache/agents/<id>/`
+8. Child agent runs, writes output to `.opc/cache/agents/<id>/`
 9. Child completes, broadcasts "done" to PostgreSQL
 10. Parent checks DB, reads child's output file
 

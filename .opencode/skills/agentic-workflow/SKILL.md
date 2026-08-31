@@ -12,7 +12,7 @@ Standard multi-agent pipeline for implementation tasks.
 
 - Use `run_in_background: true` for all agents to keep main context minimal
 - Use `Task` tool (never `TaskOutput`) to avoid receiving full agent transcripts
-- Agents write outputs to `.claude/cache/agents/<stage>/` for injection into subsequent agents
+- Agents write outputs to `.opc/cache/agents/<stage>/` for injection into subsequent agents
 - Main conversation is pure orchestration — no heavy lifting, only coordination
 
 ## Workflow Stages
@@ -22,7 +22,7 @@ Standard multi-agent pipeline for implementation tasks.
 Task(subagent_type="oracle", run_in_background=true, prompt="""
 Query NIA Oracle (via /nia-docs skill) to verify approach and gather best practices.
 
-Output to: .claude/cache/agents/oracle/<task>-research.md
+Output to: .opc/cache/agents/oracle/<task>-research.md
 """)
 ```
 - Enforce NIA as the research layer
@@ -31,11 +31,11 @@ Output to: .claude/cache/agents/oracle/<task>-research.md
 ### 2. Planning Agent
 ```
 Task(subagent_type="plan-agent", run_in_background=true, prompt="""
-Read: .claude/cache/agents/oracle/<task>-research.md
+Read: .opc/cache/agents/oracle/<task>-research.md
 Use RP-CLI to analyze the target codebase section.
 Generate implementation plan informed by research.
 
-Output to: .claude/cache/agents/plan-agent/<task>-plan.md
+Output to: .opc/cache/agents/plan-agent/<task>-plan.md
 """)
 ```
 - Receives: Research agent output as context
@@ -44,11 +44,11 @@ Output to: .claude/cache/agents/plan-agent/<task>-plan.md
 ### 3. Validation Agent
 ```
 Task(subagent_type="validate-agent", run_in_background=true, prompt="""
-Read: .claude/cache/agents/plan-agent/<task>-plan.md
-Read: .claude/cache/agents/oracle/<task>-research.md
+Read: .opc/cache/agents/plan-agent/<task>-plan.md
+Read: .opc/cache/agents/oracle/<task>-research.md
 Review plan against research findings and best practices.
 
-Output to: .claude/cache/agents/validate-agent/<task>-validated.md
+Output to: .opc/cache/agents/validate-agent/<task>-validated.md
 """)
 ```
 - Reviews plan against research
@@ -57,13 +57,13 @@ Output to: .claude/cache/agents/validate-agent/<task>-validated.md
 ### 4. Implementation Agent
 ```
 Task(subagent_type="agentica-agent", run_in_background=true, prompt="""
-Read: .claude/cache/agents/validate-agent/<task>-validated.md
-Read: .claude/cache/agents/oracle/<task>-research.md
+Read: .opc/cache/agents/validate-agent/<task>-validated.md
+Read: .opc/cache/agents/oracle/<task>-research.md
 
 TDD approach: Write failing tests FIRST, then implement.
 Run tests to verify.
 
-Output summary to: .claude/cache/agents/implement-agent/<task>-implementation.md
+Output summary to: .opc/cache/agents/implement-agent/<task>-implementation.md
 """)
 ```
 - Receives: Validated plan + research context
@@ -73,14 +73,14 @@ Output summary to: .claude/cache/agents/implement-agent/<task>-implementation.md
 ### 5. Review Agent
 ```
 Task(subagent_type="review-agent", run_in_background=true, prompt="""
-Read: .claude/cache/agents/implement-agent/<task>-implementation.md
-Read: .claude/cache/agents/validate-agent/<task>-validated.md
-Read: .claude/cache/agents/oracle/<task>-research.md
+Read: .opc/cache/agents/implement-agent/<task>-implementation.md
+Read: .opc/cache/agents/validate-agent/<task>-validated.md
+Read: .opc/cache/agents/oracle/<task>-research.md
 
 Cross-reference implementation against plan and research.
 Run tests to confirm passing.
 
-Output to: .claude/cache/agents/review-agent/<task>-review.md
+Output to: .opc/cache/agents/review-agent/<task>-review.md
 """)
 ```
 - Cross-references all artifacts
@@ -94,10 +94,10 @@ Output to: .claude/cache/agents/review-agent/<task>-review.md
 # "Agent a42a16e progress: 6 new tools used, 88914 new tokens"
 
 # Poll for output files:
-find .claude/cache/agents -name "*.md" -mmin -5
+find .opc/cache/agents -name "*.md" -mmin -5
 
 # Check task file size growth:
-wc -c /tmp/claude/.../tasks/<id>.output
+wc -c /tmp/opc/.../tasks/<id>.output
 ```
 
 **Stuck detection:**
@@ -108,7 +108,7 @@ wc -c /tmp/claude/.../tasks/<id>.output
 ## Directory Structure
 
 ```
-.claude/cache/agents/
+.opc/cache/agents/
 ├── oracle/
 │   └── <task>-research.md
 ├── plan-agent/

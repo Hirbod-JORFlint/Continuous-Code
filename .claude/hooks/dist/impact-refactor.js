@@ -131,7 +131,7 @@ async function main() {
         return;
     }
     const projectDir = process.env.OPC_PROJECT_DIR || input.cwd;
-    const cacheDir = join(projectDir, '.claude', 'cache', 'tldr');
+    const cacheDir = join(projectDir, '.opc', 'cache', 'tldr');
     const results = [];
     for (const funcName of functions.slice(0, 3)) { // Max 3 functions
         // Try cache first

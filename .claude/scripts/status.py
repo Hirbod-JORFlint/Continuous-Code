@@ -73,7 +73,7 @@ def cleanup_old_context_files(tmp_dir: Path, max_age_hours: int = 1) -> None:
 
     try:
         cutoff = time.time() - (max_age_hours * 3600)
-        for f in tmp_dir.glob("claude-context-pct-*.txt"):
+        for f in tmp_dir.glob("opc-context-pct-*.txt"):
             try:
                 if f.stat().st_mtime < cutoff:
                     f.unlink()
@@ -106,7 +106,7 @@ def write_session_stats(data: dict) -> None:
     """
     session_id = get_session_id(data)
     tmp_dir = Path(tempfile.gettempdir())
-    stats_file = tmp_dir / f"claude-session-stats-{session_id}.json"
+    stats_file = tmp_dir / f"opc-session-stats-{session_id}.json"
 
     try:
         ctx = data.get("context_window", {})
@@ -151,7 +151,7 @@ def write_context_pct(context_pct: int, data: dict) -> None:
     """
     session_id = get_session_id(data)
     tmp_dir = Path(tempfile.gettempdir())
-    tmp_file = tmp_dir / f"claude-context-pct-{session_id}.txt"
+    tmp_file = tmp_dir / f"opc-context-pct-{session_id}.txt"
     try:
         # Check for context drop (auto-compaction detection)
         if tmp_file.exists():
@@ -318,7 +318,7 @@ def get_continuity_info(project_dir: Path) -> tuple[str, str]:
     if not goal and not now_focus:
         ledgers_dir = project_dir / "thoughts" / "ledgers"
         if ledgers_dir.exists():
-            ledger_files = list(ledgers_dir.glob("CONTINUITY_CLAUDE-*.md"))
+            ledger_files = list(ledgers_dir.glob("CONTINUITY-*.md"))
             if ledger_files:
                 ledger_files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
                 try:

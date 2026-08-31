@@ -32,7 +32,7 @@ def get_db_path(custom_path: str | None = None) -> Path:
     if custom_path:
         path = Path(custom_path)
     else:
-        path = Path(".claude/cache/artifact-index/context.db")
+        path = Path(".opc/cache/artifact-index/context.db")
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -368,8 +368,8 @@ def parse_continuity(file_path: Path) -> dict:
     # Generate ID
     file_id = hashlib.md5(str(file_path).encode()).hexdigest()[:12]
 
-    # Extract session name from filename (CONTINUITY_CLAUDE-<session>.md)
-    session_match = re.search(r"CONTINUITY_CLAUDE-(.+)\.md", file_path.name)
+    # Extract session name from filename (CONTINUITY-<session>.md)
+    session_match = re.search(r"CONTINUITY-(.+)\.md", file_path.name)
     session_name = session_match.group(1) if session_match else file_path.stem
 
     # Extract sections
@@ -421,7 +421,7 @@ def parse_continuity(file_path: Path) -> dict:
 def index_continuity(conn: sqlite3.Connection, base_path: Path = Path(".")):
     """Index all continuity ledgers into the database."""
     count = 0
-    for ledger_file in base_path.glob("CONTINUITY_CLAUDE-*.md"):
+    for ledger_file in base_path.glob("CONTINUITY-*.md"):
         try:
             data = parse_continuity(ledger_file)
             conn.execute(
@@ -524,7 +524,7 @@ def index_single_file(conn: sqlite3.Connection, file_path: Path) -> bool:
             print(f"Error indexing plan {file_path}: {e}")
             return False
 
-    elif file_path.name.startswith("CONTINUITY_CLAUDE-"):
+    elif file_path.name.startswith("CONTINUITY-"):
         try:
             data = parse_continuity(file_path)
             conn.execute(

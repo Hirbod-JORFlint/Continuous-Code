@@ -1150,7 +1150,7 @@ async def main():
     args = parser.parse_args(args_to_parse)
 
     if not NIA_API_KEY:
-        print("Error: NIA_API_KEY not found. Set in environment or ~/.claude/.env")
+        print("Error: NIA_API_KEY not found. Set in environment or ~/.opc/.env")
         return
 
     try:

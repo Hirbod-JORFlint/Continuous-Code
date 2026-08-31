@@ -140,7 +140,7 @@ function getLatestHandoff(handoffDir) {
 function getUnmarkedHandoffs() {
   try {
     const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
-    const dbPath = path.join(projectDir, ".claude", "cache", "artifact-index", "context.db");
+    const dbPath = path.join(projectDir, ".opc", "cache", "artifact-index", "context.db");
     if (!fs.existsSync(dbPath)) {
       return [];
     }
@@ -271,7 +271,7 @@ Full handoff available at: ${handoffPath}
       console.log(JSON.stringify({ result: "continue" }));
       return;
     }
-    const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md")).sort((a, b) => {
+    const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY-") && f.endsWith(".md")).sort((a, b) => {
       const statA = fs.statSync(path.join(ledgerDir, a));
       const statB = fs.statSync(path.join(ledgerDir, b));
       return statB.mtime.getTime() - statA.mtime.getTime();
@@ -286,7 +286,7 @@ Full handoff available at: ${handoffPath}
       const nowMatch = ledgerContent.match(/- Now: ([^\n]+)/);
       const goalSummary = goalMatch ? goalMatch[1].trim().split("\n")[0].substring(0, 100) : "No goal found";
       const currentFocus = nowMatch ? nowMatch[1].trim() : "Unknown";
-      const sessionName = mostRecent.replace("CONTINUITY_CLAUDE-", "").replace(".md", "");
+      const sessionName = mostRecent.replace("CONTINUITY-", "").replace(".md", "");
       const handoffDir = path.join(projectDir, "thoughts", "shared", "handoffs", sessionName);
       const latestHandoff = getLatestHandoff(handoffDir);
       if (sessionType === "startup") {

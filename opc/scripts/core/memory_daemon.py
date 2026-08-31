@@ -2,7 +2,7 @@
 """
 Global Memory Extraction Daemon
 
-A singleton daemon that monitors for stale Claude sessions and automatically
+A singleton daemon that monitors for stale session heartbeats and automatically
 extracts learnings when sessions end (heartbeat goes stale).
 
 USAGE:
@@ -39,7 +39,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env files for DATABASE_URL (cross-platform)
-# 1. Global ~/.claude/.env (API keys, may have DB config)
+# 1. Global ~/.opc/.env (API keys, may have DB config)
 global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
@@ -53,7 +53,7 @@ if opc_env.exists():
 # Global config
 POLL_INTERVAL = 60  # seconds
 STALE_THRESHOLD = 300  # 5 minutes in seconds
-MAX_CONCURRENT_EXTRACTIONS = 2  # Limit concurrent headless claude processes
+MAX_CONCURRENT_EXTRACTIONS = 2  # Limit concurrent headless agent processes
 PID_FILE = Path.home() / ".claude" / "memory-daemon.pid"
 LOG_FILE = Path.home() / ".claude" / "memory-daemon.log"
 

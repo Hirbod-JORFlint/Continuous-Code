@@ -6,7 +6,7 @@ function readStdin() {
   return readFileSync(0, "utf-8");
 }
 function getCacheAge(projectDir) {
-  const metaPath = join(projectDir, ".claude", "cache", "tldr", "meta.json");
+  const metaPath = join(projectDir, ".opc", "cache", "tldr", "meta.json");
   if (!existsSync(metaPath)) return void 0;
   try {
     const meta = JSON.parse(readFileSync(metaPath, "utf-8"));
@@ -17,7 +17,7 @@ function getCacheAge(projectDir) {
   }
 }
 function isCacheStale(projectDir) {
-  const cacheDir = join(projectDir, ".claude", "cache", "tldr");
+  const cacheDir = join(projectDir, ".opc", "cache", "tldr");
   if (!existsSync(cacheDir)) return true;
   const age = getCacheAge(projectDir);
   return age === void 0 || age > 24;

@@ -33,7 +33,7 @@ You are tasked with generating a comprehensive pull request description followin
    - Get PR metadata: `gh pr view {number} --json url,title,number,state`
 
 4b. **Gather reasoning history (if available):**
-   - Check if reasoning files exist: `ls .git/claude/commits/*/reasoning.md 2>/dev/null`
+   - Check if reasoning files exist: `ls .git/opc/commits/*/reasoning.md 2>/dev/null`
    - If they exist, aggregate them: `bash "$OPC_PROJECT_DIR/.claude/scripts/aggregate-reasoning.sh" main`
    - This shows what approaches were tried before the final solution
    - Save the output for inclusion in the PR description

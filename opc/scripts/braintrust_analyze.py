@@ -70,7 +70,7 @@ import requests
 def load_api_key() -> str:
     """Load API key from environment or .env file."""
     # Try loading from .env files
-    for path in [Path.home() / ".claude", Path.cwd(), *Path.cwd().parents]:
+    for path in [Path.home() / ".opc", Path.cwd(), *Path.cwd().parents]:
         env_file = path / ".env"
         if env_file.exists():
             with open(env_file) as f:
@@ -83,7 +83,7 @@ def load_api_key() -> str:
     api_key = os.environ.get("BRAINTRUST_API_KEY")
     if not api_key:
         print("Error: BRAINTRUST_API_KEY not found.", file=sys.stderr)
-        print("Set it in ~/.claude/.env or project .env", file=sys.stderr)
+        print("Set it in ~/.opc/.env or project .env", file=sys.stderr)
         sys.exit(1)
     return api_key
 
@@ -1134,9 +1134,9 @@ Output in markdown format (not JSON)."""
 
 
 async def learn_from_session(project_id: str, api_key: str, session_id: str | None = None):
-    """Extract learnings from a session and save to .claude/cache/learnings/."""
+    """Extract learnings from a session and save to .opc/cache/learnings/."""
     project_dir = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
-    learnings_dir = Path(project_dir) / ".claude" / "cache" / "learnings"
+    learnings_dir = Path(project_dir) / ".opc" / "cache" / "learnings"
     learnings_dir.mkdir(parents=True, exist_ok=True)
 
     # Get session data (use provided ID or most recent)
@@ -1500,7 +1500,7 @@ def parse_args():
     group.add_argument(
         "--learn",
         action="store_true",
-        help="Extract learnings from session and save to .claude/cache/learnings/",
+        help="Extract learnings from session and save to .opc/cache/learnings/",
     )
     group.add_argument(
         "--review",
@@ -1609,7 +1609,7 @@ def main():
             sys.exit(1)
 
         plan_content = plan_file.read_text()
-        db_path = Path(project_dir) / ".claude" / "cache" / "artifact-index" / "context.db"
+        db_path = Path(project_dir) / ".opc" / "cache" / "artifact-index" / "context.db"
         result = asyncio.run(judge_plan_with_context(plan_content, str(db_path)))
 
         # Print results
@@ -1658,7 +1658,7 @@ def main():
         print(output_text)
 
         # Save to file
-        reviews_dir = Path(project_dir) / ".claude" / "cache" / "reviews"
+        reviews_dir = Path(project_dir) / ".opc" / "cache" / "reviews"
         reviews_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

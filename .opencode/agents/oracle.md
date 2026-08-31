@@ -105,7 +105,7 @@ uv run python -m runtime.harness scripts/llm_query.py \
 
 **ALWAYS write findings to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/oracle/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/oracle/output-{timestamp}.md
 ```
 
 ## Output Format

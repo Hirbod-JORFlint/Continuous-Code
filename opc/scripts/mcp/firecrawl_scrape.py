@@ -16,7 +16,7 @@ Usage:
   # Search the web
   uv run python scripts/firecrawl_scrape.py --search "firecrawl python tutorial"
 
-Requires: FIRECRAWL_API_KEY in environment or ~/.claude/.env
+Requires: FIRECRAWL_API_KEY in environment or ~/.opc/.env
 """
 
 import argparse
@@ -125,11 +125,11 @@ def handle_search_result(result: dict) -> int:
 
 
 def load_api_key() -> str:
-    """Load API key from environment or ~/.claude/.env."""
+    """Load API key from environment or ~/.opc/.env."""
     api_key = os.environ.get("FIRECRAWL_API_KEY", "")
 
     if not api_key:
-        # Try loading from ~/.claude/.env
+        # Try loading from ~/.opc/.env
         env_file = Path.home() / ".opc" / ".env"
         if env_file.exists():
             with open(env_file) as f:
@@ -176,7 +176,7 @@ async def firecrawl_scrape(url: str, formats: list[str], main_only: bool = True)
 
     api_key = load_api_key()
     if not api_key:
-        return {"error": "FIRECRAWL_API_KEY not found in environment or ~/.claude/.env"}
+        return {"error": "FIRECRAWL_API_KEY not found in environment or ~/.opc/.env"}
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
@@ -215,7 +215,7 @@ async def firecrawl_search(query: str, limit: int = 5) -> dict:
 
     api_key = load_api_key()
     if not api_key:
-        return {"error": "FIRECRAWL_API_KEY not found in environment or ~/.claude/.env"}
+        return {"error": "FIRECRAWL_API_KEY not found in environment or ~/.opc/.env"}
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 

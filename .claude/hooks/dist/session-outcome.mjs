@@ -15,7 +15,7 @@ async function main() {
     console.log(JSON.stringify({ result: "continue" }));
     return;
   }
-  const dbPath = path.join(projectDir, ".claude", "cache", "artifact-index", "context.db");
+  const dbPath = path.join(projectDir, ".opc", "cache", "artifact-index", "context.db");
   const dbExists = fs.existsSync(dbPath);
   if (!dbExists) {
     console.log(JSON.stringify({ result: "continue" }));
@@ -24,7 +24,7 @@ async function main() {
   const ledgerDir = path.join(projectDir, "thoughts", "ledgers");
   let ledgerFiles;
   try {
-    ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md")).sort((a, b) => {
+    ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY-") && f.endsWith(".md")).sort((a, b) => {
       const statA = fs.statSync(path.join(ledgerDir, a));
       const statB = fs.statSync(path.join(ledgerDir, b));
       return statB.mtime.getTime() - statA.mtime.getTime();
@@ -37,7 +37,7 @@ async function main() {
     console.log(JSON.stringify({ result: "continue" }));
     return;
   }
-  const sessionName = ledgerFiles[0].replace("CONTINUITY_CLAUDE-", "").replace(".md", "");
+  const sessionName = ledgerFiles[0].replace("CONTINUITY-", "").replace(".md", "");
   const handoffDir = path.join(projectDir, "thoughts", "shared", "handoffs", sessionName);
   if (!fs.existsSync(handoffDir)) {
     console.log(JSON.stringify({ result: "continue" }));
@@ -68,7 +68,7 @@ To mark outcome and improve future sessions:
 
 To find handoff ID, query the database:
 
-  sqlite3 .claude/cache/artifact-index/context.db \\
+  sqlite3 .opc/cache/artifact-index/context.db \\
     "SELECT id, file_path FROM handoffs WHERE session_name='${sessionName}' ORDER BY indexed_at DESC LIMIT 1"
 
 Outcome meanings:

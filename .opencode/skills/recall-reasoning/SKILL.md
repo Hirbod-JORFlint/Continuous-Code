@@ -35,7 +35,7 @@ This searches handoffs with post-mortems (what worked, what failed, key decision
 bash "$OPC_PROJECT_DIR/.claude/scripts/search-reasoning.sh" "<query>"
 ```
 
-This searches `.git/claude/commits/*/reasoning.md` for build failures and fixes.
+This searches `.git/opc/commits/*/reasoning.md` for build failures and fixes.
 
 ## Examples
 
@@ -62,7 +62,7 @@ bash "$OPC_PROJECT_DIR/.claude/scripts/search-reasoning.sh" "TypeError"
 - **Key decisions** - Choices with rationale
 - Goal and constraints from ledgers
 
-**Reasoning Files** (`.git/claude/`):
+**Reasoning Files** (`.git/opc/`):
 - Failed build attempts and error output
 - Successful builds after failures
 - Commit context and branch info
@@ -95,4 +95,4 @@ bash "$OPC_PROJECT_DIR/.claude/scripts/search-reasoning.sh" "TypeError"
 
 **Reasoning files empty:**
 - Use `/commit` after builds to capture reasoning
-- Check if `.git/claude/` directory exists
+- Check if `.git/opc/` directory exists

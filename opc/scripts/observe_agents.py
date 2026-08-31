@@ -49,12 +49,12 @@ POSTGRES_URL = os.environ.get(
 PROJECT_DIR = Path(
     os.environ.get(
         "OPC_PROJECT_DIR",
-        "/Users/cosimo/Documents/experimental/research/mcp-test/claude-continuity-kit",
+        "/Users/example/workspace/opc-continuity-kit",
     )
 )
-BLACKBOARD_DIR = Path("/tmp/claude-blackboard")
-TASKS_DB = PROJECT_DIR / ".claude" / "cache" / "agentica-coordination" / "tasks.db"
-AGENTS_DIR = PROJECT_DIR / ".claude" / "cache" / "agents"
+BLACKBOARD_DIR = Path("/tmp/opc-blackboard")
+TASKS_DB = PROJECT_DIR / ".opc" / "cache" / "agentica-coordination" / "tasks.db"
+AGENTS_DIR = PROJECT_DIR / ".opc" / "cache" / "agents"
 
 
 async def query_memory(

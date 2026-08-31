@@ -437,7 +437,7 @@ If an MCP tool fails (API key missing, rate limited, etc.):
 ## Required Environment
 
 - `NIA_API_KEY` or `nia` server in mcp_config.json
-- `PERPLEXITY_API_KEY` in environment or `~/.claude/.env`
+- `PERPLEXITY_API_KEY` in environment or `~/.opc/.env`
 - `FIRECRAWL_API_KEY` and `firecrawl` server in mcp_config.json
 
 ## Notes

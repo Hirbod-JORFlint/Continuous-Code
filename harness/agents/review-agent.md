@@ -100,7 +100,7 @@ Parse the plan and list every requirement:
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | R1 | Add `--auto-insights` CLI flag | P0 |
-| R2 | Write insights to `.claude/cache/insights/` | P0 |
+| R2 | Write insights to `.opc/cache/insights/` | P0 |
 | R3 | Integrate with Stop hook | P1 |
 ```
 
@@ -160,7 +160,7 @@ Note any concerns in the Gaps section.
 
 **ALWAYS write output to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/review-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/review-agent/output-{timestamp}.md
 ```
 
 ### Output Format
@@ -235,7 +235,7 @@ After writing the full report, return a brief summary:
 
 **Gaps Found:** X (Y blocking)
 
-**Report:** .claude/cache/agents/review-agent/output-{timestamp}.md
+**Report:** .opc/cache/agents/review-agent/output-{timestamp}.md
 
 [If FAIL] **Action Required:** Address P0 gaps before proceeding
 [If PASS] **Ready for:** Handoff creation

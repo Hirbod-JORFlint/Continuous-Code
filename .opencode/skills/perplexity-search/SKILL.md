@@ -108,4 +108,4 @@ uv run python scripts/mcp/perplexity_search.py \
 
 ## API Key Required
 
-Requires `PERPLEXITY_API_KEY` in environment or `~/.claude/.env`.
+Requires `PERPLEXITY_API_KEY` in environment or `~/.opc/.env`.

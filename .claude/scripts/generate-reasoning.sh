@@ -9,7 +9,7 @@ set -e
 
 COMMIT_HASH="$1"
 COMMIT_MSG="$2"
-GIT_CLAUDE_DIR=".git/claude"
+GIT_CLAUDE_DIR=".git/opc"
 
 if [[ -z "$COMMIT_HASH" ]]; then
     echo "Usage: generate-reasoning.sh <commit-hash> <commit-message>"

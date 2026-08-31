@@ -19,7 +19,7 @@ Task(subagent_type="...", run_in_background=true, prompt="... Output to: /path/t
 Task(subagent_type="...", run_in_background=false)
 ```
 
-Background agents with `run_in_background=true` isolate their context. Have them write results to files in `.claude/cache/agents/<agent-type>/`.
+Background agents with `run_in_background=true` isolate their context. Have them write results to files in `.opc/cache/agents/<agent-type>/`.
 
 ### 2. Never Use TaskOutput to Retrieve Results
 ```
@@ -28,7 +28,7 @@ TaskOutput(task_id="<id>")
 TaskOutput(task_id="<id>", block=true)
 
 # RIGHT - check expected output files
-Bash("ls -la .claude/cache/agents/<agent-type>/")
+Bash("ls -la .opc/cache/agents/<agent-type>/")
 Bash("bun test")  # verify with tests
 ```
 
@@ -41,8 +41,8 @@ TaskOutput returns the full agent transcript. Always use file-based coordination
 
 # To detect completion:
 # - Watch for progress reminders to stop arriving
-# - Poll for expected output files: find .claude/cache/agents -name "*.md" -mmin -5
-# - Check task output file size growth: wc -c /tmp/claude/.../tasks/<id>.output
+# - Poll for expected output files: find .opc/cache/agents -name "*.md" -mmin -5
+# - Check task output file size growth: wc -c /tmp/opc/.../tasks/<id>.output
 ```
 
 **Stuck agent detection:**
@@ -58,11 +58,11 @@ After agent work:
 
 ### 5. File-Based Agent Pipeline Pattern
 ```
-Research agent → .claude/cache/agents/oracle/output.md
+Research agent → .opc/cache/agents/oracle/output.md
                           ↓
-Plan agent → .claude/cache/agents/plan-agent/output.md (reads research)
+Plan agent → .opc/cache/agents/plan-agent/output.md (reads research)
                           ↓
-Validate agent → .claude/cache/agents/validate-agent/output.md (reads plan)
+Validate agent → .opc/cache/agents/validate-agent/output.md (reads plan)
                           ↓
 Implement agent → src/module.ts (reads validated plan)
 ```

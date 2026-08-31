@@ -9,10 +9,10 @@ function extractQueryFromContext(cwd) {
   const ledgerDir = join(cwd, "thoughts", "ledgers");
   if (existsSync(ledgerDir)) {
     const files = readdirSync(ledgerDir);
-    const ledger = files.find((f) => f.startsWith("CONTINUITY_CLAUDE-"));
+    const ledger = files.find((f) => f.startsWith("CONTINUITY-"));
     if (ledger) {
       const content = readFileSync(join(ledgerDir, ledger), "utf-8");
-      const sessionName = ledger.replace("CONTINUITY_CLAUDE-", "").replace(".md", "");
+      const sessionName = ledger.replace("CONTINUITY-", "").replace(".md", "");
       return sessionName.replace(/-/g, " ");
     }
   }

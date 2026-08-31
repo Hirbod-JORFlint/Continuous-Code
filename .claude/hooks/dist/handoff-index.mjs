@@ -43,7 +43,7 @@ function getTerminalShellPid() {
   }
 }
 function storeSessionAffinity(projectDir, terminalPid, sessionName) {
-  const dbPath = path.join(projectDir, ".claude", "cache", "artifact-index", "context.db");
+  const dbPath = path.join(projectDir, ".opc", "cache", "artifact-index", "context.db");
   const dbDir = path.dirname(dbPath);
   try {
     if (!fs.existsSync(dbDir)) {

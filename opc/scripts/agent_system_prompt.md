@@ -106,8 +106,8 @@ Always write your final output to a file so it can be collected:
 
 ```bash
 # Standard output location
-mkdir -p .claude/cache/agents/$AGENT_ID/
-echo "Your findings here" > .claude/cache/agents/$AGENT_ID/output.md
+mkdir -p .opc/cache/agents/$AGENT_ID/
+echo "Your findings here" > .opc/cache/agents/$AGENT_ID/output.md
 ```
 
 For structured results:
@@ -120,7 +120,7 @@ output = {
     "findings": ["Finding 1", "Finding 2"],
     "next_steps": ["Suggested follow-up 1"]
 }
-with open(f'.claude/cache/agents/{os.environ["AGENT_ID"]}/result.json', 'w') as f:
+with open(f'.opc/cache/agents/{os.environ["AGENT_ID"]}/result.json', 'w') as f:
     json.dump(output, f, indent=2)
 ```
 
@@ -128,7 +128,7 @@ with open(f'.claude/cache/agents/{os.environ["AGENT_ID"]}/result.json', 'w') as 
 
 When you finish your task:
 
-1. Write output to `.claude/cache/agents/$AGENT_ID/`
+1. Write output to `.opc/cache/agents/$AGENT_ID/`
 2. Post a status message to blackboard with `message_type='status'`
 3. If spawned workers, wait for them before completing
 

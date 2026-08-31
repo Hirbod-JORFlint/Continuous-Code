@@ -78,7 +78,7 @@ grep -A 10 "Traceback" logs/*.log
 
 **ALWAYS write findings to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/sleuth/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/sleuth/output-{timestamp}.md
 ```
 
 ## Output Format

@@ -14,9 +14,9 @@ Outputs don't lie. Code might. Check outputs first.
 
 ## DO
 
-1. Check if expected directories exist: `ls -la .claude/cache/`
-2. Check if expected files were created: `ls -la .claude/cache/learnings/`
-3. Check logs for errors: `tail .claude/cache/*.log`
+1. Check if expected directories exist: `ls -la .opc/cache/`
+2. Check if expected files were created: `ls -la .opc/cache/learnings/`
+3. Check logs for errors: `tail .opc/cache/*.log`
 4. Run the failing command manually to see actual error
 5. Only then edit code
 

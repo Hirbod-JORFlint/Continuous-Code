@@ -13,9 +13,9 @@ const PATH_RULES = [
     // Skill development
     { pattern: /\.claude\/skills\//, skillName: 'skill-development', description: 'Skill development' },
     // Agent cache
-    { pattern: /\.claude\/cache\/agents\//, skillName: 'agent-context-isolation', description: 'Agent context isolation' },
+    { pattern: /\.opc\/cache\/agents\//, skillName: 'agent-context-isolation', description: 'Agent context isolation' },
     // Continuity ledgers
-    { pattern: /thoughts\/ledgers\/CONTINUITY_CLAUDE-/, skillName: 'continuity', description: 'Continuity ledger' },
+    { pattern: /thoughts\/ledgers\/CONTINUITY-/, skillName: 'continuity', description: 'Continuity ledger' },
     // Agentica
     { pattern: /opc\/scripts\/agentica/, skillName: 'async-repl-protocol', description: 'Agentica REPL protocol' },
     // MCP scripts

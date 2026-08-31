@@ -105,7 +105,7 @@ now: What next session should do first
 
 The token/context percentage IS per-instance:
 ```python
-# Written to /tmp/claude-context-pct-{session_id}.txt
+# Written to /tmp/opc-context-pct-{session_id}.txt
 # Each instance has its own context tracking
 ```
 

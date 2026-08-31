@@ -81,7 +81,7 @@ git log -p --all -S 'search_term' -- '*.ts'
 
 **ALWAYS write your findings to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/debug-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/debug-agent/output-{timestamp}.md
 ```
 
 ## Output Format

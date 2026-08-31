@@ -43,7 +43,7 @@ Task({ ..., run_in_background: true })
 // Agents will write to status file when done
 
 // Only check when needed
-cat .claude/cache/status.txt
+cat .opc/cache/status.txt
 ```
 
 ## Source

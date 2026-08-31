@@ -125,7 +125,7 @@ Use sub-tasks sparingly - mainly for targeted debugging or exploring unfamiliar 
 
 If the plan was created by `plan-agent`, you may be able to resume it for clarification:
 
-1. Check `.claude/cache/agents/agent-log.jsonl` for the plan-agent entry
+1. Check `.opc/cache/agents/agent-log.jsonl` for the plan-agent entry
 2. Look for the `agentId` field
 3. To clarify or update the plan:
    ```

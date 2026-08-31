@@ -70,7 +70,7 @@ describe('storeSessionAffinity (integration)', () => {
 
   beforeEach(() => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'session-affinity-test-'));
-    dbPath = path.join(tempDir, '.claude', 'cache', 'artifact-index', 'context.db');
+    dbPath = path.join(tempDir, '.opc', 'cache', 'artifact-index', 'context.db');
   });
 
   afterEach(() => {

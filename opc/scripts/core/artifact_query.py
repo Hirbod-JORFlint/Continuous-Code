@@ -27,7 +27,7 @@ from typing import Optional
 def get_db_path(custom_path: str | None = None) -> Path:
     if custom_path:
         return Path(custom_path)
-    return Path(".claude/cache/artifact-index/context.db")
+    return Path(".opc/cache/artifact-index/context.db")
 
 
 def escape_fts5_query(query: str) -> str:
@@ -290,7 +290,7 @@ def handle_span_id_lookup(
 
         if session_name:
             # Try to find ledger file directly first
-            ledger_path = Path(f"CONTINUITY_CLAUDE-{session_name}.md")
+            ledger_path = Path(f"CONTINUITY-{session_name}.md")
             if ledger_path.exists():
                 ledger = {
                     "session_name": session_name,

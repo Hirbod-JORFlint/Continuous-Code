@@ -29,7 +29,7 @@ Usage:
   # Deep comprehensive research (sonar-deep-research)
   uv run python scripts/perplexity_search.py --deep "state of AI agent observability 2025"
 
-Requires: PERPLEXITY_API_KEY in environment or ~/.claude/.env
+Requires: PERPLEXITY_API_KEY in environment or ~/.opc/.env
 """
 
 import argparse
@@ -52,11 +52,11 @@ MODELS = {
 
 
 def load_api_key() -> str:
-    """Load API key from environment or ~/.claude/.env."""
+    """Load API key from environment or ~/.opc/.env."""
     api_key = os.environ.get("PERPLEXITY_API_KEY", "")
 
     if not api_key:
-        # Try loading from ~/.claude/.env
+        # Try loading from ~/.opc/.env
         env_file = Path.home() / ".opc" / ".env"
         if env_file.exists():
             with open(env_file) as f:
@@ -126,7 +126,7 @@ async def chat_query(query: str, model: str = "sonar") -> dict:
 
     api_key = load_api_key()
     if not api_key:
-        return {"error": "PERPLEXITY_API_KEY not found in environment or ~/.claude/.env"}
+        return {"error": "PERPLEXITY_API_KEY not found in environment or ~/.opc/.env"}
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
@@ -174,7 +174,7 @@ async def search_query(
 
     api_key = load_api_key()
     if not api_key:
-        return {"error": "PERPLEXITY_API_KEY not found in environment or ~/.claude/.env"}
+        return {"error": "PERPLEXITY_API_KEY not found in environment or ~/.opc/.env"}
 
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 

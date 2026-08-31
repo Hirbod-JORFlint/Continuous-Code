@@ -130,7 +130,7 @@ def box_line(left: str, right: str, width: int = 60) -> str:
 def get_claude_stats(session_id: str) -> dict:
     """Get Claude Code session stats from temp file."""
     tmp_dir = Path(tempfile.gettempdir())
-    stats_file = tmp_dir / f'claude-session-stats-{session_id}.json'
+    stats_file = tmp_dir / f'opc-session-stats-{session_id}.json'
 
     if stats_file.exists():
         try:
@@ -139,7 +139,7 @@ def get_claude_stats(session_id: str) -> dict:
             pass
 
     # Fallback to most recent
-    stats_files = list(tmp_dir.glob('claude-session-stats-*.json'))
+    stats_files = list(tmp_dir.glob('opc-session-stats-*.json'))
     if stats_files:
         most_recent = max(stats_files, key=lambda f: f.stat().st_mtime)
         try:

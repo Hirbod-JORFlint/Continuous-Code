@@ -37,7 +37,7 @@ eta |-> read_ledger OR read_handoff OR fallback_general
 ### P1: Gather Metadata
 ```bash
 # Session name from ledger/handoff
-ls thoughts/ledgers/CONTINUITY_CLAUDE-*.md 2>/dev/null | head -1 | sed 's/.*CONTINUITY_CLAUDE-\(.*\)\.md/\1/'
+ls thoughts/ledgers/CONTINUITY-*.md 2>/dev/null | head -1 | sed 's/.*CONTINUITY-\(.*\)\.md/\1/'
 ls -d thoughts/shared/handoffs/*/ 2>/dev/null | head -1 | xargs basename
 
 # Git metadata via spec_metadata.sh

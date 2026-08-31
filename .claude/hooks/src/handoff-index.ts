@@ -84,7 +84,7 @@ function getTerminalShellPid(): number | null {
  * Store terminal_pid -> session_name mapping for session affinity.
  */
 function storeSessionAffinity(projectDir: string, terminalPid: number, sessionName: string): void {
-  const dbPath = path.join(projectDir, '.claude', 'cache', 'artifact-index', 'context.db');
+  const dbPath = path.join(projectDir, '.opc', 'cache', 'artifact-index', 'context.db');
   const dbDir = path.dirname(dbPath);
 
   try {

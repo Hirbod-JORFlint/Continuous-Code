@@ -80,7 +80,7 @@ npm test 2>&1 | tail -20
 
 **ALWAYS write review to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/judge/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/judge/output-{timestamp}.md
 ```
 
 ## Output Format

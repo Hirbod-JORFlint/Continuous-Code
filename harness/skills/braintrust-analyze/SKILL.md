@@ -102,5 +102,5 @@ uv run python -m runtime.harness scripts/braintrust_analyze.py --weekly-summary
 
 ## Requirements
 
-- BRAINTRUST_API_KEY in ~/.claude/.env or project .env
+- BRAINTRUST_API_KEY in ~/.opc/.env or project .env
 - Braintrust tracing enabled (via braintrust-claude-plugin)

@@ -42,7 +42,7 @@ SessionEnd      → Cleanup
 
 CONTINUITY SYSTEM
 -----------------
-Ledger:   thoughts/ledgers/CONTINUITY_CLAUDE-{session}.md
+Ledger:   thoughts/ledgers/CONTINUITY-{session}.md
 Handoffs: thoughts/shared/handoffs/{session}/*.yaml
 
 Commands:

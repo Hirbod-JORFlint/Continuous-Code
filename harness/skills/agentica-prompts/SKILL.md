@@ -13,9 +13,9 @@ Write prompts that Agentica agents reliably follow. Standard natural language pr
 Proven workflow for context-preserving agent orchestration:
 
 ```
-1. RESEARCH (Nia)     → Output to .claude/cache/agents/research/
+1. RESEARCH (Nia)     → Output to .opc/cache/agents/research/
        ↓
-2. PLAN (RP-CLI)      → Reads research, outputs .claude/cache/agents/plan/
+2. PLAN (RP-CLI)      → Reads research, outputs .opc/cache/agents/plan/
        ↓
 3. VALIDATE           → Checks plan against best practices
        ↓
@@ -179,7 +179,7 @@ Agents communicate via filesystem, not TaskOutput:
 
 ```python
 # Pattern implementation
-OUTPUT_BASE = ".claude/cache/agents"
+OUTPUT_BASE = ".opc/cache/agents"
 
 def get_agent_dirs(agent_id: str, phase: str) -> tuple[Path, Path]:
     """Return (input_dir, output_dir) for an agent."""
@@ -219,10 +219,10 @@ Use RepoPrompt to generate code map for agent context:
 
 ```bash
 # Generate codemap for agent context
-rp-cli --path . --output .claude/cache/agents/codemap.md
+rp-cli --path . --output .opc/cache/agents/codemap.md
 
 # Inject into agent system prompt
-codemap=$(cat .claude/cache/agents/codemap.md)
+codemap=$(cat .opc/cache/agents/codemap.md)
 ```
 
 ## Memory Context Injection

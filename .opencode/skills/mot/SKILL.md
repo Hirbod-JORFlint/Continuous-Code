@@ -213,13 +213,13 @@ If `--fix` is specified, automatically fix:
 
 3. **Create missing cache directories**
    ```bash
-   mkdir -p .claude/cache/agents/{scout,kraken,oracle,spark}
-   mkdir -p .claude/cache/mot
+   mkdir -p .opc/cache/agents/{scout,kraken,oracle,spark}
+   mkdir -p .opc/cache/mot
    ```
 
 ## Output Format
 
-Write full report to `.claude/cache/mot/report-{timestamp}.md`:
+Write full report to `.opc/cache/mot/report-{timestamp}.md`:
 
 ```markdown
 # MOT Health Report

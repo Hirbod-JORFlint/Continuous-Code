@@ -31,7 +31,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env files for DATABASE_URL (cross-platform)
-# 1. Global ~/.claude/.env
+# 1. Global ~/.opc/.env
 global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)
@@ -49,7 +49,7 @@ def get_postgres_url() -> str | None:
 
 def get_sqlite_path() -> Path:
     """Get SQLite database path."""
-    return Path(".claude/cache/artifact-index/context.db")
+    return Path(".opc/cache/artifact-index/context.db")
 
 
 def use_postgres() -> bool:

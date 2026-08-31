@@ -21,7 +21,7 @@ async function main() {
   // Find existing ledger files
   const ledgerDir = path.join(projectDir, 'thoughts', 'ledgers');
   const ledgerFiles = fs.readdirSync(ledgerDir)
-    .filter(f => f.startsWith('CONTINUITY_CLAUDE-') && f.endsWith('.md'));
+    .filter(f => f.startsWith('CONTINUITY-') && f.endsWith('.md'));
 
   if (ledgerFiles.length === 0) {
     // No ledger - just remind to create one
@@ -44,7 +44,7 @@ async function main() {
 
   if (input.trigger === 'auto') {
     // Auto-compact: Use transcript parser to generate full handoff
-    const sessionName = mostRecent.replace('CONTINUITY_CLAUDE-', '').replace('.md', '');
+    const sessionName = mostRecent.replace('CONTINUITY-', '').replace('.md', '');
     let handoffFile = '';
 
     if (input.transcript_path && fs.existsSync(input.transcript_path)) {
@@ -99,7 +99,7 @@ function generateAutoSummary(projectDir: string, sessionId: string): string | nu
   const lines: string[] = [];
 
   // Read edited files from PostToolUse cache
-  const cacheDir = path.join(projectDir, '.claude', 'tsc-cache', sessionId || 'default');
+  const cacheDir = path.join(projectDir, '.opc', 'cache', 'tsc-cache', sessionId || 'default');
   const editedFilesPath = path.join(cacheDir, 'edited-files.log');
 
   let editedFiles: string[] = [];
@@ -118,8 +118,8 @@ function generateAutoSummary(projectDir: string, sessionId: string): string | nu
     )];
   }
 
-  // Read build attempts from .git/claude
-  const gitClaudeDir = path.join(projectDir, '.git', 'claude', 'branches');
+  // Read build attempts from .git/opc
+  const gitClaudeDir = path.join(projectDir, '.git', 'opc', 'branches');
   let buildAttempts = { passed: 0, failed: 0 };
 
   if (fs.existsSync(gitClaudeDir)) {

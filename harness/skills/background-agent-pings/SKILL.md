@@ -17,7 +17,7 @@ When you launch a background agent, **continue working on other tasks**. The sys
 ## DO
 
 ```
-1. Task(run_in_background=true, prompt="... Output to: .claude/cache/agents/<type>/output.md")
+1. Task(run_in_background=true, prompt="... Output to: .opc/cache/agents/<type>/output.md")
 2. Continue with next task immediately
 3. When system reminder shows agent activity, check if output file exists
 4. Read output file only when agent signals completion

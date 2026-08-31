@@ -9,7 +9,7 @@ Tracks:
 1. Build/test attempts for reasoning-aware commits (Bash tool)
 2. Edited files and their repos (Edit/Write tools)
 
-Reasoning data stored in: .git/claude/branches/<branch>/attempts.jsonl
+Reasoning data stored in: .git/opc/branches/<branch>/attempts.jsonl
 """
 
 from __future__ import annotations
@@ -252,7 +252,7 @@ def process_tool_use(tool_info: dict) -> dict[str, Any]:
         branch = get_current_branch(project_dir)
         safe_branch = branch.replace("/", "-")
         attempts_file = (
-            Path(project_dir) / ".git" / "claude" / "branches" / safe_branch / "attempts.jsonl"
+            Path(project_dir) / ".git" / "opc" / "branches" / safe_branch / "attempts.jsonl"
         )
 
         error_output = extract_output(tool_info) if exit_code != 0 else None
@@ -274,7 +274,7 @@ def process_tool_use(tool_info: dict) -> dict[str, Any]:
             return {"skipped": True, "reason": "unknown repo"}
 
         session_id = tool_info.get("session_id", "default")
-        cache_dir = Path(project_dir) / ".claude" / "tsc-cache" / session_id
+        cache_dir = Path(project_dir) / ".opc" / "cache" / "tsc-cache" / session_id
         track_edited_file(cache_dir, file_path, repo)
         return {"success": True, "logged": "edited_file", "repo": repo}
 

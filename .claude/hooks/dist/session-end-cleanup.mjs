@@ -47,7 +47,7 @@ async function main() {
   const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
   try {
     const ledgerDir = path.join(projectDir, "thoughts", "ledgers");
-    const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md"));
+    const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY-") && f.endsWith(".md"));
     if (ledgerFiles.length > 0) {
       const mostRecent = ledgerFiles.sort((a, b) => {
         const statA = fs.statSync(path.join(ledgerDir, a));
@@ -63,7 +63,7 @@ async function main() {
       );
       fs.writeFileSync(ledgerPath, content);
     }
-    const agentCacheDir = path.join(projectDir, ".claude", "cache", "agents");
+    const agentCacheDir = path.join(projectDir, ".opc", "cache", "agents");
     if (fs.existsSync(agentCacheDir)) {
       const now = Date.now();
       const maxAge = 7 * 24 * 60 * 60 * 1e3;

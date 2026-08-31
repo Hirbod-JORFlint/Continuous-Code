@@ -38,7 +38,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env files for DATABASE_URL (cross-platform)
-# 1. Global ~/.claude/.env (API keys, may have DB config)
+# 1. Global ~/.opc/.env (API keys, may have DB config)
 global_env = Path.home() / ".opc" / ".env"
 if global_env.exists():
     load_dotenv(global_env)

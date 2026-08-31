@@ -32,7 +32,7 @@ async function main() {
     }
     writeAgentLog(projectDir, agentInfo, outputPath);
     appendToLedger(projectDir, agentInfo, outputSummary);
-    const message = `[SubagentStop] ${agentInfo.agentName} completed. Report: .claude/cache/agents/${agentInfo.agentName}/latest-output.md`;
+    const message = `[SubagentStop] ${agentInfo.agentName} completed. Report: .opc/cache/agents/${agentInfo.agentName}/latest-output.md`;
     console.log(JSON.stringify({ result: "continue", message }));
   } catch (err) {
     console.log(JSON.stringify({ result: "continue" }));
@@ -87,7 +87,7 @@ function parseTranscript(transcriptPath) {
 }
 function writeAgentLog(projectDir, agentInfo, outputPath) {
   if (!agentInfo.agentName || !agentInfo.agentId) return;
-  const logDir = path.join(projectDir, ".claude", "cache", "agents");
+  const logDir = path.join(projectDir, ".opc", "cache", "agents");
   const logFile = path.join(logDir, "agent-log.jsonl");
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
@@ -106,7 +106,7 @@ function writeAgentLog(projectDir, agentInfo, outputPath) {
 function appendToLedger(projectDir, agentInfo, outputSummary) {
   if (!agentInfo.agentName) return;
   const ledgerDir = path.join(projectDir, "thoughts", "ledgers");
-  const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY_CLAUDE-") && f.endsWith(".md"));
+  const ledgerFiles = fs.readdirSync(ledgerDir).filter((f) => f.startsWith("CONTINUITY-") && f.endsWith(".md"));
   if (ledgerFiles.length === 0) return;
   const mostRecent = ledgerFiles.sort((a, b) => {
     const statA = fs.statSync(path.join(ledgerDir, a));
@@ -120,7 +120,7 @@ function appendToLedger(projectDir, agentInfo, outputSummary) {
 ### ${agentInfo.agentName} (${timestamp})
 - Task: ${agentInfo.task.slice(0, 100)}${agentInfo.task.length > 100 ? "..." : ""}
 - Summary: ${outputSummary.slice(0, 200)}${outputSummary.length > 200 ? "..." : ""}
-- Output: \`.claude/cache/agents/${agentInfo.agentName}/latest-output.md\`
+- Output: \`.opc/cache/agents/${agentInfo.agentName}/latest-output.md\`
 `;
   const agentReportsMatch = content.match(/## Agent Reports\n/);
   if (agentReportsMatch) {

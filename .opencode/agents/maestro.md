@@ -116,9 +116,9 @@ After agents complete:
 
 ```bash
 # Read agent outputs
-SCOUT_OUTPUT=$(ls -t .claude/cache/agents/scout/output-*.md 2>/dev/null | head -1)
+SCOUT_OUTPUT=$(ls -t .opc/cache/agents/scout/output-*.md 2>/dev/null | head -1)
 cat "$SCOUT_OUTPUT"
-ORACLE_OUTPUT=$(ls -t .claude/cache/agents/oracle/output-*.md 2>/dev/null | head -1)
+ORACLE_OUTPUT=$(ls -t .opc/cache/agents/oracle/output-*.md 2>/dev/null | head -1)
 cat "$ORACLE_OUTPUT"
 ```
 
@@ -126,7 +126,7 @@ cat "$ORACLE_OUTPUT"
 
 **ALWAYS write orchestration summary to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/maestro/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/maestro/output-{timestamp}.md
 ```
 
 ## Output Format

@@ -6,7 +6,7 @@ set -e
 # Used by /describe_pr to include "Approaches Tried" section in PR descriptions
 
 BASE="${1:-main}"
-GIT_CLAUDE_DIR=".git/claude"
+GIT_CLAUDE_DIR=".git/opc"
 
 echo "## Approaches Tried"
 echo ""

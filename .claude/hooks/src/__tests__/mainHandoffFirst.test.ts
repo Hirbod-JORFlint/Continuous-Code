@@ -110,7 +110,7 @@ Legacy ledger goal (OLD - should not be used)
 ## Working Set
 - branch: main
 `;
-      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY_CLAUDE-${sessionName}.md`), legacyLedgerContent);
+      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY-${sessionName}.md`), legacyLedgerContent);
 
       // Run hook with resume
       const result = runHook({ source: 'resume', session_id: 'test-123' });
@@ -228,7 +228,7 @@ Fallback legacy goal
 ## Working Set
 - branch: main
 `;
-      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY_CLAUDE-${sessionName}.md`), legacyLedgerContent);
+      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY-${sessionName}.md`), legacyLedgerContent);
 
       // Run hook
       const result = runHook({ source: 'resume', session_id: 'test-123' });
@@ -265,7 +265,7 @@ Pure legacy goal
 ## Working Set
 - branch: main
 `;
-      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY_CLAUDE-${sessionName}.md`), legacyLedgerContent);
+      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY-${sessionName}.md`), legacyLedgerContent);
 
       // Run hook
       const result = runHook({ source: 'resume', session_id: 'test-123' });
@@ -312,7 +312,7 @@ Test goal
 ## Working Set
 - branch: main
 `;
-      fs.writeFileSync(path.join(ledgerDir, 'CONTINUITY_CLAUDE-test.md'), legacyLedgerContent);
+      fs.writeFileSync(path.join(ledgerDir, 'CONTINUITY-test.md'), legacyLedgerContent);
 
       // Run hook - should not crash, should use legacy ledger
       const result = runHook({ source: 'resume', session_id: 'test-123' });
@@ -348,7 +348,7 @@ Empty handoffs test
 ## Working Set
 - branch: main
 `;
-      fs.writeFileSync(path.join(ledgerDir, 'CONTINUITY_CLAUDE-empty-handoffs.md'), legacyLedgerContent);
+      fs.writeFileSync(path.join(ledgerDir, 'CONTINUITY-empty-handoffs.md'), legacyLedgerContent);
 
       // Run hook
       const result = runHook({ source: 'resume', session_id: 'test-123' });
@@ -385,7 +385,7 @@ Context details.
       // Create ledger dir (required for hook to not exit early)
       const ledgerDir = path.join(testDir, 'thoughts', 'ledgers');
       fs.mkdirSync(ledgerDir, { recursive: true });
-      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY_CLAUDE-${sessionName}.md`), '# Ledger\n## Goal\nTest');
+      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY-${sessionName}.md`), '# Ledger\n## Goal\nTest');
 
       // Run hook with startup
       const result = runHook({ source: 'startup', session_id: 'test-123' });
@@ -435,7 +435,7 @@ Full context that should be available on resume.
       // Create ledger dir
       const ledgerDir = path.join(testDir, 'thoughts', 'ledgers');
       fs.mkdirSync(ledgerDir, { recursive: true });
-      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY_CLAUDE-${sessionName}.md`), '# Ledger\n## Goal\nLegacy');
+      fs.writeFileSync(path.join(ledgerDir, `CONTINUITY-${sessionName}.md`), '# Ledger\n## Goal\nLegacy');
 
       // Test resume
       const result = runHook({ source: 'resume', session_id: 'test-123' });

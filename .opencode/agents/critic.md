@@ -87,7 +87,7 @@ rp-cli -e 'structure src/'
 
 **ALWAYS write review to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/critic/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/critic/output-{timestamp}.md
 ```
 
 ## Output Format

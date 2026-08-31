@@ -58,6 +58,9 @@ history.jsonl
 .claude/sessions.db
 .claude/tsc-cache/
 
+# OPC cache and state (harness-neutral re-home of the above)
+.opc/cache/
+
 # Python bytecode in MCP servers/runtime
 .claude/servers/*/__pycache__/
 .claude/runtime/__pycache__/

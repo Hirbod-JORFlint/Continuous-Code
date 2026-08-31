@@ -82,7 +82,7 @@ rp-cli -e 'search "TODO.*migration|FIXME.*upgrade"'
 
 **ALWAYS write review to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/surveyor/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/surveyor/output-{timestamp}.md
 ```
 
 ## Output Format

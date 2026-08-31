@@ -267,7 +267,7 @@ def generate_auto_summary(project_dir: Path, session_id: str) -> str | None:
     lines: list[str] = []
 
     # Read edited files from PostToolUse cache
-    cache_dir = project_dir / ".claude" / "tsc-cache" / (session_id or "default")
+    cache_dir = project_dir / ".opc" / "cache" / "tsc-cache" / (session_id or "default")
     edited_files_path = cache_dir / "edited-files.log"
 
     edited_files: list[str] = []
@@ -287,7 +287,7 @@ def generate_auto_summary(project_dir: Path, session_id: str) -> str | None:
             pass
 
     # Read build attempts
-    git_claude_dir = project_dir / ".git" / "claude" / "branches"
+    git_claude_dir = project_dir / ".git" / "opc" / "branches"
     build_passed = 0
     build_failed = 0
 
@@ -379,7 +379,7 @@ def main() -> None:
 
     ledger_files = sorted(
         [f for f in ledger_dir.iterdir()
-         if f.name.startswith("CONTINUITY_CLAUDE-") and f.suffix == ".md"],
+         if f.name.startswith("CONTINUITY-") and f.suffix == ".md"],
         key=lambda f: f.stat().st_mtime,
         reverse=True
     )
@@ -393,7 +393,7 @@ def main() -> None:
         return
 
     ledger_path = ledger_files[0]
-    session_name = ledger_path.stem.replace("CONTINUITY_CLAUDE-", "")
+    session_name = ledger_path.stem.replace("CONTINUITY-", "")
 
     if trigger == "auto":
         handoff_file = ""

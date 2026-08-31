@@ -27,7 +27,7 @@ def read_context_pct_from_file(data: dict) -> int | None:
     """
     sid = session_id(data)[:8]
     tmp_dir = Path(tempfile.gettempdir())
-    tmp_file = tmp_dir / f"claude-context-pct-{sid}.txt"
+    tmp_file = tmp_dir / f"opc-context-pct-{sid}.txt"
 
     try:
         if tmp_file.exists():

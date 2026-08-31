@@ -96,7 +96,7 @@ Options:
 
 Determine a kebab-case session name from the project directory name.
 
-Write ledger to: `thoughts/ledgers/CONTINUITY_CLAUDE-<session-name>.md`
+Write ledger to: `thoughts/ledgers/CONTINUITY-<session-name>.md`
 
 Use this template:
 

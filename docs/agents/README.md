@@ -484,7 +484,7 @@ critic:
 - **When to use:** Need to document work, create handoffs, update ledgers
 - **Creates:**
   - Handoffs: `thoughts/shared/handoffs/<session>/current.md`
-  - Ledgers: `thoughts/ledgers/CONTINUITY_CLAUDE-<session>.md`
+  - Ledgers: `thoughts/ledgers/CONTINUITY-<session>.md`
   - Summaries: `.claude/cache/scribe/latest-summary.md`
 - **Follows:** create-handoff and continuity-ledger skill methodologies
 
@@ -528,7 +528,7 @@ critic:
   2. Detects tech stack
   3. Asks user for goals
   4. Creates initial ledger
-- **Output:** `thoughts/ledgers/CONTINUITY_CLAUDE-<session>.md`
+- **Output:** `thoughts/ledgers/CONTINUITY-<session>.md`
 
 #### context-query-agent
 - **Model:** (not specified)

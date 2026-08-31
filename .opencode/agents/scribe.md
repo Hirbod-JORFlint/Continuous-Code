@@ -70,12 +70,12 @@ $OPC_PROJECT_DIR/thoughts/shared/handoffs/{session-name}/current.md
 
 **Ledger updates go to:**
 ```
-$OPC_PROJECT_DIR/thoughts/ledgers/CONTINUITY_CLAUDE-{session-name}.md
+$OPC_PROJECT_DIR/thoughts/ledgers/CONTINUITY-{session-name}.md
 ```
 
 **Session summaries can also go to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/scribe/latest-summary.md
+$OPC_PROJECT_DIR/.opc/cache/scribe/latest-summary.md
 ```
 
 ## Output Formats

@@ -186,7 +186,7 @@ class ResearchCoordinator:
 
 **ALWAYS write your implementation to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/agentica-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/agentica-agent/output-{timestamp}.md
 ```
 
 Include:

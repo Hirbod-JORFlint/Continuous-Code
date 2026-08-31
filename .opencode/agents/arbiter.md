@@ -97,7 +97,7 @@ grep -r "def function_name" src/
 
 **ALWAYS write report to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/arbiter/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/arbiter/output-{timestamp}.md
 ```
 
 ## Output Format

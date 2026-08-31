@@ -284,7 +284,7 @@ interface UnmarkedHandoff {
 function getUnmarkedHandoffs(): UnmarkedHandoff[] {
   try {
     const projectDir = process.env.OPC_PROJECT_DIR || process.cwd();
-    const dbPath = path.join(projectDir, '.claude', 'cache', 'artifact-index', 'context.db');
+    const dbPath = path.join(projectDir, '.opc', 'cache', 'artifact-index', 'context.db');
 
     if (!fs.existsSync(dbPath)) {
       return [];
@@ -440,7 +440,7 @@ async function main() {
       return;
     }
     const ledgerFiles = fs.readdirSync(ledgerDir)
-      .filter(f => f.startsWith('CONTINUITY_CLAUDE-') && f.endsWith('.md'))
+      .filter(f => f.startsWith('CONTINUITY-') && f.endsWith('.md'))
       .sort((a, b) => {
         const statA = fs.statSync(path.join(ledgerDir, a));
         const statB = fs.statSync(path.join(ledgerDir, b));
@@ -471,7 +471,7 @@ async function main() {
         ? nowMatch[1].trim()
         : 'Unknown';
 
-      const sessionName = mostRecent.replace('CONTINUITY_CLAUDE-', '').replace('.md', '');
+      const sessionName = mostRecent.replace('CONTINUITY-', '').replace('.md', '');
 
       // Check for handoff directory
       const handoffDir = path.join(projectDir, 'thoughts', 'shared', 'handoffs', sessionName);

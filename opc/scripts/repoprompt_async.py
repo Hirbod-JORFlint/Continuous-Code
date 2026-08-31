@@ -38,7 +38,7 @@ SESSION_NAME = "rp-async"
 
 # Use project-local cache dir (gitignored)
 PROJECT_DIR = os.environ.get("OPC_PROJECT_DIR", os.getcwd())
-CACHE_DIR = Path(PROJECT_DIR) / ".claude" / "cache" / "rp"
+CACHE_DIR = Path(PROJECT_DIR) / ".opc" / "cache" / "rp"
 OUTPUT_FILE = CACHE_DIR / "async_result.md"
 
 

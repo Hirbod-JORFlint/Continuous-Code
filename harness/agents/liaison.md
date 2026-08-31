@@ -85,7 +85,7 @@ rp-cli -e 'search "retry|backoff|circuit|timeout"'
 
 **ALWAYS write review to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/liaison/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/liaison/output-{timestamp}.md
 ```
 
 ## Output Format

@@ -22,19 +22,19 @@ For tasks where agents just need to confirm completion:
 
 ```bash
 # Agent writes to shared status file
-echo "COMPLETE: <task-name> - $(date)" >> .claude/cache/<batch-name>-status.txt
+echo "COMPLETE: <task-name> - $(date)" >> .opc/cache/<batch-name>-status.txt
 ```
 
 - Use `>>` to append (not `>` which overwrites)
 - Include timestamp for ordering
 - One line per agent completion
-- Check with: `cat .claude/cache/<batch-name>-status.txt`
+- Check with: `cat .opc/cache/<batch-name>-status.txt`
 
 ### Detailed Output (research/exploration)
 For tasks requiring detailed findings:
 
 ```
-.claude/cache/agents/<task-type>/<agent-id>/
+.opc/cache/agents/<task-type>/<agent-id>/
 ├── output.md      # Main findings
 ├── artifacts/     # Any generated files
 └── status.txt     # Completion confirmation
@@ -55,7 +55,7 @@ For tasks requiring detailed findings:
 ## Output
 When done, write confirmation:
 \`\`\`bash
-echo "COMPLETE: <identifier> - $(date)" >> .claude/cache/<batch>-status.txt
+echo "COMPLETE: <identifier> - $(date)" >> .opc/cache/<batch>-status.txt
 \`\`\`
 
 Do NOT return large output. Complete work silently.
@@ -84,13 +84,13 @@ Task({
 
 ```bash
 # Check completion status
-cat .claude/cache/<batch>-status.txt
+cat .opc/cache/<batch>-status.txt
 
 # Count completions
-wc -l .claude/cache/<batch>-status.txt
+wc -l .opc/cache/<batch>-status.txt
 
 # Watch for updates
-tail -f .claude/cache/<batch>-status.txt
+tail -f .opc/cache/<batch>-status.txt
 ```
 
 ## Batch Size
@@ -118,16 +118,16 @@ tail -f .claude/cache/<batch>-status.txt
 
 ```bash
 # Status file
-.claude/cache/provider-backfill-status.txt
+.opc/cache/provider-backfill-status.txt
 
 # Each agent appends on completion
-echo "COMPLETE: anthropic - Thu Jan 2 12:34:56 2025" >> .claude/cache/provider-backfill-status.txt
-echo "COMPLETE: openai - Thu Jan 2 12:35:12 2025" >> .claude/cache/provider-backfill-status.txt
+echo "COMPLETE: anthropic - Thu Jan 2 12:34:56 2025" >> .opc/cache/provider-backfill-status.txt
+echo "COMPLETE: openai - Thu Jan 2 12:35:12 2025" >> .opc/cache/provider-backfill-status.txt
 ```
 
 Check progress:
 ```bash
-cat .claude/cache/provider-backfill-status.txt
+cat .opc/cache/provider-backfill-status.txt
 # COMPLETE: anthropic - Thu Jan 2 12:34:56 2025
 # COMPLETE: openai - Thu Jan 2 12:35:12 2025
 ```

@@ -720,7 +720,7 @@ else:
 3. **Exit code 2** - stderr goes to Claude/user, stdout IGNORED
 4. **Rebuild bundles** - TypeScript source edits don't auto-apply
 5. **Test manually** - `echo '{}' | ./hook.sh` before relying on it
-6. **Check outputs first** - `ls .claude/cache/` before editing code
+6. **Check outputs first** - `ls .opc/cache/` before editing code
 7. **Detached spawn hides errors** - add logging to debug
 
 ## See Also

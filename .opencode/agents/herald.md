@@ -91,7 +91,7 @@ npm version <version> --no-git-tag-version
 
 **ALWAYS write release notes to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/herald/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/herald/output-{timestamp}.md
 ```
 
 **Also update:**

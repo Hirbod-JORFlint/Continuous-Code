@@ -12,12 +12,12 @@ ledger=""
 
 # 1. Check thoughts/ledgers/ (deprecated but still used)
 if [[ -d "$project_dir/thoughts/ledgers" ]]; then
-    ledger=$(ls -t "$project_dir"/thoughts/ledgers/CONTINUITY_CLAUDE-*.md 2>/dev/null | head -1)
+    ledger=$(ls -t "$project_dir"/thoughts/ledgers/CONTINUITY-*.md 2>/dev/null | head -1)
 fi
 
 # 2. Check root directory (older pattern)
 if [[ -z "$ledger" ]]; then
-    ledger=$(ls -t "$project_dir"/CONTINUITY_CLAUDE-*.md 2>/dev/null | head -1)
+    ledger=$(ls -t "$project_dir"/CONTINUITY-*.md 2>/dev/null | head -1)
 fi
 
 # No ledger found - exit silently

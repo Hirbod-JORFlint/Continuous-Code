@@ -26,7 +26,7 @@ context_pct=$((total_tokens * 100 / context_size))
 # Write for hooks (per-session to avoid multi-instance conflicts)
 # Use PPID as unique session ID since OPC_SESSION_ID isn't set by Claude Code
 session_id="${OPC_SESSION_ID:-$PPID}"
-echo "$context_pct" > "/tmp/claude-context-pct-${session_id}.txt"
+echo "$context_pct" > "/tmp/opc-context-pct-${session_id}.txt"
 
 # Format as K with one decimal
 token_display=$(awk "BEGIN {printf \"%.1fK\", $total_tokens/1000}")
@@ -81,7 +81,7 @@ fi
 
 # Priority 2: Legacy ledger files (fallback)
 if [[ -z "$goal" && -z "$now_focus" ]]; then
-    ledger=$(ls -t "$project_dir"/thoughts/ledgers/CONTINUITY_CLAUDE-*.md 2>/dev/null | head -1)
+    ledger=$(ls -t "$project_dir"/thoughts/ledgers/CONTINUITY-*.md 2>/dev/null | head -1)
     if [[ -n "$ledger" ]]; then
         # Get goal from ## Goal section
         goal=$(grep -A1 '^## Goal' "$ledger" 2>/dev/null | tail -1 | head -c 40)

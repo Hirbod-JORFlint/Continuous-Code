@@ -22,10 +22,10 @@ Transform ephemeral session learnings into permanent, compounding capabilities.
 
 ```bash
 # List learnings (most recent first)
-ls -t $OPC_PROJECT_DIR/.claude/cache/learnings/*.md | head -20
+ls -t $OPC_PROJECT_DIR/.opc/cache/learnings/*.md | head -20
 
 # Count total
-ls $OPC_PROJECT_DIR/.claude/cache/learnings/*.md | wc -l
+ls $OPC_PROJECT_DIR/.opc/cache/learnings/*.md | wc -l
 ```
 
 Read the most recent 5-10 files (or specify a date range).
@@ -238,7 +238,7 @@ Before creating any artifact:
 
 ## Files Reference
 
-- Learnings: `.claude/cache/learnings/*.md`
+- Learnings: `.opc/cache/learnings/*.md`
 - Skills: `harness/skills/<name>/SKILL.md`
 - Rules: `harness/rules/<name>.md`
 - Hooks: `.claude/hooks/<name>.sh` + `src/<name>.ts` + `dist/<name>.mjs`

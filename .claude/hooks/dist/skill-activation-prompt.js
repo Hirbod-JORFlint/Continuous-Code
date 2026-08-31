@@ -337,7 +337,7 @@ async function main() {
         // OPC_PPID is passed from shell wrapper (matches status.sh's $PPID)
         // This ensures we read the same file that StatusLine wrote
         const sessionId = process.env.OPC_SESSION_ID || process.env.OPC_PPID || 'default';
-        const contextFile = `/tmp/claude-context-pct-${sessionId}.txt`;
+        const contextFile = `/tmp/opc-context-pct-${sessionId}.txt`;
         if (existsSync(contextFile)) {
             try {
                 const pct = parseInt(readFileSync(contextFile, 'utf-8').trim(), 10);

@@ -22,13 +22,13 @@ Systematic workflow for debugging Claude Code hooks.
 
 ```bash
 # Check project cache
-ls -la $OPC_PROJECT_DIR/.claude/cache/
+ls -la $OPC_PROJECT_DIR/.opc/cache/
 
 # Check specific outputs
-ls -la $OPC_PROJECT_DIR/.claude/cache/learnings/
+ls -la $OPC_PROJECT_DIR/.opc/cache/learnings/
 
 # Check for debug logs
-tail $OPC_PROJECT_DIR/.claude/cache/*.log 2>/dev/null
+tail $OPC_PROJECT_DIR/.opc/cache/*.log 2>/dev/null
 
 # Also check global (common mistake: wrong path)
 ls -la ~/.claude/cache/ 2>/dev/null
@@ -78,7 +78,7 @@ spawn(cmd, args, { detached: true, stdio: 'ignore' })
 **Fix:** Add temporary logging:
 
 ```typescript
-const logFile = fs.openSync('.claude/cache/debug.log', 'a');
+const logFile = fs.openSync('.opc/cache/debug.log', 'a');
 spawn(cmd, args, {
   detached: true,
   stdio: ['ignore', logFile, logFile]  // capture stdout/stderr
@@ -110,7 +110,7 @@ Source edits alone don't take effect - the shell wrapper runs the bundled `.mjs`
 
 ## Debug Checklist
 
-- [ ] Outputs exist? (`ls -la .claude/cache/`)
+- [ ] Outputs exist? (`ls -la .opc/cache/`)
 - [ ] Registered? (`grep -A10 '"hooks"' .claude/settings.json`)
 - [ ] Files exist? (`ls .claude/hooks/*.sh`)
 - [ ] Bundle current? (`ls -la .claude/hooks/dist/`)

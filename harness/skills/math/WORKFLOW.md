@@ -65,7 +65,7 @@ Main: Gets 200-token summary (not 2000+ token transcript)
 ## Session Continuity
 
 Before clearing context:
-1. Update ledger: `thoughts/ledgers/CONTINUITY_CLAUDE-<session>.md`
+1. Update ledger: `thoughts/ledgers/CONTINUITY-<session>.md`
 2. Create handoff: `thoughts/shared/handoffs/<session>/`
 3. Mark checkboxes for completed phases
 

@@ -21,7 +21,7 @@ from _payload import project_dir  # noqa: E402, I001  # isort: skip
 
 def main():
     pdir = Path(project_dir({}))
-    cache_dir = pdir / '.claude' / 'cache' / 'tldr'
+    cache_dir = pdir / '.opc' / 'cache' / 'tldr'
     semantic_dir = cache_dir / 'semantic'
 
     calls_file = cache_dir / 'calls.json'

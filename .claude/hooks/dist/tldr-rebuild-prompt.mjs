@@ -7,7 +7,7 @@ function readStdin() {
   return readFileSync(0, "utf-8");
 }
 function getCountPath(projectDir) {
-  return join(projectDir, ".claude", "cache", "tldr", "edit-count.json");
+  return join(projectDir, ".opc", "cache", "tldr", "edit-count.json");
 }
 function loadEditCount(countPath, sessionId) {
   if (!existsSync(countPath)) {
@@ -87,10 +87,10 @@ The TLDR caches may be outdated.
 
 To rebuild indexes:
 \`\`\`bash
-mkdir -p .claude/cache/tldr
-tldr arch src/ > .claude/cache/tldr/arch.json
-tldr calls src/ > .claude/cache/tldr/calls.json
-tldr dead src/ > .claude/cache/tldr/dead.json
+mkdir -p .opc/cache/tldr
+tldr arch src/ > .opc/cache/tldr/arch.json
+tldr calls src/ > .opc/cache/tldr/calls.json
+tldr dead src/ > .opc/cache/tldr/dead.json
 \`\`\`
 
 Or say "rebuild TLDR index" and I'll run these commands.`

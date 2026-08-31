@@ -1,5 +1,5 @@
 -- Context Graph Schema
--- Database location: .claude/cache/context-graph/context.db
+-- Database location: .opc/cache/artifact-index/context.db
 --
 -- This schema supports indexing and querying Claude Code session artifacts:
 -- - Handoffs (completed tasks with post-mortems)

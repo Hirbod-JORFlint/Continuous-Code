@@ -3,16 +3,16 @@
 # requires-python = ">=3.10"
 # dependencies = []
 # ///
-"""Cross-platform hook launcher for Claude Code hooks.
+"""Cross-platform hook launcher for harness hooks.
 
 Replaces bash wrapper scripts (.sh) with a Python launcher that works
 on Windows, macOS, and Linux.
 
 Usage:
-    python3 .claude/hooks/hook_launcher.py <hook-name>
+    python3 hook_launcher.py <hook-name>
 
     # In settings.json:
-    "command": "python3 .claude/hooks/hook_launcher.py skill-activation-prompt"
+    "command": "uv run hook_launcher.py skill-activation-prompt"
 
 The launcher:
 1. Finds the hook script:
@@ -31,8 +31,8 @@ Python hooks should include PEP 723 inline script metadata for portability:
     # dependencies = ["httpx"]  # list any required packages
     # ///
 
-Supports both project-specific hooks ($OPC_PROJECT_DIR/.claude/hooks)
-and user-level hooks (~/.claude/hooks), with project hooks taking precedence.
+Supports canonical harness hooks (this launcher's directory)
+and user-level hooks (~/.opc/hooks, install-root junction/copy).
 """
 
 from __future__ import annotations
@@ -101,9 +101,7 @@ def get_hooks_dirs() -> list[Path]:
 
     1. Canonical harness lifecycle hooks dir (this launcher's parent) —
        the re-homed python hooks live here.
-    2. Project hooks: $OPC_PROJECT_DIR/.claude/hooks (legacy Claude Code).
-    3. User-level hooks: ~/.claude/hooks and ~/.opc/hooks (install-root
-       junction/copy created by the harness installer).
+    2. User-level hooks: ~/.opc/hooks (install-root junction/copy).
 
     Returns:
         List of paths to check for hooks (canonical first)
@@ -115,25 +113,10 @@ def get_hooks_dirs() -> list[Path]:
     if here not in dirs:
         dirs.append(here)
 
-    # Project-specific hooks (from OPC_PROJECT_DIR env var)
-    project_dir = os.environ.get("OPC_PROJECT_DIR")
-    if project_dir:
-        dirs.append(Path(project_dir) / ".claude" / "hooks")
-
-    # User-level hooks (~/.claude/hooks, ~/.opc/hooks)
-    dirs.append(Path.home() / ".claude" / "hooks")
+    # User-level hooks (~/.opc/hooks)
     dirs.append(Path.home() / ".opc" / "hooks")
 
     return dirs
-
-
-def get_hooks_dir() -> Path:
-    """Get the primary Claude Code hooks directory (for backwards compat).
-
-    Returns:
-        Path to ~/.claude/hooks
-    """
-    return Path.home() / ".claude" / "hooks"
 
 
 def find_node() -> str | None:
@@ -239,21 +222,16 @@ def find_hook_script(name: str) -> tuple[Path | None, Path | None, Path | None]:
     for hooks_dir in get_hooks_dirs():
         # Determine project root for this hooks dir
         project_root = None
-        if hooks_dir in (Path.home() / ".claude" / "hooks",
-                         Path.home() / ".opc" / "hooks"):
+        if hooks_dir == Path.home() / ".opc" / "hooks":
             # User-level hooks: no specific project root, use home dir
             project_root = Path.home()
         else:
-            # Project hooks: extract from hooks_dir path
-            # hooks_dir is like: /path/to/project/.claude/hooks
-            # project_root should be: /path/to/project
+            # Canonical hooks: extract from hooks_dir path
+            # hooks_dir is like: /path/to/project/harness/lifecycle/hooks
             # Try resolving via OPC_PROJECT_DIR first
             env_project_dir = os.environ.get("OPC_PROJECT_DIR")
             if env_project_dir:
                 project_root = Path(env_project_dir)
-            else:
-                # Fallback: go up two levels from .claude/hooks
-                project_root = hooks_dir.parent.parent
 
         # Try compiled .mjs first
         mjs_path = hooks_dir / "dist" / f"{name}.mjs"

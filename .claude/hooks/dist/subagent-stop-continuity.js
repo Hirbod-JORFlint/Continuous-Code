@@ -17,7 +17,7 @@ async function main() {
             return;
         }
         // Read agent's output file if it exists
-        const outputPath = path.join(projectDir, '.claude', 'cache', 'agents', agentInfo.agentName, 'latest-output.md');
+        const outputPath = path.join(projectDir, '.opc', 'cache', 'agents', agentInfo.agentName, 'latest-output.md');
         let outputSummary = '';
         if (fs.existsSync(outputPath)) {
             const content = fs.readFileSync(outputPath, 'utf-8');
@@ -34,7 +34,7 @@ async function main() {
         writeAgentLog(projectDir, agentInfo, outputPath);
         // Append to continuity ledger
         appendToLedger(projectDir, agentInfo, outputSummary);
-        const message = `[SubagentStop] ${agentInfo.agentName} completed. Report: .claude/cache/agents/${agentInfo.agentName}/latest-output.md`;
+        const message = `[SubagentStop] ${agentInfo.agentName} completed. Report: .opc/cache/agents/${agentInfo.agentName}/latest-output.md`;
         console.log(JSON.stringify({ result: 'continue', message }));
     }
     catch (err) {
@@ -97,7 +97,7 @@ function parseTranscript(transcriptPath) {
 function writeAgentLog(projectDir, agentInfo, outputPath) {
     if (!agentInfo.agentName || !agentInfo.agentId)
         return;
-    const logDir = path.join(projectDir, '.claude', 'cache', 'agents');
+    const logDir = path.join(projectDir, '.opc', 'cache', 'agents');
     const logFile = path.join(logDir, 'agent-log.jsonl');
     // Ensure directory exists
     if (!fs.existsSync(logDir)) {
@@ -120,7 +120,7 @@ function appendToLedger(projectDir, agentInfo, outputSummary) {
     // Find ledger file
     const ledgerDir = path.join(projectDir, 'thoughts', 'ledgers');
     const ledgerFiles = fs.readdirSync(ledgerDir)
-        .filter(f => f.startsWith('CONTINUITY_CLAUDE-') && f.endsWith('.md'));
+        .filter(f => f.startsWith('CONTINUITY-') && f.endsWith('.md'));
     if (ledgerFiles.length === 0)
         return;
     const mostRecent = ledgerFiles.sort((a, b) => {
@@ -135,7 +135,7 @@ function appendToLedger(projectDir, agentInfo, outputSummary) {
 ### ${agentInfo.agentName} (${timestamp})
 - Task: ${agentInfo.task.slice(0, 100)}${agentInfo.task.length > 100 ? '...' : ''}
 - Summary: ${outputSummary.slice(0, 200)}${outputSummary.length > 200 ? '...' : ''}
-- Output: \`.claude/cache/agents/${agentInfo.agentName}/latest-output.md\`
+- Output: \`.opc/cache/agents/${agentInfo.agentName}/latest-output.md\`
 `;
     // Find or create Agent Reports section
     const agentReportsMatch = content.match(/## Agent Reports\n/);

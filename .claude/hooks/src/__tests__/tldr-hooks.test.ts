@@ -17,7 +17,7 @@ import { execSync } from 'child_process';
 
 // Test fixtures
 const TEST_PROJECT_DIR = '/tmp/tldr-hooks-test';
-const TLDR_CACHE_DIR = join(TEST_PROJECT_DIR, '.claude', 'cache', 'tldr');
+const TLDR_CACHE_DIR = join(TEST_PROJECT_DIR, '.opc', 'cache', 'tldr');
 const SEMANTIC_INDEX_DIR = join(TEST_PROJECT_DIR, '.tldr', 'cache', 'semantic');
 
 function setupTestEnv(): void {

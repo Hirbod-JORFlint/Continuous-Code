@@ -8,7 +8,7 @@ Post-tool-use hook that:
 1. Tracks edited files and their repos (Edit/Write tools)
 2. Captures build/test attempts for reasoning-aware VCS (Bash tool)
 
-Reasoning data stored in: .git/claude/branches/<branch>/attempts.jsonl
+Reasoning data stored in: .git/opc/branches/<branch>/attempts.jsonl
 This enables future features like enriched PRs and semantic search
 
 Cross-platform Python port of post-tool-use-tracker.sh
@@ -171,7 +171,7 @@ def handle_bash_tool(tool_info: dict) -> None:
     safe_branch = current_branch.replace("/", "-")
 
     # Initialize branch-keyed storage
-    branch_dir = project_dir / ".git" / "claude" / "branches" / safe_branch
+    branch_dir = project_dir / ".git" / "opc" / "branches" / safe_branch
     branch_dir.mkdir(parents=True, exist_ok=True)
 
     # Extract exit code and output
@@ -334,7 +334,7 @@ def handle_edit_tool(tool_info: dict) -> None:
     project_dir = get_project_dir()
 
     # Create cache directory
-    cache_dir = project_dir / ".claude" / "tsc-cache" / sid
+    cache_dir = project_dir / ".opc" / "cache" / "tsc-cache" / sid
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     # Log edited file

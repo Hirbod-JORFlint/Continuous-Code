@@ -106,7 +106,7 @@ grep -rc "pattern" src/ | sort -t: -k2 -n -r | head -10
 
 **ALWAYS write findings to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/scout/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/scout/output-{timestamp}.md
 ```
 
 ## Output Format

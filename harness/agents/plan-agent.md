@@ -70,7 +70,7 @@ uv run python -m runtime.harness scripts/morph_apply.py \
 
 **ALWAYS write your plan to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/plan-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/plan-agent/output-{timestamp}.md
 ```
 
 Also copy to persistent location if plan should survive cache cleanup:

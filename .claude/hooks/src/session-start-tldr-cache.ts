@@ -29,7 +29,7 @@ function readStdin(): string {
 }
 
 function getCacheAge(projectDir: string): number | undefined {
-  const metaPath = join(projectDir, '.claude', 'cache', 'tldr', 'meta.json');
+  const metaPath = join(projectDir, '.opc', 'cache', 'tldr', 'meta.json');
   if (!existsSync(metaPath)) return undefined;
 
   try {
@@ -42,7 +42,7 @@ function getCacheAge(projectDir: string): number | undefined {
 }
 
 function isCacheStale(projectDir: string): boolean {
-  const cacheDir = join(projectDir, '.claude', 'cache', 'tldr');
+  const cacheDir = join(projectDir, '.opc', 'cache', 'tldr');
   if (!existsSync(cacheDir)) return true;
 
   const age = getCacheAge(projectDir);

@@ -16,7 +16,7 @@ async function main() {
         return;
     }
     // Check if Artifact Index database exists
-    const dbPath = path.join(projectDir, '.claude', 'cache', 'artifact-index', 'context.db');
+    const dbPath = path.join(projectDir, '.opc', 'cache', 'artifact-index', 'context.db');
     const dbExists = fs.existsSync(dbPath);
     if (!dbExists) {
         console.log(JSON.stringify({ result: "continue" }));
@@ -27,7 +27,7 @@ async function main() {
     let ledgerFiles;
     try {
         ledgerFiles = fs.readdirSync(ledgerDir)
-            .filter(f => f.startsWith('CONTINUITY_CLAUDE-') && f.endsWith('.md'))
+            .filter(f => f.startsWith('CONTINUITY-') && f.endsWith('.md'))
             .sort((a, b) => {
             const statA = fs.statSync(path.join(ledgerDir, a));
             const statB = fs.statSync(path.join(ledgerDir, b));
@@ -43,7 +43,7 @@ async function main() {
         return;
     }
     const sessionName = ledgerFiles[0]
-        .replace('CONTINUITY_CLAUDE-', '')
+        .replace('CONTINUITY-', '')
         .replace('.md', '');
     // Check for handoffs in this session (thoughts/shared/handoffs is tracked in git)
     const handoffDir = path.join(projectDir, 'thoughts', 'shared', 'handoffs', sessionName);
@@ -80,7 +80,7 @@ To mark outcome and improve future sessions:
 
 To find handoff ID, query the database:
 
-  sqlite3 .claude/cache/artifact-index/context.db \\
+  sqlite3 .opc/cache/artifact-index/context.db \\
     "SELECT id, file_path FROM handoffs WHERE session_name='${sessionName}' ORDER BY indexed_at DESC LIMIT 1"
 
 Outcome meanings:

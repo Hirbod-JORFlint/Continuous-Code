@@ -10,7 +10,7 @@ function readStdin() {
     return readFileSync(0, 'utf-8');
 }
 function getCacheStatus(projectDir) {
-    const cacheDir = join(projectDir, '.claude', 'cache', 'tldr');
+    const cacheDir = join(projectDir, '.opc', 'cache', 'tldr');
     if (!existsSync(cacheDir)) {
         return { exists: false, files: { arch: false, calls: false, dead: false } };
     }
@@ -69,7 +69,7 @@ async function main() {
         ? ' ⚠️ STALE'
         : '';
     // Emit system message - don't load full JSON, just notify availability
-    const message = `📊 TLDR cache available${ageStr}${freshness}: ${available.join(', ')}. Query with: cat .claude/cache/tldr/<file>.json | jq`;
+    const message = `📊 TLDR cache available${ageStr}${freshness}: ${available.join(', ')}. Query with: cat .opc/cache/tldr/<file>.json | jq`;
     // Output as system reminder (not full context injection)
     console.log(message);
 }

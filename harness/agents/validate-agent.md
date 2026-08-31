@@ -73,7 +73,7 @@ Check for:
 
 **ALWAYS write your validation to:**
 ```
-$OPC_PROJECT_DIR/.claude/cache/agents/validate-agent/output-{timestamp}.md
+$OPC_PROJECT_DIR/.opc/cache/agents/validate-agent/output-{timestamp}.md
 ```
 
 Also write to handoff directory if provided:
