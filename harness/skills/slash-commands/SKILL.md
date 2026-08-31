@@ -9,7 +9,7 @@ user-invocable: false
 
 Create and use user-triggered prompts with `/command-name` syntax.
 
-> **Transport note:** This reference documents Claude Code's native `.claude/commands/` format — the legacy command transport. A harness-neutral commands emitter (`harness/commands/` → per-driver configs, like `_emit_skills`) is not yet implemented; the `.opencode/commands/` port is an open tracker item. Until then, commands ship via the driver-native locations below.
+> **Transport note (Step 8c decision):** No legacy command definition files exist in this repo (`.claude/commands/` was never materialized; `/build` `/fix` `/explore` are workflow-convention tokens documented inside skill bodies, not command files), so there is nothing to port. The sections below document Claude Code's native `.claude/commands/` format as the **legacy command transport (until Step 11)**. The harness-neutral target is opencode's native command files — `.opencode/commands/<name>.md` (see "Harness Target" below) — where wrapper commands would be authored if ever wanted. No emitter (`harness/commands/` -> drivers) is implemented.
 
 ## When to Use
 
@@ -37,7 +37,25 @@ Create and use user-triggered prompts with `/command-name` syntax.
 
 ## Creating Commands
 
-### Project Commands (driver-native)
+### Harness Target: Opencode Command Files
+
+Driver-neutral target for any future wrapper commands. Place `commands/<name>.md` under the per-driver
+config (opencode: `.opencode/commands/`; global `~/.config/opencode/commands/`). The file name becomes
+the command; frontmatter `description` shows in the picker; `agent`/`model`/`subtask` are optional.
+
+```markdown
+---
+description: Run tests with coverage
+agent: build            # optional: which agent executes the command
+---
+Run the full test suite with coverage and show any failures.
+Focus on failing tests and suggest fixes.
+```
+
+Same prompt syntax as the legacy format: `$ARGUMENTS` / `$1`..`$n` for arguments, `` !`bash` `` for
+injected shell output, `@file` references. Commands run in the project root.
+
+### Project Commands (legacy transport, until Step 11)
 ```bash
 mkdir -p .claude/commands
 cat > .claude/commands/optimize.md << 'EOF'
@@ -52,7 +70,7 @@ Review this code for:
 EOF
 ```
 
-### Personal Commands (user-global, Tier-3 until Step 9)
+### Personal Commands (legacy user-global, Tier-3 until Step 9)
 ```bash
 mkdir -p ~/.claude/commands
 cat > ~/.claude/commands/review.md << 'EOF'
