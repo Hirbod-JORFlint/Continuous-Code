@@ -25,17 +25,20 @@ The system has four main layers: **Skills** (what users can trigger), **Hooks** 
                                         v
 +-----------------------------------------------------------------------------------+
 |                               HOOK LAYER                                           |
+|  Neutral lifecycle events (from harness/lifecycle/hooks.toml), mirrored per          |
+|  harness on opencode / codex / cline native events                                   |
 |                                                                                    |
-|  +-------------+    +---------------+    +--------------+    +----------------+   |
-|  | SessionStart|    | UserPrompt    |    | PreToolUse   |    | PostToolUse    |   |
-|  | - Continuity|    | - Skill inject|    | - Search rtr |    | - Compiler     |   |
-|  | - Indexing  |    | - Braintrust  |    | - TLDR inject|    | - Handoff idx  |   |
-|  +-------------+    +---------------+    +--------------+    +----------------+   |
+|  +--------------+    +---------------+    +------------------+    +----------------+|
+|  | session_start|    | prompt_submit |    | pre_tool_use     |    | post_tool_use  ||
+|  | - Continuity |    | - Skill inject|    | - Search router  |    | - Compiler     ||
+|  | - Indexing   |    | - Braintrust  |    | - TLDR inject    |    | - Handoff idx  ||
+|  +--------------+    +---------------+    +------------------+    +----------------+|
 |                                                                                    |
-|  +-------------+    +---------------+    +--------------+    +----------------+   |
-|  | SubagentSt  |    | SubagentStop  |    | Stop         |    | SessionEnd     |   |
-|  | - Register  |    | - Continuity  |    | - Coordinator|    | - Cleanup      |   |
-|  +-------------+    +---------------+    +--------------+    +----------------+   |
+|  +--------------+    +---------------+    +---------------+    +-----------------+  |
+|  | pre_compact  |    | stop          |    | session_stop  |    | status_line     |  |
+|  | - Continuity |    | - Coordinator |    | - Cleanup     |    | - footer status |  |
+|  +--------------+    +---------------+    +---------------+    +-----------------+  |
+|  opencode: prompt_submit unmapped, session_stop ~ session.idle (see HARNESS-ADAPTER)|
 +-----------------------------------------------------------------------------------+
                                         |
                                         v
@@ -69,7 +72,7 @@ The system has four main layers: **Skills** (what users can trigger), **Hooks** 
 |  | - Call Graph      |  | - file_claims     |  |   - handoffs/     |               |
 |  | - CFG (control)   |  | - archival_memory |  |   - plans/        |               |
 |  | - DFG (data flow) |  | - handoffs        |  |   - ledgers/      |               |
-|  | - PDG (deps)      |  |                   |  | - .claude/cache/  |               |
+|  | - PDG (deps)      |  |                   |  | - .opc/cache/     |               |
 |  +-------------------+  +-------------------+  +-------------------+               |
 |                                                                                    |
 |  +-------------------+  +-------------------+  +-------------------+               |
@@ -144,40 +147,47 @@ Users activate capabilities through **natural language keywords**. No slash comm
 
 ## 2. Hook Layer (Automatic Behaviors)
 
-Hooks fire automatically at specific lifecycle points. Users don't invoke them directly - they just work.
+Hooks fire automatically at neutral lifecycle points (declared in `harness/lifecycle/hooks.toml`),
+mapped to native events per harness on opencode / codex / cline. Users don't invoke them directly -
+they just work.
 
-### PreToolUse Hooks
+### Pre-Tool-Use Hooks (`pre_tool_use`)
 
-| Hook | Triggers On | What It Does |
-|------|-------------|--------------|
+| Handler | Matcher | What It Does |
+|---------|---------|--------------|
 | `path-rules` | Read, Edit, Write | Enforces file access patterns |
 | `tldr-read-enforcer` | Read | Intercepts file reads, offers TLDR context instead |
 | `smart-search-router` | Grep | Routes to AST-grep/LEANN/Grep based on query type |
 | `tldr-context-inject` | Task | Adds code context to subagent prompts |
+| `arch-context-inject` | Task | Adds architecture context to subagent prompts |
 | `file-claims` | Edit | Tracks which session owns which files |
-| `pre-edit-context` | Edit | Injects context before edits |
+| `edit-context-inject` | Edit | Injects context before edits |
+| `signature-helper` | Edit | Surfaces relevant signatures before edits |
 
-### PostToolUse Hooks
+### Post-Tool-Use Hooks (`post_tool_use`)
 
-| Hook | Triggers On | What It Does |
-|------|-------------|--------------|
-| `pattern-orchestrator` | Task | Manages multi-agent patterns (pipeline, jury, debate) |
+| Handler | Matcher | What It Does |
+|---------|---------|--------------|
 | `typescript-preflight` | Edit, Write | Runs TypeScript compiler check |
 | `handoff-index` | Write | Indexes handoff documents for search |
 | `compiler-in-the-loop` | Write | Validates code changes compile |
 | `import-validator` | Edit, Write | Checks import statements are valid |
+| `post-tool-use-tracker` | Edit, MultiEdit, Write, Bash | Tracks edited files + build/test attempts |
 
-### Session Lifecycle Hooks
+### Prompt & Session Lifecycle Hooks
 
-| Hook | Fires When | What It Does |
-|------|------------|--------------|
-| `session-register` | SessionStart | Registers session in coordination layer |
-| `session-start-continuity` | Resume/Compact | Restores continuity ledger |
-| `skill-activation-prompt` | UserPromptSubmit | Suggests relevant skills |
-| `subagent-start` | SubagentStart | Registers subagent spawn |
-| `subagent-stop-continuity` | SubagentStop | Saves subagent state |
-| `stop-coordinator` | Stop | Handles graceful shutdown |
-| `session-end-cleanup` | SessionEnd | Cleanup and final state save |
+| Handler | Event | What It Does |
+|---------|-------|--------------|
+| `session-register` | `session_start` | Registers session in coordination layer |
+| `session-start-continuity` | `session_start` | Restores continuity ledger |
+| `session-symbol-index` | `session_start` | Warms tldr cache + builds symbol index |
+| `skill-activation-prompt` | `prompt_submit` | Suggests relevant skills |
+| `memory-awareness` | `prompt_submit` | Injects memory-system awareness |
+| `premortem-suggest` | `prompt_submit` | Suggests /premortem for plan-based work |
+| `auto-handoff-stop` | `stop` | Handles graceful shutdown, blocks on high context |
+| `pre-compact-continuity` | `pre_compact` | Persists continuity ledger before compaction |
+| `session-end-cleanup` | `session_stop` | Cleanup and final state save |
+| `session-outcome` | `session_stop` | Records session outcome |
 
 ---
 
@@ -252,7 +262,7 @@ Hooks fire automatically at specific lifecycle points. Users don't invoke them d
 
 All agents write their output to:
 ```
-.claude/cache/agents/<agent-name>/latest-output.md
+.opc/cache/agents/<agent-name>/latest-output.md
 ```
 
 ---
@@ -299,7 +309,7 @@ Schema in `docker/init-schema.sql`
 ### Artifact Index (SQLite FTS5)
 
 Schema: `opc/scripts/artifact_schema.sql`
-Location: `.claude/cache/context-graph/context.db`
+Location: `.opc/cache/artifact-index/context.db`
 
 | Table | Indexed Content |
 |-------|-----------------|
@@ -327,17 +337,22 @@ thoughts/
   experiments/          # A/B tests, comparisons
   skill-builds/         # Skill development iterations
 
-.claude/
-  cache/
-    agents/             # Agent outputs
-      <agent>/latest-output.md
-    patterns/           # Multi-agent pattern state
-      pipeline-*.json
-      jury-*.json
-    context-graph/      # SQLite artifact index
-  hooks/src/            # Hook implementations
-  skills/               # Skill definitions
+harness/                # Canonical (harness-neutral) tree
+  skills/               # Skill definitions (SKILL.md per skill)
   agents/               # Agent definitions
+  rules/                # Global rules injected into every harness
+  mcp/                  # MCP registry + servers
+  lifecycle/hooks/      # Neutral Python hooks + launcher + _payload.py
+  lifecycle/hooks.toml  # Neutral hook manifest
+
+.opc/cache/
+  agents/               # Agent outputs
+    <agent>/latest-output.md
+  patterns/             # Multi-agent pattern state
+    pipeline-*.json
+    jury-*.json
+  artifact-index/       # SQLite artifact index
+  tldr/                 # tldr cache + symbol index targets
 ```
 
 ### Symbol Index
@@ -349,7 +364,7 @@ Location: `/tmp/claude-symbol-index/`
 | `symbols.json` | Function/class definitions with location |
 | `callers.json` | Who calls each function |
 
-Built by `build_symbol_index.py` on SessionStart.
+Built by `build_symbol_index.py` on the `session_start` event (`session-symbol-index` hook).
 
 ---
 
@@ -383,7 +398,10 @@ Built by `build_symbol_index.py` on SessionStart.
 
 ### Hook Launcher
 
-`hook_launcher.py` - Central dispatcher that compiles and runs TypeScript hooks via the `tsc-cache/` directory.
+`hook_launcher.py` (`harness/lifecycle/hooks/hook_launcher.py`) - Central dispatcher that runs
+re-homed Python hooks from the canonical manifest. Invoked as
+`uv run $HOME/.opc/hooks/hook_launcher.py <handler-name>` (a junction to `harness/lifecycle/hooks`).
+Legacy TypeScript hooks compiled via `tsc-cache/` remain live through `.claude/hooks` until Step 11.
 
 ---
 
@@ -396,7 +414,7 @@ User: "debug the authentication bug"
          |
          v
 +-------------------+
-| UserPromptSubmit  |  skill-activation-prompt hook fires
+| prompt_submit     |  skill-activation-prompt hook fires
 +-------------------+
          |
          v (skill suggested: debug-agent)
@@ -406,7 +424,7 @@ User: "debug the authentication bug"
          |
          v
 +-------------------+
-| PreToolUse:Task   |  tldr-context-inject adds code context
+| pre_tool_use:Task |  tldr-context-inject adds code context
 +-------------------+
          |
          v
@@ -416,12 +434,12 @@ User: "debug the authentication bug"
          |
          v
 +-------------------+
-| PostToolUse:Task  |  pattern-orchestrator checks completion
+| post_tool_use:Task|  post-tool-use-tracker records the run
 +-------------------+
          |
          v
 +-------------------+
-| Agent Output      |  .claude/cache/agents/debug-agent/latest-output.md
+| Agent Output      |  .opc/cache/agents/debug-agent/latest-output.md
 +-------------------+
 ```
 
@@ -432,7 +450,7 @@ The agent wants to Read file.py
          |
          v
 +-------------------+
-| PreToolUse:Read   |  tldr-read-enforcer fires
+| pre_tool_use:Read |  tldr-read-enforcer fires
 +-------------------+
          |
          v (blocks read, suggests TLDR)
@@ -456,7 +474,7 @@ The agent calls Grep("validateToken")
          |
          v
 +-------------------+
-| PreToolUse:Grep   |  smart-search-router fires
+| pre_tool_use:Grep |  smart-search-router fires
 +-------------------+
          |
          v (detects: structural query about function)
@@ -482,7 +500,7 @@ The agent calls Grep("validateToken")
 
 | File | Purpose |
 |------|---------|
-| `.claude/settings.json` | Hook registration, tool configuration |
+| `harness/lifecycle/hooks.toml` | Neutral hook manifest (source of truth; generators emit native wiring) |
 | `harness/skills/skill-rules.json` | Skill triggers and keywords |
 | `opc/pyproject.toml` | Python dependencies |
 
@@ -490,11 +508,12 @@ The agent calls Grep("validateToken")
 
 | File | Purpose |
 |------|---------|
-| `.claude/hooks/src/smart-search-router.ts` | Routes searches to best tool |
-| `.claude/hooks/src/tldr-context-inject.ts` | Adds TLDR context to agents |
-| `.claude/hooks/src/pattern-orchestrator.ts` | Multi-agent pattern management |
-| `.claude/hooks/src/session-start-continuity.ts` | Restores session state |
-| `.claude/hooks/src/handoff-index.ts` | Indexes handoff documents |
+| `harness/lifecycle/hooks/hook_launcher.py` | Canonical dispatcher for re-homed Python hooks |
+| `harness/lifecycle/hooks/_payload.py` | Neutral stdin-payload adapter for hooks |
+| `harness/lifecycle/hooks/premortem-suggest.py` | Suggests /premortem for plan-based work |
+| `harness/lifecycle/hooks/post-tool-use-tracker.py` | Tracks edits + build/test attempts for reasoning VCS |
+| `harness/lifecycle/hooks/session-symbol-index.py` | Warms tldr cache + builds symbol index |
+| `.claude/hooks/src/*.ts` | Legacy TypeScript hooks (`.claude/` transport until Step 11) |
 
 ### Agent Definitions
 
@@ -528,16 +547,24 @@ The agent calls Grep("validateToken")
 
 1. **Add skills** in `harness/skills/<skill-name>/SKILL.md`
 2. **Register triggers** in `harness/skills/skill-rules.json`
-3. **Add hooks** in `.claude/hooks/src/*.ts`, register in `.claude/settings.json`
+3. **Add hooks** in `harness/lifecycle/hooks/<name>.py`, register in `harness/lifecycle/hooks.toml`
 4. **Add agents** in `harness/agents/<agent>.md`
+
+Then regenerate driver configs:
+```bash
+python opc/scripts/harness/gen_opencode.py
+python opc/scripts/harness/gen_codex.py
+python opc/scripts/harness/gen_cline.py
+```
 
 ### Key Invariants
 
-- **Agents write to files, not stdout** - all agent output goes to `.claude/cache/agents/`
-- **Hooks are fast** - timeouts are 5-60 seconds
+- **Agents write to files, not stdout** - all agent output goes to `.opc/cache/agents/`
+- **Hooks are fast** - timeouts are 2-120 seconds (default 5-40)
 - **Memory is semantic** - use embeddings for recall, not exact match
 - **TDD is enforced** - implementation agents write tests first
-- **Context is precious** - TLDR saves 85% tokens
+- **Context is precious** - TLDR saves up to 95% tokens
+- **Manifest is the source of truth** - never edit generated hook configs directly
 
 ---
 
@@ -546,7 +573,7 @@ The agent calls Grep("validateToken")
 | Term | Meaning |
 |------|---------|
 | **Skill** | A capability triggered by keywords in user input |
-| **Hook** | Automatic behavior at lifecycle points (PreToolUse, etc.) |
+| **Hook** | Automatic behavior at lifecycle points (`pre_tool_use`, `session_start`, etc., from `harness/lifecycle/hooks.toml`) |
 | **Agent** | Specialized sub-assistant spawned via Task tool |
 | **TLDR-Code** | Token-efficient code analysis (5 layers) |
 | **Handoff** | Document transferring state between sessions |
@@ -753,25 +780,30 @@ No circular dependencies remain in active code.
 
 ### 10.8 Hook System Structure
 
-Location: `.claude/hooks/src/`
+Declared in `harness/lifecycle/hooks.toml`; canonical Python handlers + launcher in
+`harness/lifecycle/hooks/` (re-homed at Step 7). Legacy TypeScript hooks remain at
+`.claude/hooks/src/` (`.claude/` transport until Step 11).
 
-| Category | Hooks | Purpose |
-|----------|-------|---------|
-| Session | 4 | Start/end lifecycle |
-| Tool Interception | 8 | Enhance tool behavior |
-| Subagent | 4 | Agent coordination |
-| Patterns | 2 | Multi-agent orchestration |
-| Validation | 3 | Code quality gates |
+| Manifest Category | Event(s) | Purpose |
+|-------------------|----------|---------|
+| Session | `session_start`, `session_stop` | Start/end lifecycle (register, continuity, symbol index, cleanup, outcome) |
+| Prompt Processing | `prompt_submit` | Skill activation, memory awareness, premortem suggestion |
+| Tool Interception | `pre_tool_use`, `post_tool_use` | Read/search routing, TLDR injection, file claims, type/import validation |
+| Compaction & Termination | `pre_compact`, `stop` | Continuity persistence, graceful stop, final compile sweep |
+| Tracking | all events | Braintrust tracing, post-tool-use tracking |
 
-**Key Hook Functions:**
+**Key Re-homed Hook Handlers (Python):**
 
-| Hook | Key Functions |
-|------|---------------|
-| `skill-activation-prompt.ts` | `runPatternInference`, `generateAgenticaOutput` |
-| `tldr-context-inject.ts` | `detectIntent`, `getTldrContext`, `extractEntryPoints` |
-| `subagent-stop-continuity.ts` | `parseStructuredHandoff`, `createYamlHandoff` |
-| `compiler-in-the-loop.ts` | `runLeanCompiler`, `getGoedelSuggestions`, `queryLoogle` |
-| `pattern-orchestrator.ts` | `handlePipeline`, `handleJury`, `handleDebate`, `handleGenCritic` |
+| Handler | Key Responsibilities |
+|---------|----------------------|
+| `session-symbol-index.py` | Warm tldr cache + build semantic/symbol index |
+| `premortem-suggest.py` | Suggest /premortem for plan-based work |
+| `post-tool-use-tracker.py` | Track edits + build/test attempts for reasoning VCS |
+| `auto-handoff-stop.py` | Block stop on high context + suggest handoff |
+
+> Legacy TypeScript key functions (`smart-search-router.ts`, `tldr-context-inject.ts`,
+> `compiler-in-the-loop.ts`, `pattern-orchestrator.ts`, …) run through `.claude/hooks/dist` until
+> Step 11; their re-home is tracked in `harness/lifecycle/hooks.toml` (`transport` key).
 
 ---
 
@@ -780,7 +812,7 @@ Location: `.claude/hooks/src/`
 | Metric | Count | Notes |
 |--------|-------|-------|
 | Python functions | 2,328 | Across all `opc/scripts/` |
-| TypeScript hooks | 34 | Active in `.claude/hooks/src/` |
+| TypeScript hooks | 34 | Active in `.claude/hooks/src/` (legacy transport until Step 11; manifest `harness/lifecycle/hooks.toml` declares 36 handlers) |
 | Skills | 108 | In `harness/skills/` |
 | Agents | 32 | Defined in `harness/agents/` |
 | Tests | 265+ | TLDR-code alone |

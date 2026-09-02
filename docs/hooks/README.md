@@ -2,6 +2,11 @@
 
 Hooks are automatic behaviors triggered at specific lifecycle points during agent sessions. They enable powerful features like smart search routing, file conflict prevention, real-time type checking, and multi-session coordination.
 
+This document describes the **harness-neutral** hook model driven from the canonical manifest at
+`harness/lifecycle/hooks.toml`. Each targeted harness (opencode, codex, cline) surfaces that manifest
+through its own native mechanism via the generators. The legacy Claude-Code-native protocol is
+retained below only as a categorized historical appendix (until `.claude/` is removed at Step 11).
+
 ## Overview
 
 Hooks run automatically at defined lifecycle events (session start, user prompt, tool use, etc.) and can:
@@ -11,479 +16,194 @@ Hooks run automatically at defined lifecycle events (session start, user prompt,
 - Coordinate across concurrent sessions
 - Extract learnings automatically
 
-Hooks are implemented as command-line scripts (TypeScript, Python, shell) that receive JSON input via stdin and return JSON output via stdout.
+Hooks are implemented as command-line scripts (Python first, TypeScript/shell for legacy transport
+until Step 11) that receive JSON input via stdin and return JSON output via stdout.
 
-## Lifecycle Events
+## Source of Truth
 
-Hooks can be registered for these lifecycle events:
+- **Manifest**: `harness/lifecycle/hooks.toml` — declares the event wiring for every hook.
+- **Canonical handlers dir**: `harness/lifecycle/hooks/` — Python handlers + `hook_launcher.py` +
+  `_payload.py` adapter.
+- **Generator flow**: `opc/scripts/harness/gen_{opencode,codex,cline}.py` translate the manifest into
+  each driver's native hook configuration. **Do not edit generated configs directly** — edit the
+  manifest, then regenerate.
 
-### SessionStart
-Triggered when a new session begins or a session is resumed.
-- **Input**: `{ session_id, hook_event_name, source, cwd }`
-- **Source values**: `startup`, `resume`, `clear`, `compact`
+Neutral install root for re-homed hooks: `~/.opc/hooks` (a junction to `harness/lifecycle/hooks`
+today, copied by the Step 9 installer on other machines).
 
-### UserPromptSubmit
-Triggered when the user submits a prompt (before the agent responds).
-- **Input**: `{ session_id, hook_event_name, prompt, cwd }`
-- **Use cases**: Skill activation suggestions, memory awareness, pattern inference
+## Lifecycle Events (neutral)
 
-### PreToolUse
-Triggered before a tool is executed. Can block, allow, modify, or ask for permission.
-- **Input**: `{ session_id, tool_name, tool_input, tool_use_id, cwd }`
-- **Output**: `{ hookSpecificOutput: { permissionDecision: 'allow'|'deny'|'ask', permissionDecisionReason, updatedInput } }`
-- **Use cases**: TLDR enforcement, search routing, file claims, signature injection
-- **Note**: Use `updatedInput` to modify the tool's input before execution
+The neutral event taxonomy is the only event model you name in skills/docs/hooks. Each harness maps it
+to its native event (see [HARNESS-ADAPTER §3](../../harness/spec/HARNESS-ADAPTER.md)):
 
-### PostToolUse
-Triggered after a tool executes successfully.
-- **Input**: `{ session_id, tool_name, tool_input, tool_response, cwd }`
-- **Use cases**: Type checking, handoff indexing, learning extraction
+| Neutral event | Meaning | opencode | codex | cline |
+|---------------|---------|----------|-------|-------|
+| `session_start` | Harness session begins | `session.created` | `SessionStart` | `TaskStart` |
+| `prompt_submit` | User prompt about to be processed | (no clean equivalent — skipped) | `UserPromptSubmit` | `UserPromptSubmit` |
+| `pre_tool_use` | Tool invocation about to run (can block) | `tool.execute.before` | `PreToolUse` | `PreToolUse` |
+| `post_tool_use` | Tool invocation finished (non-blocking) | `tool.execute.after` | `PostToolUse` | `PostToolUse` |
+| `pre_compact` | Context compaction imminent (may persist state) | `experimental.session.compacting` | `PreCompact` | `PreCompact` |
+| `session_stop` | Session ending (must save state/handoff) | `session.idle` (approx) | `SessionEnd` | n/a (`TaskComplete` → `stop`) |
+| `status_line` | Footer status text (optional sugar) | `status` | n/a | n/a |
 
-### PreCompact
-Triggered before context window compaction.
-- **Input**: `{ session_id, transcript_path }`
-- **Use cases**: Save state before compaction
+Cline hooks are **real executable scripts** (v3.36+) — JSON in on stdin, JSON out
+(`cancel`, `contextModification`). Windows uses `*.ps1`; macOS/Linux use extensionless executables
+with `chmod +x`. There is no per-tool matcher on Cline (UI toggle only).
 
-### SubagentStart
-Triggered when a subagent (Task tool) spawns.
-- **Input**: `{ session_id, agent_id, hook_event_name, cwd }`
-- **Use cases**: Pattern-aware coordination, agent registration
-- **Cannot block**: Can only inject context
+> **Important parity notes:** opencode has no clean `prompt_submit` event (skipped in the bridge) and
+> maps `session_stop` to `session.idle` as an approximation. `prompt_submit`/`session_stop` handlers
+> therefore do not fire on opencode unless another mechanism is used — see
+> `harness/spec/HARNESS-ADAPTER.md`.
 
-### SubagentStop
-Triggered when a subagent completes.
-- **Input**: `{ session_id, agent_id, hook_event_name }`
-- **Use cases**: Learning extraction, pattern completion tracking
+### Event payload contract
 
-### Stop
-Triggered when the agent generates a stop sequence (task completion).
-- **Input**: `{ session_id, transcript_path, stop_hook_active }`
-- **Use cases**: Auto-handoff creation, force continuation
-- **CRITICAL**: Check `stop_hook_active: true` to prevent infinite loops!
+Hooks receive one JSON object on stdin:
 
-### SessionEnd
-Triggered when the session terminates (clear, logout).
-- **Input**: `{ session_id, transcript_path, reason }`
-- **Use cases**: Cleanup, outcome tracking, learning extraction
-
-### PermissionRequest
-Triggered when a permission dialog would be shown to the user.
-- **Input**: `{ session_id, tool_name, tool_input, cwd }`
-- **Output**: `{ hookSpecificOutput: { decision: { behavior: 'allow'|'deny', updatedInput, message, interrupt } } }`
-- **Use cases**: Auto-approve trusted operations, auto-deny dangerous ones
-- **Requires matcher**: YES (matches tool name)
-
-### Notification
-Triggered when the engine sends a notification.
-- **Input**: `{ session_id, message, notification_type }`
-- **Notification types**: `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`
-- **Use cases**: Custom notification handling, alerts
-- **Requires matcher**: YES (matches notification_type)
+```json
+{
+  "event": "pre_tool_use",
+  "session_id": "…",
+  "project_dir": "…",
+  "tool_name": "edit",
+  "tool_input": {},
+  "context_pct": 42
+}
+```
 
 ## Hook Categories
 
-### Session Lifecycle
+The manifest groups handlers by neutral event. Below is the inventory with what each one does.
 
-**session-register** (SessionStart)
-- Registers session in PostgreSQL coordination database
-- Displays active peer sessions working on the same project
-- Enables cross-session file conflict warnings
+### Session Lifecycle (`session_start`, `session_stop`)
 
-**session-start-recall** (SessionStart)
-- Queries semantic memory for relevant learnings from past sessions
-- Injects top 3 learnings related to current work context
-- Searches ledgers and handoffs to determine context query
+| Handler | Event | What It Does |
+|---------|-------|--------------|
+| `session-register` | `session_start` | Registers session in the coordination database (OPC registry); displays active peer sessions for cross-session conflict warnings |
+| `session-start-continuity` | `session_start` (`resume\|compact\|clear`) | Restores continuity ledger context |
+| `session-start-tldr-cache` | `session_start` (`startup\|resume`) | Pre-warms the tldr cache |
+| `session-symbol-index` | `session_start` | Warms tldr cache and builds the semantic/symbol index |
+| `persist-project-dir` | `session_start` | Persists project dir for `OPC_*` env propagation |
+| `session-end-cleanup` | `session_stop` | Cleans up session artifacts (7-day agent-cache retention), updates continuity ledger timestamps, triggers background learning extraction |
+| `session-outcome` | `session_stop` | Records session outcome (SUCCEEDED / PARTIAL_PLUS / PARTIAL_MINUS / FAILED) |
 
-**session-end-cleanup** (SessionEnd)
-- Updates continuity ledger timestamps
-- Cleans up old agent cache files (7-day retention)
-- Triggers background learning extraction via Braintrust
+### User Prompt Processing (`prompt_submit`)
 
-**session-outcome** (SessionEnd)
-- Prompts user to mark handoff outcome (SUCCEEDED, PARTIAL_PLUS, PARTIAL_MINUS, FAILED)
-- Provides SQLite query to find handoff ID
-- Only prompts on user-initiated session end, not auto-compaction
+| Handler | What It Does |
+|---------|--------------|
+| `skill-activation-prompt` | Matches the prompt against `harness/skills/skill-rules.json` and injects the agent with skill suggestions (critical/high/medium/low priority) and agentic-workflow pattern inference |
+| `memory-awareness` | Extracts intent, fast-searches archival memory, injects MEMORY MATCH context |
+| `premortem-suggest` | Suggests running `/premortem deep <plan>` when implementing from a plan |
+| `impact-refactor` | Flags refactor-ready code paths mentioned in the prompt |
 
-### User Prompt Processing
+### Tool Interception (`pre_tool_use`, `post_tool_use`)
 
-**skill-activation-prompt** (UserPromptSubmit)
-- Matches user prompt against skill-rules.json patterns
-- Suggests relevant skills based on priority (critical, high, medium, low)
-- Runs pattern inference for agentic workflows (swarm, hierarchical, pipeline, etc.)
-- Shows context warnings (context percentage, resource limits)
-- Can block response if critical skills are required
+| Handler | Event | What It Does |
+|---------|-------|--------------|
+| `tldr-read-enforcer` | `pre_tool_use` (`Read`) | Routes reads of indexed files through the tldr cache; 90-95% token savings |
+| `smart-search-router` | `pre_tool_use` (`Grep`) | Classifies queries as structural/semantic/literal and routes to the best search tool |
+| `tldr-context-inject` | `pre_tool_use` (`Task`) | Adds TLDR code context to subagent prompts |
+| `arch-context-inject` | `pre_tool_use` (`Task`) | Adds architecture context to subagent prompts |
+| `file-claims` | `pre_tool_use` (`Edit`) | Records file ownership claims; warns on cross-session edit conflicts |
+| `edit-context-inject` | `pre_tool_use` (`Edit`) | Injects symbol/file context before edits |
+| `signature-helper` | `pre_tool_use` (`Edit`) | Surfaces function signatures for accurate parameters |
+| `path-rules` | `pre_tool_use` (`Read\|Edit\|Write`) | Enforces path allow/deny rules before file ops |
+| `typescript-preflight` | `post_tool_use` (`Edit\|Write`) | Runs TypeScript typecheck (`tsc` + qlty) after edits; blocks with the error |
+| `compiler-in-the-loop` | `post_tool_use` (`Edit\|Write`) | Compiles edited modules and surfaces diagnostics |
+| `post-edit-notify` | `post_tool_use` (`Edit\|Write`) | Notifies on edit completion |
+| `post-edit-diagnostics` | `post_tool_use` (`Edit\|Write`) | Collects diagnostics after edits |
+| `handoff-index` | `post_tool_use` (`Write`) | Indexes handoff docs written this session |
+| `import-validator` | `post_tool_use` (`Edit\|Write`) | Validates import statements are correct |
+| `import-error-detector` | `post_tool_use` (`Bash`) | Detects import errors in bash output |
+| `post-tool-use-tracker` | `post_tool_use` (`Edit\|MultiEdit\|Write\|Bash`) | Tracks edited files + build/test attempts for reasoning VCS |
 
-**memory-awareness** (UserPromptSubmit)
-- Extracts intent from user prompt (removes meta-language)
-- Fast text search against archival_memory database
-- Injects MEMORY MATCH context if relevant learnings found
-- The agent proactively discloses and uses memories
+### Compaction & Termination (`pre_compact`, `stop`)
 
-**premortem-suggest** (UserPromptSubmit)
-- Suggests running premortem analysis for complex tasks
-- Identifies potential failure modes before implementation
+| Handler | Event | What It Does |
+|---------|-------|--------------|
+| `pre-compact-continuity` | `pre_compact` | Persists continuity ledger excerpt before context compaction |
+| `auto-handoff-stop` | `stop` | Blocks stop when context is too high and suggests a handoff (checks `stop_hook_active` to avoid infinite loops) |
+| `compiler-in-the-loop-stop` | `stop` | Final compile sweep before the session stops |
 
-### Tool Interception
+### Braintrust Tracking (all events)
 
-**tldr-read-enforcer** (PreToolUse:Read)
-- Blocks Read tool for code files, returns TLDR structured context instead
-- 95% token savings (50-500 tokens vs 3000-20000 raw file)
-- Context-aware layers (AST, call graph, CFG, DFG, PDG) based on search intent
-- Analyzes transcript and search context to determine relevant layers
-- Bypasses for config files, test files, hooks/skills directories
+`braintrust-session-start`, `braintrust-user-prompt-submit`, `braintrust-post-tool-use`,
+`braintrust-stop`, `braintrust-session-end` route the corresponding events into Braintrust tracing.
 
-**smart-search-router** (PreToolUse:Grep)
-- Classifies queries as structural, semantic, or literal
-- Blocks Grep, suggests TLDR search (finds + enriches in one call)
-- Stores search context for downstream hooks (tldr-read-enforcer)
-- Uses symbol index to detect function/class/variable targets
-- Provides cross-file caller information
+## Registration
 
-**file-claims** (PreToolUse:Edit)
-- Checks PostgreSQL coordination database for file claims
-- Warns if file is being edited by another concurrent session
-- Claims file for current session to prevent conflicts
-- Part of multi-session coordination layer
+Add a handler to `harness/lifecycle/hooks/<name>.py`, then register it in the manifest:
 
-**signature-helper** (PreToolUse:Edit)
-- Extracts function calls from edit content
-- Looks up function signatures from symbol index
-- Injects signatures as additional context
-- Helps the agent use correct parameters without reading definition files
-
-**import-validator** (PostToolUse:Edit, PostToolUse:Write)
-- Validates import statements in edited files
-- Checks for missing or incorrect imports
-- Suggests corrections
-
-### Validation
-
-**typescript-preflight** (PostToolUse:Edit, PostToolUse:Write)
-- Runs tsc + qlty after TypeScript file edits
-- Returns type errors and lint issues immediately
-- Blocks with error message so the agent can fix before proceeding
-- Skips node_modules and test files
-
-**compiler-in-the-loop** (PostToolUse, Stop)
-- Runs language-specific compiler/linter after code changes
-- Supports Python, TypeScript, Go, Rust
-- Injects errors into context for iterative fixing
-
-### Subagent Coordination
-
-**subagent-start** (SubagentStart)
-- Pattern-aware router for multi-agent patterns
-- Injects pattern-specific context (swarm, jury, pipeline, hierarchical, etc.)
-- Registers agent in PostgreSQL coordination database
-- Provides role-based instructions (coordinator, worker, juror, mapper, reducer)
-
-**subagent-stop** (SubagentStop)
-- Handles pattern-specific completion tracking
-- Marks agent as completed in coordination database
-- Triggers aggregation for patterns like map-reduce, jury voting
-
-**subagent-learning** (SubagentStop)
-- Extracts learnings from subagent transcripts
-- Stores in semantic memory for future recall
-- Fire-and-forget background process
-
-## Hook Registration
-
-Hooks are registered in `.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$OPC_PROJECT_DIR/.claude/hooks/session-register.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$OPC_PROJECT_DIR/.claude/hooks/tldr-read-enforcer.sh",
-            "timeout": 20
-          }
-        ]
-      }
-    ]
-  }
-}
+```toml
+[[hooks.<event>]]
+id = "<name>"
+description = "What this hook does"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py <name>"
+timeout = 5
 ```
 
-### Hook Configuration
+Then regenerate the driver configs from `harness/lifecycle/hooks.toml`:
 
-- **matcher**: Tool name pattern to match (e.g., "Read", "Edit|Write", "*")
-- **type**: Always "command" for external scripts
-- **command**: Path to hook script (use `$OPC_PROJECT_DIR` or `$HOME` for portability)
-- **timeout**: Max execution time in seconds
-
-### Matcher Pattern Syntax
-
-| Pattern | Matches | Example |
-|---------|---------|---------|
-| `Bash` | Exact match | Only Bash tool |
-| `Edit\|Write` | OR operator | Edit OR Write |
-| `Read.*` | Regex | Read, ReadFile, etc. |
-| `mcp__.*__write.*` | MCP tools | MCP write operations |
-| `*` | Wildcard | All tools |
-
-**Case-sensitive:** `Bash` does NOT match `bash`
-
-### Events Requiring Matchers
-
-| Event | Requires Matcher | Matcher Values |
-|-------|------------------|----------------|
-| PreToolUse | YES | Tool name |
-| PostToolUse | YES | Tool name |
-| PermissionRequest | YES | Tool name |
-| Notification | YES (optional) | `permission_prompt`, `idle_prompt`, etc. |
-| SessionStart | YES (optional) | `startup`, `resume`, `clear`, `compact` |
-| PreCompact | YES (optional) | `manual`, `auto` |
-| UserPromptSubmit | NO | — |
-| SessionEnd | NO | — |
-| Stop | NO | — |
-| SubagentStop | NO | — |
-
-### Hook Ordering
-
-Hooks execute in the order listed. For PreToolUse, if any hook returns `deny`, subsequent hooks are skipped.
-
-## Exit Code Behavior
-
-| Exit Code | Behavior | stdout | stderr |
-|-----------|----------|--------|--------|
-| **0** | Success | JSON processed (or plain text for UserPromptSubmit/SessionStart) | Ignored |
-| **2** | Blocking error | **IGNORED** | Error message shown |
-| **Other** | Non-blocking error | Ignored | Shown in verbose mode |
-
-### Exit Code 2 by Hook Event
-
-| Hook Event | Effect of Exit Code 2 |
-|------------|----------------------|
-| PreToolUse | Blocks tool, stderr shown to the agent |
-| PermissionRequest | Denies permission, stderr shown to the agent |
-| PostToolUse | stderr shown to the agent (tool already ran) |
-| UserPromptSubmit | Blocks prompt, erases it, stderr shown to user only |
-| Stop | Blocks stoppage, stderr shown to the agent |
-| SubagentStop | Blocks stoppage, stderr shown to the agent subagent |
-| Notification | stderr shown to user only |
-| PreCompact | stderr shown to user only |
-| SessionStart | stderr shown to user only |
-| SessionEnd | stderr shown to user only |
-
-## Hook Types
-
-### Command Hooks (type: "command")
-
-Execute bash commands or scripts. This is the default and most common type.
-
-```json
-{
-  "type": "command",
-  "command": "$OPC_PROJECT_DIR/.claude/hooks/my-hook.sh",
-  "timeout": 60
-}
+```bash
+python opc/scripts/harness/gen_opencode.py
+python opc/scripts/harness/gen_codex.py
+python opc/scripts/harness/gen_cline.py
 ```
 
-### Prompt-Based Hooks (type: "prompt")
+Hooks that still need the legacy TS/bash transport carry a
+`transport = "legacy $HOME/.claude path until dist re-home (Step 11)"` key — extend re-homed hooks via
+the Python launcher path instead, and remove the legacy transport once the dist re-home lands (Step 11).
 
-Use an LLM (Haiku) to make context-aware decisions. Best for Stop and SubagentStop hooks.
+### Handler Template (Python)
 
-```json
-{
-  "type": "prompt",
-  "prompt": "Evaluate if the agent should stop. Context: $ARGUMENTS. Check if all tasks are complete.",
-  "timeout": 30
-}
-```
-
-**Response schema:**
-```json
-{
-  "decision": "approve" | "block",
-  "reason": "Explanation for the decision",
-  "continue": false,
-  "stopReason": "Message shown to user",
-  "systemMessage": "Warning or context"
-}
-```
-
-**When to use:**
-- **Command hooks**: Deterministic rules, fast execution
-- **Prompt hooks**: Context-aware decisions, natural language understanding
-
-## Working with MCP Tools
-
-MCP tools follow the naming pattern `mcp__<server>__<tool>`:
-
-| Example | Description |
-|---------|-------------|
-| `mcp__memory__create_entities` | Memory server's create entities tool |
-| `mcp__filesystem__read_file` | Filesystem server's read file tool |
-| `mcp__github__search_repositories` | GitHub server's search tool |
-
-**Matcher examples:**
-```json
-{
-  "matcher": "mcp__memory__.*",        // All memory server tools
-  "matcher": "mcp__.*__write.*",       // All MCP write operations
-  "matcher": "mcp__github__.*"         // All GitHub tools
-}
-```
-
-## Creating Custom Hooks
-
-### Input/Output Protocol
-
-Hooks receive JSON via stdin and output JSON via stdout.
-
-**Input Schema (varies by event type):**
-```typescript
-interface SessionStartInput {
-  session_id: string;
-  hook_event_name: string;
-  source: 'startup' | 'resume' | 'clear' | 'compact';
-  cwd: string;
-}
-
-interface PreToolUseInput {
-  session_id: string;
-  hook_event_name: string;
-  tool_name: string;
-  tool_input: Record<string, any>;
-  cwd: string;
-  transcript_path?: string;
-}
-
-interface UserPromptSubmitInput {
-  session_id: string;
-  hook_event_name: string;
-  prompt: string;
-  cwd: string;
-}
-```
-
-**Output Schema:**
-```typescript
-interface HookOutput {
-  result?: 'continue' | 'block';
-  message?: string;  // Injected into the agent's context
-  hookSpecificOutput?: {
-    hookEventName: string;
-    permissionDecision?: 'allow' | 'deny' | 'ask';
-    permissionDecisionReason?: string;
-    additionalContext?: string;
-  };
-}
-```
-
-### Example Hook: Simple Reminder
-
-**TypeScript:**
-```typescript
-import { readFileSync } from 'fs';
-
-interface UserPromptSubmitInput {
-  prompt: string;
-}
-
-async function main() {
-  const input: UserPromptSubmitInput = JSON.parse(
-    readFileSync(0, 'utf-8')
-  );
-
-  if (input.prompt.includes('delete')) {
-    console.log(JSON.stringify({
-      message: 'Reminder: Consider backing up before deletion.'
-    }));
-  } else {
-    console.log('{}');
-  }
-}
-
-main();
-```
-
-**Python:**
 ```python
-import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _payload import project_dir  # noqa: E402
 
 def main():
-    input_data = json.loads(sys.stdin.read())
-
-    if 'delete' in input_data.get('prompt', '').lower():
-        output = {
-            'message': 'Reminder: Consider backing up before deletion.'
-        }
-        print(json.dumps(output))
-    else:
-        print('{}')
+    pdir = Path(project_dir({}))
+    # read stdin payload, process, print JSON result
 
 if __name__ == '__main__':
     main()
 ```
 
-### Example Hook: PreToolUse Blocker
+## Exit Code Behavior (legacy transport)
 
-Block dangerous operations:
+Applies to hooks run through their legacy driver transport until Step 11; the neutral launcher reads a
+JSON payload and prints a JSON result.
 
-```typescript
-import { readFileSync } from 'fs';
+| Exit Code | Behavior | stdout | stderr |
+|-----------|----------|--------|--------|
+| **0** | Success | JSON processed | Ignored |
+| **2** | Blocking error | **IGNORED** | Error message shown |
+| **Other** | Non-blocking error | Ignored | Shown in verbose mode |
 
-async function main() {
-  const input = JSON.parse(readFileSync(0, 'utf-8'));
-
-  if (input.tool_name === 'Bash' &&
-      input.tool_input.command?.includes('rm -rf /')) {
-    console.log(JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: 'PreToolUse',
-        permissionDecision: 'deny',
-        permissionDecisionReason: 'Dangerous command blocked for safety.'
-      }
-    }));
-  } else {
-    console.log('{}');
-  }
-}
-
-main();
-```
-
-### Best Practices
+## Best Practices
 
 1. **Fail Gracefully**: Always output valid JSON, even on errors. Use `{}` for no-op.
-2. **Timeout Awareness**: Keep execution under timeout limit. Use async spawn for slow tasks.
+2. **Timeout Awareness**: Keep execution under the configured timeout. Use async spawn for slow tasks.
 3. **Silent Failures**: Log errors to stderr, not stdout (stdout is parsed as JSON).
 4. **Idempotency**: Hooks may run multiple times. Design for idempotent behavior.
-5. **Context Injection**: Use `message` for user-visible output, `additionalContext` for agent-only context.
-6. **Token Efficiency**: Keep injected context concise. TLDR hooks save 95% tokens vs raw files.
+5. **Context Injection**: Use `message` for user-visible output, `additionalContext` for agent-only
+   context.
+6. **Token Efficiency**: Keep injected context concise. TLDR hooks save ~90-95% tokens vs raw files.
 
-## Hook Behavior Examples
+## Behavior Examples
 
 ### TLDR Read Enforcement
 
 When the agent tries to read a code file:
 
 ```
-Read → tldr-read-enforcer hook intercepts
+Read → tldr-read-enforcer hook intercepts (pre_tool_use)
      → Analyzes search context (from smart-search-router)
      → Returns structured context (L1:AST + L2:CallGraph)
-     → The agent receives function signatures + call graph (500 tokens)
-     → vs raw file read (5000 tokens)
-     → 90% token savings
+     → The agent receives function signatures + call graph (~500 tokens)
+     → vs raw file read (~5000 tokens)
+     → ~90% token savings
 ```
 
 ### Smart Search Routing
@@ -491,12 +211,11 @@ Read → tldr-read-enforcer hook intercepts
 When the agent tries to grep:
 
 ```
-Grep "process_data" → smart-search-router hook intercepts
+Grep "process_data" → smart-search-router hook intercepts (pre_tool_use)
                     → Classifies as "literal" query
                     → Extracts target: "process_data" (function)
                     → Stores search context for tldr-read-enforcer
-                    → Blocks Grep, suggests TLDR search instead
-                    → TLDR finds + enriches (call graph, docstring)
+                    → Blocks Grep, suggests the best search tool instead
 ```
 
 ### Multi-Session Coordination
@@ -504,11 +223,11 @@ Grep "process_data" → smart-search-router hook intercepts
 When the agent tries to edit a file:
 
 ```
-Edit file.py → file-claims hook intercepts
-            → Checks PostgreSQL for file claim
+Edit file.py → file-claims hook intercepts (pre_tool_use)
+            → Checks coordination DB for a file claim
             → Session A already editing file.py
             → Warns: "File conflict: Session A is editing file.py"
-            → The agent can coordinate or edit different file
+            → The agent can coordinate or edit a different file
 ```
 
 ### Type Checking
@@ -516,61 +235,42 @@ Edit file.py → file-claims hook intercepts
 When the agent edits a TypeScript file:
 
 ```
-Edit hook.ts → typescript-preflight hook runs after edit
+Edit hook.ts → typescript-preflight hook runs (post_tool_use)
             → Executes: tsc --noEmit hook.ts
             → Finds: "Type 'string' not assignable to 'number'"
-            → Blocks with error message
-            → The agent sees error immediately and fixes in next turn
+            → Blocks with the error message
+            → The agent sees the error immediately and fixes it next turn
 ```
 
 ### Skill Activation
 
-When user submits a prompt:
+When the user submits a prompt:
 
 ```
-Prompt: "refactor this code" → skill-activation-prompt hook runs
-                             → Matches "refactor" keyword
-                             → Suggests: refactor skill (high priority)
-                             → Suggests: premortem skill (medium priority)
-                             → The agent: /refactor before responding
+Prompt: "refactor this code" → skill-activation-prompt hook runs (prompt_submit)
+                            → Matches "refactor" keyword
+                            → Suggests: refactor skill (high priority)
+                            → The agent: /refactor before responding
 ```
 
 ## Advanced Features
 
-### Pattern-Aware Coordination
-
-Subagent hooks detect multi-agent patterns from environment variables:
-
-```bash
-PATTERN_TYPE=swarm    # Enables broadcast messaging
-PATTERN_TYPE=jury     # Enables vote isolation
-PATTERN_TYPE=pipeline # Enables stage sequencing
-```
-
-Hooks inject pattern-specific context and coordinate agent interactions.
-
 ### Symbol Indexing
 
-The session-symbol-index hook builds a symbol index at session start:
+The `session-symbol-index` hook builds a symbol index at session start:
 
 ```json
 {
-  "process_data": {
-    "type": "function",
-    "location": "/path/to/file.py:42"
-  },
-  "DataProcessor": {
-    "type": "class",
-    "location": "/path/to/file.py:10"
-  }
+  "process_data": { "type": "function", "location": "/path/to/file.py:42" },
+  "DataProcessor": { "type": "class", "location": "/path/to/file.py:10" }
 }
 ```
 
-Used by smart-search-router and signature-helper for accurate code understanding.
+Used by `smart-search-router` and `signature-helper` for accurate code understanding.
 
 ### Search Context Chaining
 
-smart-search-router stores search context that tldr-read-enforcer consumes:
+`smart-search-router` stores search context that `tldr-read-enforcer` consumes:
 
 ```json
 {
@@ -588,10 +288,10 @@ This enables multi-layer context enrichment without repeated tool calls.
 
 ### Learning Extraction
 
-session-end-cleanup spawns background process to extract learnings:
+`session-end-cleanup` spawns a background process to extract learnings:
 
 ```bash
-uv run python scripts/braintrust_analyze.py --learn --session-id <id>
+uv run python opc/scripts/braintrust_analyze.py --learn --session-id <id>
 ```
 
 Uses LLM-as-judge to extract:
@@ -600,63 +300,44 @@ Uses LLM-as-judge to extract:
 - Decisions made
 - Patterns discovered
 
-Stored in archival_memory for future semantic recall.
+Stored in `archival_memory` for future semantic recall.
 
 ## Debugging Hooks
+
+### Test a Handler Manually
+
+Pipe an event payload to the launcher:
+
+```bash
+echo '{"project_dir": "/path/to/project", "matcher": "resume"}' | \
+  uv run $HOME/.opc/hooks/hook_launcher.py <handler-name>
+```
 
 ### Check Hook Execution
 
 Hooks log to stderr (not stdout, which is parsed as JSON):
 
-```typescript
-console.error('[my-hook] Processing input:', input);
-```
-
-### Test Hook Manually
-
-```bash
-echo '{"session_id":"test","prompt":"delete all files"}' | \
-  node .claude/hooks/src/my-hook.js
-```
-
-### Disable Hook Temporarily
-
-Comment out in `.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      // {
-      //   "matcher": "Read",
-      //   "hooks": [...]
-      // }
-    ]
-  }
-}
+```python
+import sys
+print('[my-hook] Processing input:', file=sys.stderr)
 ```
 
 ### Check Hook Timeout
 
-If hook exceeds timeout, it's killed and the agent continues. Increase timeout if needed:
-
-```json
-{
-  "timeout": 30  // seconds
-}
-```
+If a hook exceeds its timeout it is killed and the agent continues. Increase the `timeout` in the
+manifest if needed.
 
 ## Performance Considerations
 
-- **TLDR hooks**: 95% token savings (50-500 tokens vs 3000-20000 raw)
+- **TLDR hooks**: ~90-95% token savings (50-500 tokens vs 3000-20000 raw)
 - **Search routing**: Prevents inefficient Grep scans
 - **Signature injection**: Avoids reading definition files (saves 1000+ tokens per function)
-- **Symbol indexing**: One-time 5s cost at session start, saves 100+ tool calls
+- **Symbol indexing**: One-time ~5s cost at session start, saves 100+ tool calls
 - **Learning extraction**: Background process, doesn't block session end
 
 ## Security Considerations
 
-Hooks run with the same permissions as the Claude CLI. They can:
+Hooks run with the same permissions as the harness driver. They can:
 - Execute arbitrary commands
 - Read/write files in the project
 - Access environment variables
@@ -664,54 +345,89 @@ Hooks run with the same permissions as the Claude CLI. They can:
 
 **Recommendations:**
 - Review hook source code before enabling
-- Use `$OPC_PROJECT_DIR` paths to scope to current project
+- Use `$OPC_PROJECT_DIR` / `$HOME/.opc` paths to scope to the current project/harness
 - Set reasonable timeouts to prevent hanging
 - Validate hook inputs (untrusted user prompts)
-- Use readonly operations when possible (PreToolUse hooks)
-
-## Troubleshooting
-
-**Hook not running:**
-- Check settings.json syntax (valid JSON)
-- Verify hook script exists at specified path
-- Check file permissions (executable)
-- Look for stderr logs
-
-**Hook timing out:**
-- Increase timeout value
-- Move slow operations to background spawn
-- Use caching for expensive operations
-
-**Hook output not appearing:**
-- Verify JSON output format
-- Check for stdout vs stderr confusion
-- Ensure `message` field is set for user-visible output
-
-**Type errors after hook runs:**
-- typescript-preflight may be reporting legitimate errors
-- Check hook output for error details
-- Fix reported type errors before proceeding
-
-## Examples from Production
-
-**Token savings (actual metrics):**
-- TLDR enforcement: 95% reduction (5000 → 250 tokens)
-- Smart search routing: 90% reduction (2000 → 200 tokens)
-- Signature injection: 85% reduction (1000 → 150 tokens)
-
-**Coordination (actual use):**
-- File claims prevented 12 conflicts across 3 concurrent sessions
-- Session awareness showed 2 other active sessions on same project
-- Learning recall surfaced 5 relevant past solutions
-
-**Validation (actual catches):**
-- typescript-preflight caught 47 type errors before commit
-- import-validator fixed 23 import paths
-- compiler-in-the-loop prevented 8 runtime errors
+- Use readonly operations when possible (`pre_tool_use` hooks)
 
 ## See Also
 
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - Overall system design
-- [QUICKSTART.md](../QUICKSTART.md) - Getting started
-- `.claude/hooks/src/` - Hook source code
-- `.claude/settings.json` - Hook configuration
+- [HARNESS-ADAPTER](../../harness/spec/HARNESS-ADAPTER.md) — neutral harness-adapter contract + event taxonomy
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — overall system design
+- [QUICKSTART.md](../QUICKSTART.md) — getting started
+- [hooks skill](../../harness/skills/hooks/SKILL.md) — hook development rules
+- `harness/lifecycle/hooks/` — canonical Python hooks + launcher + `_payload.py`
+- `harness/lifecycle/hooks.toml` — neutral hook manifest
+
+---
+
+## Appendix: Legacy Claude-Code-native protocol (until Step 11)
+
+> Categorized historical record of the superseded Claude-Code-native hook protocol. `.claude/` is
+> slated for removal at Step 11. **New work must target the neutral model above**, not anything here.
+> This section is preserved so legacy transport (still live today) can be debugged and its content
+> migrated rather than lost.
+
+### Native lifecycle events (superseded)
+
+Claude Code registered hooks against PascalCase native events:
+
+- `SessionStart` (source: `startup`, `resume`, `clear`, `compact`)
+- `UserPromptSubmit`
+- `PreToolUse` — can block/allow/modify (`hookSpecificOutput.permissionDecision`)
+- `PostToolUse` — after a tool executes
+- `PreCompact` (source: `manual`, `auto`)
+- `SubagentStart` — spawn of a Task subagent (cannot block, inject only)
+- `SubagentStop` — subagent completes
+- `Stop` — agent produces a stop sequence (check `stop_hook_active` to prevent loops)
+- `SessionEnd` — session terminates (reason)
+- `PermissionRequest` — permission dialog suppression (requires matcher)
+- `Notification` — engine notification (requires matcher)
+
+### Native registration (superseded)
+
+Hooks were registered in `.claude/settings.json` (generated from the manifest today):
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "$OPC_PROJECT_DIR/.claude/hooks/session-register.sh", "timeout": 10 }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Read", "hooks": [{ "type": "command", "command": "$OPC_PROJECT_DIR/.claude/hooks/tldr-read-enforcer.sh", "timeout": 20 }] }
+    ]
+  }
+}
+```
+
+### Native matcher pattern syntax (superseded)
+
+| Pattern | Example |
+|---------|---------|
+| `Bash` | Exact match |
+| `Edit\|Write` | OR operator |
+| `Read.*` | Regex |
+| `mcp__.*__write.*` | MCP tools |
+| `*` | Wildcard |
+
+Case-sensitive. Matcher-requiring events: `PreToolUse`, `PostToolUse`, `PermissionRequest`,
+`Notification` (optional), `SessionStart` (optional), `PreCompact` (optional). Ordering: hooks run in
+listed order; for `PreToolUse`, a `deny` skips subsequent hooks.
+
+### Native hook types (superseded)
+
+- **Command hooks** (`"type": "command"`): determininstic scripts.
+- **Prompt hooks** (`"type": "prompt"`): LLM (Haiku) context-aware decisions — `approve`/`block`
+  decision with `reason`, `continue`, `stopReason`, `systemMessage`.
+
+### Working with MCP tools (still applicable)
+
+MCP tools follow `mcp__<server>__<tool>` naming — the matcher conventions remain useful for
+tool-pattern hooks under the neutral model.
+
+### Native input/output schemas (superseded)
+
+Input schema varied by event (`SessionStartInput`, `PreToolUseInput`, `UserPromptSubmitInput`, …);
+output used `HookOutput { result, message, hookSpecificOutput }`. See the neutral payload contract in
+the main body above for the current shape.
