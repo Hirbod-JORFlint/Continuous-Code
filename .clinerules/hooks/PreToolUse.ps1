@@ -3,13 +3,12 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
-  "typescript-preflight",
-  "post-tool-use-tracker",
-  "braintrust-post-tool-use"
+  "pre-tool-use-broadcast",
+  "path-rules"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path
-$env:OPC_EVENT = "PostToolUse"
+$env:OPC_EVENT = "PreToolUse"
 foreach ($hook in $hooks) {
   $null = $payload | & uv run "$HOME\.opc\hooks\hook_launcher.py" $hook 2>$null
 }

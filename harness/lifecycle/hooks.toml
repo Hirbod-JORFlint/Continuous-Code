@@ -34,8 +34,7 @@ legacy_transport = "legacy $HOME/.claude path until dist re-home (Step 11)"
 [[hooks.session_start]]
 id = "persist-project-dir"
 description = "Persist project dir for OPC_* env propagation"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/hooks/persist-project-dir.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py persist-project-dir"
 
 [[hooks.session_start]]
 id = "braintrust-session-start"
@@ -103,15 +102,13 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-user-prompt-submi
 [[hooks.pre_tool_use]]
 id = "pre-tool-use-broadcast"
 description = "Broadcast tool-use to observers (no blocking)"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/pre-tool-use-broadcast.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py pre-tool-use-broadcast"
 
 [[hooks.pre_tool_use]]
 id = "path-rules"
 description = "Enforce path allow/deny rules before file ops"
 matcher = "Read|Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/path-rules.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py path-rules"
 timeout = 5
 
 [[hooks.pre_tool_use]]
@@ -174,8 +171,7 @@ timeout = 5
 id = "typescript-preflight"
 description = "Run TypeScript typecheck preflight after edits"
 matcher = "Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/typescript-preflight.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py typescript-preflight"
 timeout = 40
 
 [[hooks.post_tool_use]]
@@ -262,14 +258,12 @@ command = "node $HOME/.claude/hooks/dist/compiler-in-the-loop-stop.mjs"
 [[hooks.session_stop]]
 id = "session-end-cleanup"
 description = "Clean up session artifacts"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/session-end-cleanup.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-end-cleanup"
 
 [[hooks.session_stop]]
 id = "session-outcome"
 description = "Record session outcome"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/session-outcome.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-outcome"
 
 [[hooks.session_stop]]
 id = "braintrust-session-end"

@@ -30,7 +30,7 @@ type OpcHook = {
 
 const HOOKS: Record<string, OpcHook[]> = {
   "session.created": [
-    {"command": "bash $HOME/.claude/hooks/persist-project-dir.sh"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py persist-project-dir"},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start"},
     {"command": "node $HOME/.claude/hooks/dist/session-register.mjs", "timeout": 10},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-symbol-index", "timeout": 5},
@@ -38,8 +38,8 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs", "matcher": ["startup", "resume"], "timeout": 2}
   ],
   "tool.execute.before": [
-    {"command": "node $HOME/.claude/hooks/dist/pre-tool-use-broadcast.mjs"},
-    {"command": "node $HOME/.claude/hooks/dist/path-rules.mjs", "matcher": ["read", "edit", "write"], "timeout": 5},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py pre-tool-use-broadcast"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py path-rules", "matcher": ["read", "edit", "write"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/tldr-read-enforcer.mjs", "matcher": ["read"], "timeout": 20},
     {"command": "node $HOME/.claude/hooks/dist/smart-search-router.mjs", "matcher": ["grep"], "timeout": 10},
     {"command": "node $HOME/.claude/hooks/dist/tldr-context-inject.mjs", "matcher": ["task"], "timeout": 30},
@@ -49,7 +49,7 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "node $HOME/.claude/hooks/dist/signature-helper.mjs", "matcher": ["edit"], "timeout": 5}
   ],
   "tool.execute.after": [
-    {"command": "node $HOME/.claude/hooks/dist/typescript-preflight.mjs", "matcher": ["edit", "write"], "timeout": 40},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py typescript-preflight", "matcher": ["edit", "write"], "timeout": 40},
     {"command": "node $HOME/.claude/hooks/dist/compiler-in-the-loop.mjs", "matcher": ["edit", "write"], "timeout": 30},
     {"command": "node $HOME/.claude/hooks/dist/post-edit-notify.mjs", "matcher": ["edit", "write"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs", "matcher": ["edit", "write"], "timeout": 10},
@@ -63,8 +63,8 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py pre-compact-continuity"}
   ],
   "session.idle": [
-    {"command": "node $HOME/.claude/hooks/dist/session-end-cleanup.mjs"},
-    {"command": "node $HOME/.claude/hooks/dist/session-outcome.mjs"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-end-cleanup"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-outcome"},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-end"}
   ]
 };

@@ -3,6 +3,7 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
+  "persist-project-dir",
   "braintrust-session-start",
   "session-symbol-index",
   "session-start-continuity"
