@@ -35,29 +35,29 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-register", "timeout": 10},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-symbol-index", "timeout": 5},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-start-continuity", "matcher": ["resume", "compact", "clear"]},
-    {"command": "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs", "matcher": ["startup", "resume"], "timeout": 2}
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-start-tldr-cache", "matcher": ["startup", "resume"], "timeout": 2}
   ],
   "tool.execute.before": [
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py pre-tool-use-broadcast"},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py path-rules", "matcher": ["read", "edit", "write"], "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/tldr-read-enforcer.mjs", "matcher": ["read"], "timeout": 20},
-    {"command": "node $HOME/.claude/hooks/dist/smart-search-router.mjs", "matcher": ["grep"], "timeout": 10},
-    {"command": "node $HOME/.claude/hooks/dist/tldr-context-inject.mjs", "matcher": ["task"], "timeout": 30},
-    {"command": "node $HOME/.claude/hooks/dist/arch-context-inject.mjs", "matcher": ["task"], "timeout": 30},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py tldr-read-enforcer", "matcher": ["read"], "timeout": 20},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py smart-search-router", "matcher": ["grep"], "timeout": 10},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py tldr-context-inject", "matcher": ["task"], "timeout": 30},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py arch-context-inject", "matcher": ["task"], "timeout": 30},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py file-claims", "matcher": ["edit"], "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/edit-context-inject.mjs", "matcher": ["edit"], "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/signature-helper.mjs", "matcher": ["edit"], "timeout": 5}
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py edit-context-inject", "matcher": ["edit"], "timeout": 5},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py signature-helper", "matcher": ["edit"], "timeout": 5}
   ],
   "tool.execute.after": [
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py typescript-preflight", "matcher": ["edit", "write"], "timeout": 40},
-    {"command": "node $HOME/.claude/hooks/dist/compiler-in-the-loop.mjs", "matcher": ["edit", "write"], "timeout": 30},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py compiler-in-the-loop", "matcher": ["edit", "write"], "timeout": 30},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-edit-notify", "matcher": ["edit", "write"], "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs", "matcher": ["edit", "write"], "timeout": 10},
-    {"command": "node $HOME/.claude/hooks/dist/handoff-index.mjs", "matcher": ["write"]},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-edit-diagnostics", "matcher": ["edit", "write"], "timeout": 10},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py handoff-index", "matcher": ["write"]},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker", "matcher": ["edit", "write", "bash"], "timeout": 120},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-post-tool-use"},
-    {"command": "node $HOME/.claude/hooks/dist/import-validator.mjs", "matcher": ["edit", "write"], "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/import-error-detector.mjs", "matcher": ["bash"], "timeout": 5}
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py import-validator", "matcher": ["edit", "write"], "timeout": 5},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py import-error-detector", "matcher": ["bash"], "timeout": 5}
   ],
   "experimental.session.compacting": [
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py pre-compact-continuity"}

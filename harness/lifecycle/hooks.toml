@@ -19,9 +19,9 @@
 #     `uv run $HOME/.opc/hooks/hook_launcher.py <name>` where ~/.opc/hooks is
 #     the neutral install root (junction -> harness/lifecycle/hooks today,
 #     copied by the Step 9 installer on other machines).
-#   - TS-dist / bash / Braintrust entries still point at legacy
-#     `$HOME/.claude/...` paths until their re-home (Step 11). Each carries a
-#     `transport` key documenting that.
+#   - All hook handlers now run through the neutral launcher above; the
+#     legacy `$HOME/.claude/hooks/dist` handlers were fully re-homed in
+#     Step 11 Phase D/E.
 
 [meta]
 version = 1
@@ -63,15 +63,13 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py session-start-continuity"
 id = "session-start-tldr-cache"
 description = "Pre-warm tldr cache on startup/resume"
 matcher = "startup|resume"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-start-tldr-cache"
 timeout = 2
 
 [[hooks.prompt_submit]]
 id = "skill-activation-prompt"
 description = "Activate relevant skills for the prompt"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/skill-activation-prompt.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py skill-activation-prompt"
 
 [[hooks.prompt_submit]]
 id = "premortem-suggest"
@@ -82,15 +80,13 @@ timeout = 5
 [[hooks.prompt_submit]]
 id = "memory-awareness"
 description = "Inject memory-system awareness into the prompt"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/memory-awareness.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py memory-awareness"
 timeout = 10
 
 [[hooks.prompt_submit]]
 id = "impact-refactor"
 description = "Flag refactor-ready code paths mentioned in the prompt"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/impact-refactor.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py impact-refactor"
 timeout = 10
 
 [[hooks.prompt_submit]]
@@ -114,32 +110,28 @@ timeout = 5
 id = "tldr-read-enforcer"
 description = "Route reads of indexed files through tldr cache"
 matcher = "Read"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/tldr-read-enforcer.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py tldr-read-enforcer"
 timeout = 20
 
 [[hooks.pre_tool_use]]
 id = "smart-search-router"
 description = "Route searches to the best search tool"
 matcher = "Grep"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/smart-search-router.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py smart-search-router"
 timeout = 10
 
 [[hooks.pre_tool_use]]
 id = "tldr-context-inject"
 description = "Inject tldr context for Task/delegated work"
 matcher = "Task"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/tldr-context-inject.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py tldr-context-inject"
 timeout = 30
 
 [[hooks.pre_tool_use]]
 id = "arch-context-inject"
 description = "Inject architecture context for Task/delegated work"
 matcher = "Task"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/arch-context-inject.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py arch-context-inject"
 timeout = 30
 
 [[hooks.pre_tool_use]]
@@ -153,16 +145,14 @@ timeout = 5
 id = "edit-context-inject"
 description = "Inject symbol/file context before edits"
 matcher = "Edit"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/edit-context-inject.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py edit-context-inject"
 timeout = 5
 
 [[hooks.pre_tool_use]]
 id = "signature-helper"
 description = "Surface signatures before edits"
 matcher = "Edit"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/signature-helper.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py signature-helper"
 timeout = 5
 
 [[hooks.post_tool_use]]
@@ -176,8 +166,7 @@ timeout = 40
 id = "compiler-in-the-loop"
 description = "Compile edited modules and surface diagnostics"
 matcher = "Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/compiler-in-the-loop.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py compiler-in-the-loop"
 timeout = 30
 
 [[hooks.post_tool_use]]
@@ -191,16 +180,14 @@ timeout = 5
 id = "post-edit-diagnostics"
 description = "Collect diagnostics after edits"
 matcher = "Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py post-edit-diagnostics"
 timeout = 10
 
 [[hooks.post_tool_use]]
 id = "handoff-index"
 description = "Index handoff docs written this session"
 matcher = "Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/handoff-index.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py handoff-index"
 
 [[hooks.post_tool_use]]
 id = "post-tool-use-tracker"
@@ -219,16 +206,14 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-post-tool-use"
 id = "import-validator"
 description = "Validate imports after edits"
 matcher = "Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/import-validator.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py import-validator"
 timeout = 5
 
 [[hooks.post_tool_use]]
 id = "import-error-detector"
 description = "Detect import errors in bash output"
 matcher = "Bash"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/import-error-detector.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py import-error-detector"
 timeout = 5
 
 [[hooks.pre_compact]]
@@ -249,8 +234,7 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-stop"
 [[hooks.stop]]
 id = "compiler-in-the-loop-stop"
 description = "Final compile sweep before the session stops"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/compiler-in-the-loop-stop.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py compiler-in-the-loop-stop"
 
 [[hooks.session_stop]]
 id = "session-end-cleanup"

@@ -92,3 +92,54 @@ def track_hook_activity_sync(
         )
     except Exception:
         pass
+
+
+def _daemon_result(response: dict[str, Any]) -> Any:
+    """Extract the `.result` field like the TS helpers do, else the dict."""
+    value = response.get("result")
+    return value if value is not None else response
+
+
+def context_daemon(project_dir: str, entry: str, language: str = "python",
+                   depth: int = 2) -> Any:
+    """Daemon `context` command (mirrors TS contextDaemon)."""
+    return _daemon_result(
+        query_daemon_sync({"cmd": "context", "entry": entry, "language": language,
+                           "depth": depth}, project_dir)
+    )
+
+
+def cfg_daemon(file_path: str, func_name: str, project_dir: str,
+               language: str = "python") -> Any:
+    """Daemon `cfg` command (mirrors TS cfgDaemon)."""
+    return _daemon_result(
+        query_daemon_sync({"cmd": "cfg", "file": file_path,
+                           "function": func_name, "language": language}, project_dir)
+    )
+
+
+def dfg_daemon(file_path: str, func_name: str, project_dir: str,
+               language: str = "python") -> Any:
+    """Daemon `dfg` command (mirrors TS dfgDaemon)."""
+    return _daemon_result(
+        query_daemon_sync({"cmd": "dfg", "file": file_path,
+                           "function": func_name, "language": language}, project_dir)
+    )
+
+
+def slice_daemon(file_path: str, func_name: str, line: int, project_dir: str,
+                 direction: str = "backward", variable: str | None = None) -> Any:
+    """Daemon `slice` command (mirrors TS sliceDaemon)."""
+    return query_daemon_sync(
+        {"cmd": "slice", "file": file_path, "function": func_name, "line": line,
+         "direction": direction, "variable": variable}, project_dir
+    )
+
+
+def extract_daemon(file_path: str, project_dir: str,
+                   session_id: str | None = None) -> Any:
+    """Daemon `extract` command (mirrors TS extractDaemon)."""
+    return _daemon_result(
+        query_daemon_sync({"cmd": "extract", "file": file_path,
+                           "session": session_id}, project_dir)
+    )

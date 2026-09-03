@@ -4,9 +4,14 @@
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
   "typescript-preflight",
+  "compiler-in-the-loop",
   "post-edit-notify",
+  "post-edit-diagnostics",
+  "handoff-index",
   "post-tool-use-tracker",
-  "braintrust-post-tool-use"
+  "braintrust-post-tool-use",
+  "import-validator",
+  "import-error-detector"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

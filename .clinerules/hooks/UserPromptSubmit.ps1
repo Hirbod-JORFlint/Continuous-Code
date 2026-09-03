@@ -3,7 +3,10 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
+  "skill-activation-prompt",
   "premortem-suggest",
+  "memory-awareness",
+  "impact-refactor",
   "braintrust-user-prompt-submit"
 )
 $payload = [Console]::In.ReadToEnd()

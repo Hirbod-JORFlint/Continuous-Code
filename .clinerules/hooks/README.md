@@ -20,12 +20,12 @@ payload adapter (`_payload.py`) understands the Cline field naming.
 
 | Hook file        | Neutral events forwarded                    |
 | ---------------- | ------------------------------------------- |
-| `PostToolUse.ps1` | typescript-preflight, post-edit-notify, post-tool-use-tracker, braintrust-post-tool-use |
+| `PostToolUse.ps1` | typescript-preflight, compiler-in-the-loop, post-edit-notify, post-edit-diagnostics, handoff-index, post-tool-use-tracker, braintrust-post-tool-use, import-validator, import-error-detector |
 | `PreCompact.ps1` | pre-compact-continuity |
-| `PreToolUse.ps1` | pre-tool-use-broadcast, path-rules, file-claims |
-| `TaskComplete.ps1` | auto-handoff-stop, braintrust-stop |
-| `TaskStart.ps1` | persist-project-dir, braintrust-session-start, session-register, session-symbol-index, session-start-continuity |
-| `UserPromptSubmit.ps1` | premortem-suggest, braintrust-user-prompt-submit |
+| `PreToolUse.ps1` | pre-tool-use-broadcast, path-rules, tldr-read-enforcer, smart-search-router, tldr-context-inject, arch-context-inject, file-claims, edit-context-inject, signature-helper |
+| `TaskComplete.ps1` | auto-handoff-stop, braintrust-stop, compiler-in-the-loop-stop |
+| `TaskStart.ps1` | persist-project-dir, braintrust-session-start, session-register, session-symbol-index, session-start-continuity, session-start-tldr-cache |
+| `UserPromptSubmit.ps1` | skill-activation-prompt, premortem-suggest, memory-awareness, impact-refactor, braintrust-user-prompt-submit |
 
 ## Caveats
 

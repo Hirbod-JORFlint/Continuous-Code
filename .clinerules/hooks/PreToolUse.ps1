@@ -5,7 +5,13 @@
 $hooks = @(
   "pre-tool-use-broadcast",
   "path-rules",
-  "file-claims"
+  "tldr-read-enforcer",
+  "smart-search-router",
+  "tldr-context-inject",
+  "arch-context-inject",
+  "file-claims",
+  "edit-context-inject",
+  "signature-helper"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

@@ -7,7 +7,8 @@ $hooks = @(
   "braintrust-session-start",
   "session-register",
   "session-symbol-index",
-  "session-start-continuity"
+  "session-start-continuity",
+  "session-start-tldr-cache"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

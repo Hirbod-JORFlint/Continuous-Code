@@ -4,7 +4,8 @@
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
   "auto-handoff-stop",
-  "braintrust-stop"
+  "braintrust-stop",
+  "compiler-in-the-loop-stop"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path
