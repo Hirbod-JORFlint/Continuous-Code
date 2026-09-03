@@ -4,6 +4,7 @@
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
   "typescript-preflight",
+  "post-edit-notify",
   "post-tool-use-tracker",
   "braintrust-post-tool-use"
 )

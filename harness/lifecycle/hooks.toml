@@ -44,8 +44,7 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start"
 [[hooks.session_start]]
 id = "session-register"
 description = "Register session in OPC registry"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/session-register.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-register"
 timeout = 10
 
 [[hooks.session_start]]
@@ -147,8 +146,7 @@ timeout = 30
 id = "file-claims"
 description = "Record file ownership claims before edits"
 matcher = "Edit"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/file-claims.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py file-claims"
 timeout = 5
 
 [[hooks.pre_tool_use]]
@@ -186,8 +184,7 @@ timeout = 30
 id = "post-edit-notify"
 description = "Notify on edit completion"
 matcher = "Edit|Write"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/post-edit-notify.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py post-edit-notify"
 timeout = 5
 
 [[hooks.post_tool_use]]

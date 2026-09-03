@@ -5,6 +5,7 @@
 $hooks = @(
   "persist-project-dir",
   "braintrust-session-start",
+  "session-register",
   "session-symbol-index",
   "session-start-continuity"
 )

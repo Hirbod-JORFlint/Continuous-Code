@@ -4,7 +4,8 @@
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
   "pre-tool-use-broadcast",
-  "path-rules"
+  "path-rules",
+  "file-claims"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

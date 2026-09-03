@@ -32,7 +32,7 @@ const HOOKS: Record<string, OpcHook[]> = {
   "session.created": [
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py persist-project-dir"},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start"},
-    {"command": "node $HOME/.claude/hooks/dist/session-register.mjs", "timeout": 10},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-register", "timeout": 10},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-symbol-index", "timeout": 5},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-start-continuity", "matcher": ["resume", "compact", "clear"]},
     {"command": "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs", "matcher": ["startup", "resume"], "timeout": 2}
@@ -44,14 +44,14 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "node $HOME/.claude/hooks/dist/smart-search-router.mjs", "matcher": ["grep"], "timeout": 10},
     {"command": "node $HOME/.claude/hooks/dist/tldr-context-inject.mjs", "matcher": ["task"], "timeout": 30},
     {"command": "node $HOME/.claude/hooks/dist/arch-context-inject.mjs", "matcher": ["task"], "timeout": 30},
-    {"command": "node $HOME/.claude/hooks/dist/file-claims.mjs", "matcher": ["edit"], "timeout": 5},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py file-claims", "matcher": ["edit"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/edit-context-inject.mjs", "matcher": ["edit"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/signature-helper.mjs", "matcher": ["edit"], "timeout": 5}
   ],
   "tool.execute.after": [
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py typescript-preflight", "matcher": ["edit", "write"], "timeout": 40},
     {"command": "node $HOME/.claude/hooks/dist/compiler-in-the-loop.mjs", "matcher": ["edit", "write"], "timeout": 30},
-    {"command": "node $HOME/.claude/hooks/dist/post-edit-notify.mjs", "matcher": ["edit", "write"], "timeout": 5},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-edit-notify", "matcher": ["edit", "write"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs", "matcher": ["edit", "write"], "timeout": 10},
     {"command": "node $HOME/.claude/hooks/dist/handoff-index.mjs", "matcher": ["write"]},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker", "matcher": ["edit", "write", "bash"], "timeout": 120},
