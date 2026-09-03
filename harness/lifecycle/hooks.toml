@@ -40,8 +40,7 @@ command = "bash $HOME/.claude/hooks/persist-project-dir.sh"
 [[hooks.session_start]]
 id = "braintrust-session-start"
 description = "Open session for Braintrust tracing"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_start.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start"
 
 [[hooks.session_start]]
 id = "session-register"
@@ -60,8 +59,7 @@ timeout = 5
 id = "session-start-continuity"
 description = "Restore continuity ledger context on resume/compact/clear"
 matcher = "resume|compact|clear"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/session-start-continuity.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py session-start-continuity"
 
 [[hooks.session_start]]
 id = "session-start-tldr-cache"
@@ -100,8 +98,7 @@ timeout = 10
 [[hooks.prompt_submit]]
 id = "braintrust-user-prompt-submit"
 description = "Record prompt for Braintrust tracing"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/user_prompt_submit.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-user-prompt-submit"
 
 [[hooks.pre_tool_use]]
 id = "pre-tool-use-broadcast"
@@ -223,8 +220,7 @@ timeout = 120
 id = "braintrust-post-tool-use"
 description = "Record tool use for Braintrust tracing"
 matcher = "*"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/post_tool_use.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-post-tool-use"
 
 [[hooks.post_tool_use]]
 id = "import-validator"
@@ -245,8 +241,7 @@ timeout = 5
 [[hooks.pre_compact]]
 id = "pre-compact-continuity"
 description = "Persist continuity ledger excerpt before context compaction"
-transport = "legacy .claude path until dist re-home (Step 11)"
-command = "node $HOME/.claude/hooks/dist/pre-compact-continuity.mjs"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py pre-compact-continuity"
 
 [[hooks.stop]]
 id = "auto-handoff-stop"
@@ -256,8 +251,7 @@ command = "uv run $HOME/.opc/hooks/hook_launcher.py auto-handoff-stop"
 [[hooks.stop]]
 id = "braintrust-stop"
 description = "Record stop for Braintrust tracing"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/stop_hook.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-stop"
 
 [[hooks.stop]]
 id = "compiler-in-the-loop-stop"
@@ -280,5 +274,4 @@ command = "node $HOME/.claude/hooks/dist/session-outcome.mjs"
 [[hooks.session_stop]]
 id = "braintrust-session-end"
 description = "Close session for Braintrust tracing"
-transport = "legacy .claude path (Step 11)"
-command = "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_end.sh"
+command = "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-end"

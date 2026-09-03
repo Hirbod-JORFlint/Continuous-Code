@@ -12,11 +12,15 @@ Replaces the 5 bash hooks + common.sh:
 - post_tool_use
 - stop (creates LLM spans)
 
-Usage:
-    python3 braintrust_hooks.py <hook_name>
+Dispatch (neutral, Step 11 re-home):
+- Each lifecycle event is a thin wrapper module that imports this core and
+  invokes it with the event name via `main()`.
+- Wired through the canonical launcher:
+    uv run $HOME/.opc/hooks/hook_launcher.py <wrapper-name>
+    uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start
 
-    # In settings.json:
-    "command": "python3 $HOME/.claude/hooks/braintrust_hooks.py session_start"
+Run directly:
+    python3 braintrust.py session_start
 """
 
 from __future__ import annotations
@@ -33,9 +37,9 @@ from typing import Any
 import httpx
 
 # Config from environment
-STATE_DIR = Path.home() / ".claude" / "state" / "braintrust_sessions"
-LOG_FILE = Path.home() / ".claude" / "state" / "braintrust_hook.log"
-GLOBAL_STATE_FILE = Path.home() / ".claude" / "state" / "braintrust_global.json"
+STATE_DIR = Path.home() / ".opc" / "state" / "braintrust_sessions"
+LOG_FILE = Path.home() / ".opc" / "state" / "braintrust_hook.log"
+GLOBAL_STATE_FILE = Path.home() / ".opc" / "state" / "braintrust_global.json"
 
 API_KEY = os.environ.get("BRAINTRUST_API_KEY", "")
 PROJECT = os.environ.get("BRAINTRUST_CC_PROJECT", "claude-code")
@@ -407,7 +411,7 @@ def stop(input_data: dict) -> dict:
     # Find conversation file
     conv_file = input_data.get("transcript_path", "")
     if not conv_file or not Path(conv_file).exists():
-        sessions_dir = Path.home() / ".claude" / "projects"
+        sessions_dir = Path.home() / ".opc" / "projects"
         for jsonl in sessions_dir.rglob(f"{session_id}.jsonl"):
             conv_file = str(jsonl)
             break
@@ -665,7 +669,7 @@ HOOKS = {
 def main():
     """CLI entrypoint."""
     if len(sys.argv) < 2:
-        print("Usage: braintrust_hooks.py <hook_name>", file=sys.stderr)
+        print("Usage: braintrust.py <hook_name>", file=sys.stderr)
         sys.exit(1)
 
     hook_name = sys.argv[1]

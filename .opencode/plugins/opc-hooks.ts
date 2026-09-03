@@ -31,10 +31,10 @@ type OpcHook = {
 const HOOKS: Record<string, OpcHook[]> = {
   "session.created": [
     {"command": "bash $HOME/.claude/hooks/persist-project-dir.sh"},
-    {"command": "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_start.sh"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-start"},
     {"command": "node $HOME/.claude/hooks/dist/session-register.mjs", "timeout": 10},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-symbol-index", "timeout": 5},
-    {"command": "node $HOME/.claude/hooks/dist/session-start-continuity.mjs", "matcher": ["resume", "compact", "clear"]},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py session-start-continuity", "matcher": ["resume", "compact", "clear"]},
     {"command": "node $HOME/.claude/hooks/dist/session-start-tldr-cache.mjs", "matcher": ["startup", "resume"], "timeout": 2}
   ],
   "tool.execute.before": [
@@ -55,17 +55,17 @@ const HOOKS: Record<string, OpcHook[]> = {
     {"command": "node $HOME/.claude/hooks/dist/post-edit-diagnostics.mjs", "matcher": ["edit", "write"], "timeout": 10},
     {"command": "node $HOME/.claude/hooks/dist/handoff-index.mjs", "matcher": ["write"]},
     {"command": "uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker", "matcher": ["edit", "write", "bash"], "timeout": 120},
-    {"command": "bash $HOME/.claude/plugins/braintrust-tracing/hooks/post_tool_use.sh"},
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-post-tool-use"},
     {"command": "node $HOME/.claude/hooks/dist/import-validator.mjs", "matcher": ["edit", "write"], "timeout": 5},
     {"command": "node $HOME/.claude/hooks/dist/import-error-detector.mjs", "matcher": ["bash"], "timeout": 5}
   ],
   "experimental.session.compacting": [
-    {"command": "node $HOME/.claude/hooks/dist/pre-compact-continuity.mjs"}
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py pre-compact-continuity"}
   ],
   "session.idle": [
     {"command": "node $HOME/.claude/hooks/dist/session-end-cleanup.mjs"},
     {"command": "node $HOME/.claude/hooks/dist/session-outcome.mjs"},
-    {"command": "bash $HOME/.claude/plugins/braintrust-tracing/hooks/session_end.sh"}
+    {"command": "uv run $HOME/.opc/hooks/hook_launcher.py braintrust-session-end"}
   ]
 };
 

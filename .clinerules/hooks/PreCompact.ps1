@@ -3,12 +3,11 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
-  "premortem-suggest",
-  "braintrust-user-prompt-submit"
+  "pre-compact-continuity"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path
-$env:OPC_EVENT = "UserPromptSubmit"
+$env:OPC_EVENT = "PreCompact"
 foreach ($hook in $hooks) {
   $null = $payload | & uv run "$HOME\.opc\hooks\hook_launcher.py" $hook 2>$null
 }

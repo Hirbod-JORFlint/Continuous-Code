@@ -201,12 +201,12 @@ def ensure_memory_daemon() -> str | None:
     and automatically extracts learnings when sessions end.
 
     This is a GLOBAL daemon (one for all projects) using a PID file
-    at ~/.claude/memory-daemon.pid.
+    at ~/.opc/memory-daemon.pid.
 
     Returns:
         Status message or None if daemon was already running
     """
-    pid_file = Path.home() / ".claude" / "memory-daemon.pid"
+    pid_file = Path.home() / ".opc" / "memory-daemon.pid"
 
     # Check if already running
     if pid_file.exists():
@@ -222,15 +222,12 @@ def ensure_memory_daemon() -> str | None:
     try:
         # Try multiple locations for memory_daemon.py
         daemon_script = None
+        project_dir = get_project_dir()
         possible_locations = [
-            # 1. Relative to hook (development setup)
-            Path(__file__).parent.parent.parent / "opc" / "scripts" / "core" / "memory_daemon.py",
-            # 2. In .claude/scripts/core/ (wizard-installed)
-            Path(__file__).parent.parent / "scripts" / "core" / "memory_daemon.py",
-            # 3. Global ~/.claude/scripts/core/ (global install)
-            Path.home() / ".claude" / "scripts" / "core" / "memory_daemon.py",
-            # 4. Legacy ~/.opc-dev location
-            Path.home() / ".opc-dev" / "opc" / "scripts" / "core" / "memory_daemon.py",
+            # 1. Project-local opc/scripts/core/ (dev/repo layout)
+            project_dir / "opc" / "scripts" / "core" / "memory_daemon.py",
+            # 2. Global ~/.opc/scripts/core/ (global install)
+            Path.home() / ".opc" / "scripts" / "core" / "memory_daemon.py",
         ]
 
         for loc in possible_locations:
@@ -591,7 +588,7 @@ def cleanup_stale_extraction_processes(max_age_seconds: int = 300) -> None:
     import signal
     import time
 
-    pids_file = get_project_dir() / ".claude" / "cache" / "memory-extraction" / "active-pids.json"
+    pids_file = get_project_dir() / ".opc" / "cache" / "memory-extraction" / "active-pids.json"
     if not pids_file.exists():
         return
 

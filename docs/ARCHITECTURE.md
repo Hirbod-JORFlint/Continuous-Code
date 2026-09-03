@@ -637,7 +637,7 @@ memory_service_pg.py
   → postgres_pool.py:get_connection (38 callers total)
   → embedding_service.py:embed
 
-braintrust_hooks.py
+braintrust.py
   → session_start → get_project_id
   → session_start → get_session_value
   → log → ensure_dirs
@@ -658,7 +658,7 @@ Functions with elevated cyclomatic complexity:
 
 | Function | File | Complexity | Blocks | Reason |
 |----------|------|------------|--------|--------|
-| `session_start` | `braintrust_hooks.py` | 5 | 13 | Multiple early returns |
+| `session_start` | `braintrust.py` | 5 | 13 | Multiple early returns |
 | `search_hybrid` | `memory_service_pg.py` | 3 | 6 | Date filter branches |
 | `infer_pattern` | `pattern_inference.py` | 12+ | - | Pattern matching logic |
 | `main` | `compiler-in-the-loop.ts` | 8+ | - | Lean4 + Loogle integration |
@@ -668,7 +668,7 @@ Functions with elevated cyclomatic complexity:
 
 1. **`skill-activation-prompt.ts:main`** - Extract skill matchers to separate functions
 2. **`pattern_inference.py:infer_pattern`** - Use strategy pattern
-3. **`braintrust_hooks.py`** - Split session vs span logic
+3. **`braintrust.py`** - Split session vs span logic
 
 ### 10.4 Data Flow Analysis (L4: DFG)
 

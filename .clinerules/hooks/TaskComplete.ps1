@@ -3,7 +3,8 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
-  "auto-handoff-stop"
+  "auto-handoff-stop",
+  "braintrust-stop"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

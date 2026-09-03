@@ -3,7 +3,9 @@
 # (macOS/Linux: extensionless + chmod +x). Forwards the Cline stdin JSON into
 # the payload adapter, which understands the Cline field naming.
 $hooks = @(
-  "session-symbol-index"
+  "braintrust-session-start",
+  "session-symbol-index",
+  "session-start-continuity"
 )
 $payload = [Console]::In.ReadToEnd()
 $env:OPC_PROJECT_DIR = (Get-Location).Path

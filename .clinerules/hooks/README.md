@@ -20,10 +20,11 @@ payload adapter (`_payload.py`) understands the Cline field naming.
 
 | Hook file        | Neutral events forwarded                    |
 | ---------------- | ------------------------------------------- |
-| `PostToolUse.ps1` | post-tool-use-tracker |
-| `TaskComplete.ps1` | auto-handoff-stop |
-| `TaskStart.ps1` | session-symbol-index |
-| `UserPromptSubmit.ps1` | premortem-suggest |
+| `PostToolUse.ps1` | post-tool-use-tracker, braintrust-post-tool-use |
+| `PreCompact.ps1` | pre-compact-continuity |
+| `TaskComplete.ps1` | auto-handoff-stop, braintrust-stop |
+| `TaskStart.ps1` | braintrust-session-start, session-symbol-index, session-start-continuity |
+| `UserPromptSubmit.ps1` | premortem-suggest, braintrust-user-prompt-submit |
 
 ## Caveats
 
