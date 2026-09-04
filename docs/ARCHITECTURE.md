@@ -401,7 +401,7 @@ Built by `build_symbol_index.py` on the `session_start` event (`session-symbol-i
 `hook_launcher.py` (`harness/lifecycle/hooks/hook_launcher.py`) - Central dispatcher that runs
 re-homed Python hooks from the canonical manifest. Invoked as
 `uv run $HOME/.opc/hooks/hook_launcher.py <handler-name>` (a junction to `harness/lifecycle/hooks`).
-Legacy TypeScript hooks compiled via `tsc-cache/` remain live through `.claude/hooks` until Step 11.
+Legacy TypeScript hooks (Removed in Step 11 — now dispatched via Python wrappers through the manifest-first launcher).
 
 ---
 
@@ -513,7 +513,7 @@ The agent calls Grep("validateToken")
 | `harness/lifecycle/hooks/premortem-suggest.py` | Suggests /premortem for plan-based work |
 | `harness/lifecycle/hooks/post-tool-use-tracker.py` | Tracks edits + build/test attempts for reasoning VCS |
 | `harness/lifecycle/hooks/session-symbol-index.py` | Warms tldr cache + builds symbol index |
-| `.claude/hooks/src/*.ts` | Legacy TypeScript hooks (`.claude/` transport until Step 11) |
+| `harness/lifecycle/hooks/*.py` | Python hooks (Replaced in Step 11) |
 
 ### Agent Definitions
 
@@ -782,7 +782,7 @@ No circular dependencies remain in active code.
 
 Declared in `harness/lifecycle/hooks.toml`; canonical Python handlers + launcher in
 `harness/lifecycle/hooks/` (re-homed at Step 7). Legacy TypeScript hooks remain at
-`.claude/hooks/src/` (`.claude/` transport until Step 11).
+`harness/lifecycle/hooks/`.
 
 | Manifest Category | Event(s) | Purpose |
 |-------------------|----------|---------|
@@ -802,8 +802,8 @@ Declared in `harness/lifecycle/hooks.toml`; canonical Python handlers + launcher
 | `auto-handoff-stop.py` | Block stop on high context + suggest handoff |
 
 > Legacy TypeScript key functions (`smart-search-router.ts`, `tldr-context-inject.ts`,
-> `compiler-in-the-loop.ts`, `pattern-orchestrator.ts`, …) run through `.claude/hooks/dist` until
-> Step 11; their re-home is tracked in `harness/lifecycle/hooks.toml` (`transport` key).
+> `compiler-in-the-loop.ts`, `pattern-orchestrator.ts`, …) have been re-homed to
+> `harness/lifecycle/hooks/` (Step 11 complete).
 
 ---
 
@@ -812,7 +812,7 @@ Declared in `harness/lifecycle/hooks.toml`; canonical Python handlers + launcher
 | Metric | Count | Notes |
 |--------|-------|-------|
 | Python functions | 2,328 | Across all `opc/scripts/` |
-| TypeScript hooks | 34 | Active in `.claude/hooks/src/` (legacy transport until Step 11; manifest `harness/lifecycle/hooks.toml` declares 36 handlers) |
+| TypeScript hooks | 34 | Removed in Step 11; now `harness/lifecycle/hooks/*.py` (manifest `harness/lifecycle/hooks.toml` declares 36 handlers) |
 | Skills | 108 | In `harness/skills/` |
 | Agents | 32 | Defined in `harness/agents/` |
 | Tests | 265+ | TLDR-code alone |

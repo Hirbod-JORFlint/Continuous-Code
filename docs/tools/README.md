@@ -361,7 +361,7 @@ mcp__perplexity__search --query "best practices for API design"
 
 MCP servers can be configured in:
 - Project: `.mcp.json` (committed to repo)
-- User: `~/.claude/mcp-config.json` (personal tools)
+- User: `~/.opc/mcp_config.json` (personal tools)
 
 Example configuration:
 ```json
@@ -476,7 +476,7 @@ uv tool install llm-tldr
 cd opc && uv run python scripts/recall_learnings.py --query "test"
 
 # SQLite: Check database exists
-ls -l opc/.claude/cache/agentica-memory/memory.db
+psql $AGENTICA_POSTGRES_URL -c "SELECT 1"
 
 # Postgres: Check connection
 psql $DATABASE_URL -c "SELECT COUNT(*) FROM archival_memory"
@@ -497,7 +497,7 @@ curl http://localhost:1234/health
 claude mcp list
 
 # Check logs
-tail -f ~/.claude/logs/mcp-*.log
+tail -f ~/.opc/state/mcp.log
 ```
 
 ## See Also

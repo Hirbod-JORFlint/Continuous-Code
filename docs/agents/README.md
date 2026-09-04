@@ -81,7 +81,7 @@ maestro decomposes into:
   - Planning API/service integrations
 - **Output:**
   - `thoughts/shared/plans/<feature>-plan.md`
-  - `.claude/cache/agents/architect/latest-output.md`
+  - `.opc/cache/agents/architect/latest-output.md`
 - **Produces:**
   - Interfaces and data models
   - Phase-by-phase roadmap
@@ -107,7 +107,7 @@ architect produces:
   - Infrastructure changes
 - **Output:**
   - `thoughts/shared/plans/refactor-<target>-plan.md`
-  - `.claude/cache/agents/phoenix/latest-output.md`
+  - `.opc/cache/agents/phoenix/latest-output.md`
 - **Produces:**
   - Technical debt analysis
   - Transformation plan with rollback strategy
@@ -130,7 +130,7 @@ phoenix produces:
 - **Purpose:** Lightweight planning with research and codebase analysis
 - **When to use:** Need a plan with external research (docs, best practices)
 - **Uses:** MCP tools (Nia, Perplexity, RepoPrompt)
-- **Output:** `.claude/cache/agents/plan-agent/latest-output.md`
+- **Output:** `.opc/cache/agents/plan-agent/latest-output.md`
 
 **Example:**
 ```
@@ -158,7 +158,7 @@ plan-agent:
 - **Purpose:** Comprehensive codebase exploration and pattern finding
 - **When to use:** Need to understand project structure, find conventions, map architecture
 - **Tools:** Fast search (Morph, rp-cli, AST-grep, Grep, Glob)
-- **Output:** `.claude/cache/agents/scout/latest-output.md`
+- **Output:** `.opc/cache/agents/scout/latest-output.md`
 - **Produces:**
   - File location maps
   - Architecture diagrams
@@ -182,7 +182,7 @@ scout:
 - **Purpose:** External research (web, docs, APIs)
 - **When to use:** Need best practices, library documentation, or external knowledge
 - **Tools:** Web search (Perplexity), docs (Nia), scraping (Firecrawl), GitHub search
-- **Output:** `.claude/cache/agents/oracle/latest-output.md`
+- **Output:** `.opc/cache/agents/oracle/latest-output.md`
 - **Features:**
   - Always cites sources
   - States confidence levels
@@ -207,7 +207,7 @@ oracle:
   2. Analyzes structure
   3. Documents patterns
   4. Extracts learnings
-- **Output:** `.claude/cache/agents/pathfinder/latest-output.md`
+- **Output:** `.opc/cache/agents/pathfinder/latest-output.md`
 
 **Example:**
 ```
@@ -241,7 +241,7 @@ pathfinder:
 - **Purpose:** Lightweight fixes and quick tweaks
 - **When to use:** Small, focused changes without TDD overhead
 - **Tools:** Fast analysis (rp-cli, grep), syntax checks
-- **Output:** `.claude/cache/agents/spark/latest-output.md`
+- **Output:** `.opc/cache/agents/spark/latest-output.md`
 - **Knows limits:** Escalates to kraken if scope grows
 
 **Example:**
@@ -263,7 +263,7 @@ spark:
   - `spawn()` for reusable agents
   - Custom agent classes
   - MCP tool integration patterns
-- **Output:** `.claude/cache/agents/agentica-agent/latest-output.md`
+- **Output:** `.opc/cache/agents/agentica-agent/latest-output.md`
 
 ### 5. Debuggers
 
@@ -277,7 +277,7 @@ spark:
   3. Documents each step
   4. Identifies root cause with confidence level
   5. Provides actionable fixes and prevention strategies
-- **Output:** `.claude/cache/agents/sleuth/latest-output.md`
+- **Output:** `.opc/cache/agents/sleuth/latest-output.md`
 
 **Example:**
 ```
@@ -295,7 +295,7 @@ sleuth:
 - **Purpose:** Issue investigation via logs/code search with MCP tools
 - **When to use:** Need debugging with access to MCP tools and external docs
 - **Tools:** RepoPrompt, Morph, AST-grep, external documentation
-- **Output:** `.claude/cache/agents/debug-agent/latest-output.md`
+- **Output:** `.opc/cache/agents/debug-agent/latest-output.md`
 
 **Similar to sleuth but with MCP tool access.**
 
@@ -308,7 +308,7 @@ sleuth:
   - Memory profiling
   - Concurrency patterns
   - Database/IO bottlenecks
-- **Output:** `.claude/cache/agents/profiler/latest-output.md`
+- **Output:** `.opc/cache/agents/profiler/latest-output.md`
 - **Produces:**
   - Quantified performance assessments
   - Optimization recommendations
@@ -326,7 +326,7 @@ sleuth:
   - Checks acceptance criteria
   - Root cause analysis
   - Suggests fixes
-- **Output:** `.claude/cache/agents/arbiter/latest-output.md`
+- **Output:** `.opc/cache/agents/arbiter/latest-output.md`
 
 **Example:**
 ```
@@ -349,7 +349,7 @@ arbiter:
   - Validates user journeys
   - API health checks
   - Visual regression checks
-- **Output:** `.claude/cache/agents/atlas/latest-output.md`
+- **Output:** `.opc/cache/agents/atlas/latest-output.md`
 
 ### 7. Reviewers
 
@@ -364,7 +364,7 @@ arbiter:
   - Testing
   - Documentation
 - **Findings:** Categorized by severity (Critical, Suggestion, Nitpick, Question)
-- **Output:** `.claude/cache/agents/critic/latest-output.md`
+- **Output:** `.opc/cache/agents/critic/latest-output.md`
 
 **Example:**
 ```
@@ -386,7 +386,7 @@ critic:
   - Safe transformation practices
   - Test coverage maintained
   - Rollback feasibility
-- **Output:** `.claude/cache/agents/judge/latest-output.md`
+- **Output:** `.opc/cache/agents/judge/latest-output.md`
 
 #### surveyor
 - **Model:** Sonnet
@@ -400,7 +400,7 @@ critic:
   - Breaking changes handled
   - Test results
   - Rollback readiness
-- **Output:** `.claude/cache/agents/surveyor/latest-output.md`
+- **Output:** `.opc/cache/agents/surveyor/latest-output.md`
 
 #### liaison
 - **Model:** Sonnet
@@ -414,7 +414,7 @@ critic:
   - Timeouts
   - TLS enforcement
   - Data transformation quality
-- **Output:** `.claude/cache/agents/liaison/latest-output.md`
+- **Output:** `.opc/cache/agents/liaison/latest-output.md`
 
 #### plan-reviewer
 - **Model:** Sonnet
@@ -431,7 +431,7 @@ critic:
   - Rollback procedures
   - All old patterns found
   - Breaking changes documented
-- **Output:** `.claude/cache/agents/plan-reviewer/latest-output.md`
+- **Output:** `.opc/cache/agents/plan-reviewer/latest-output.md`
 
 #### review-agent
 - **Model:** Opus
@@ -445,7 +445,7 @@ critic:
   - Gap analysis (intent vs reality)
   - Verdict: PASS/FAIL
   - Actionable recommendations
-- **Output:** `.claude/cache/agents/review-agent/latest-output.md`
+- **Output:** `.opc/cache/agents/review-agent/latest-output.md`
 
 ### 8. Specialized
 
@@ -460,7 +460,7 @@ critic:
   - Dependency vulnerabilities (npm audit, pip-audit)
   - Input validation
   - Hardcoded credentials
-- **Output:** `.claude/cache/agents/aegis/latest-output.md`
+- **Output:** `.opc/cache/agents/aegis/latest-output.md`
 - **Produces:** Risk-prioritized findings with remediation steps
 
 #### herald
@@ -474,7 +474,7 @@ critic:
   4. Updates version files
   5. Generates changelog entries
 - **Output:**
-  - `.claude/cache/agents/herald/latest-output.md`
+  - `.opc/cache/agents/herald/latest-output.md`
   - `CHANGELOG.md`
 - **Produces:** Release notes with breaking change migrations
 
@@ -485,7 +485,7 @@ critic:
 - **Creates:**
   - Handoffs: `thoughts/shared/handoffs/<session>/current.md`
   - Ledgers: `thoughts/ledgers/CONTINUITY-<session>.md`
-  - Summaries: `.claude/cache/scribe/latest-summary.md`
+  - Summaries: `.opc/cache/scribe/latest-summary.md`
 - **Follows:** create-handoff and continuity-ledger skill methodologies
 
 #### chronicler
@@ -495,7 +495,7 @@ critic:
 - **Uses:**
   - Braintrust (or JSONL fallback)
   - Artifact Index
-- **Output:** `.claude/cache/agents/chronicler/latest-output.md`
+- **Output:** `.opc/cache/agents/chronicler/latest-output.md`
 - **Produces:**
   - Extracted learnings
   - Relevant past work
@@ -505,13 +505,13 @@ critic:
 - **Model:** Opus
 - **Purpose:** Analyze agent sessions via Braintrust
 - **When to use:** Need to analyze session data from Braintrust
-- **Output:** `.claude/cache/agents/session-analyst/latest-output.md`
+- **Output:** `.opc/cache/agents/session-analyst/latest-output.md`
 
 #### braintrust-analyst
 - **Model:** (not specified)
 - **Purpose:** Execute Braintrust analysis scripts
 - **When to use:** Need to run analysis scripts
-- **Output:** `.claude/cache/agents/braintrust-analyst/latest-output.md`
+- **Output:** `.opc/cache/agents/braintrust-analyst/latest-output.md`
 
 #### memory-extractor
 - **Model:** (not specified)
@@ -655,7 +655,7 @@ RIGHT: maestro "Design and implement auth system" (automatic)
 ### 6. Check Output Files
 Always read the agent's output file, don't just rely on the summary:
 ```bash
-cat .claude/cache/agents/scout/latest-output.md
+cat .opc/cache/agents/scout/latest-output.md
 ```
 
 ### 7. Resume Kraken Sessions

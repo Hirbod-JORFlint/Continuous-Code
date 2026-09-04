@@ -24,7 +24,7 @@ Outputs don't lie. Code might. Check outputs first.
 
 - Assume "hook didn't run" without checking outputs
 - Edit code based on what you *think* should happen
-- Confuse global vs project paths (check both: `.claude/` and `~/.claude/`)
+- Confuse global vs project paths (check both: `<project>/.opc/cache/` and `~/.opc/cache/`)
 
 ## Source Sessions
 

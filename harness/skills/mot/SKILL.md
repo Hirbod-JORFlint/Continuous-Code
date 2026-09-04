@@ -112,17 +112,6 @@ for id in $(grep -oE '^id = "[a-z0-9-]+"' harness/lifecycle/hooks.toml | cut -d'
   fi
 done
 echo "Launcher handlers: PASS check for $TS_COUNT manifest entries ($FAIL missing)"
-
-# Check legacy bridge entries still exist (.claude, until Step 11)
-LB_FAIL=0
-for cmd in $(grep -oE '"(bash|node) \$HOME/\.claude[^"]*"' harness/lifecycle/hooks.toml 2>/dev/null | sed 's/.*\$HOME//;s/"$//'); do
-  resolved=".claude${cmd#/.claude}"
-  if [ -n "$cmd" ] && [ ! -e "$resolved" ]; then
-    echo "WARN: Legacy bridge path missing (Step 11): $resolved"
-    LB_FAIL=$((LB_FAIL+1))
-  fi
-done
-echo "Legacy bridge paths (Step 11): $LB_FAIL missing"
 ```
 
 ### Phase 4: Memory Audit
@@ -191,17 +180,7 @@ echo "Skill→Agent refs: $FAIL broken"
 
 If `--fix` is specified, automatically fix:
 
-1. **Make shell wrappers executable** (legacy bridge, until Step 11)
-   ```bash
-   chmod +x .claude/hooks/*.sh
-   ```
-
-2. **Rebuild legacy hooks if TypeScript newer than bundles** (until Step 11)
-   ```bash
-   cd .claude/hooks && npm run build
-   ```
-
-3. **Create missing cache directories**
+1. **Create missing cache directories**
    ```bash
    mkdir -p .opc/cache/agents/{scout,kraken,oracle,spark}
    mkdir -p .opc/cache/mot

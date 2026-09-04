@@ -207,7 +207,7 @@ Example: Make handoffs mandatory at 85% context instead of 90%:
 }
 ```
 
-Then adjust the threshold in `.claude/hooks/src/skill-activation-prompt.ts` (line 443).
+Then adjust the threshold in `harness/lifecycle/hooks/skill-activation-prompt.py` (line 443).
 
 ## Behind the Scenes
 

@@ -23,7 +23,7 @@ Use the Task tool with `subagent_type: "onboard"` and this prompt:
 Onboard me to this project at $OPC_PROJECT_DIR.
 
 1. Create required directories if they don't exist:
-   mkdir -p thoughts/shared/handoffs/<project-name> .claude
+   mkdir -p thoughts/shared/handoffs/<project-name>
 
 2. Explore the codebase using available tools:
    - Try: tldr tree . && tldr structure .
@@ -59,7 +59,7 @@ The onboard process:
 
 ## Output
 
-- Directories created: `thoughts/shared/handoffs/<project>/`, `.claude/`
+- Directories created: `thoughts/shared/handoffs/<project>/`
 - YAML handoff created (loaded automatically on session start)
 - User has clear starting context
 - Ready to begin work with full project awareness

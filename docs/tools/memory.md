@@ -48,7 +48,7 @@ CREATE TABLE temporal_facts (
 The system automatically selects the appropriate backend:
 
 **SQLite** (default)
-- Location: `opc/.claude/cache/agentica-memory/memory.db`
+- Location: PostgreSQL `agentica_memory` database (via AGENTICA_POSTGRES_URL)
 - Search: BM25 full-text search (FTS5)
 - No dependencies: Works offline
 - Good for: Keyword-based recall
@@ -271,7 +271,7 @@ DATABASE_URL=postgresql://...       # PostgreSQL connection (enables vector sear
 **SQLite** (automatic):
 ```bash
 # Database created automatically at:
-# opc/.claude/cache/agentica-memory/memory.db
+# PostgreSQL agentica_memory database
 ```
 
 **PostgreSQL** (manual setup):
@@ -409,10 +409,10 @@ cd opc && uv run python scripts/recall_learnings.py --query "test"
 **SQLite troubleshooting**:
 ```bash
 # Check database exists
-ls -l opc/.claude/cache/agentica-memory/memory.db
+psql $AGENTICA_POSTGRES_URL -c "SELECT 1"
 
 # Check if it has data
-sqlite3 opc/.claude/cache/agentica-memory/memory.db "SELECT COUNT(*) FROM archival_memory"
+psql $AGENTICA_POSTGRES_URL -c "SELECT COUNT(*) FROM archival_memory"
 ```
 
 **PostgreSQL troubleshooting**:
@@ -450,7 +450,7 @@ cd opc && uv run python scripts/embed_temporal_facts.py
 
 **SQLite - Rebuild FTS index**:
 ```bash
-sqlite3 opc/.claude/cache/agentica-memory/memory.db <<EOF
+psql $AGENTICA_POSTGRES_URL <<EOF
 INSERT INTO archival_memory_fts(archival_memory_fts) VALUES('rebuild');
 EOF
 ```

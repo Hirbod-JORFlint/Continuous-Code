@@ -19,17 +19,18 @@ Thank you for your interest in contributing! This guide covers how to add skills
 
 ```bash
 # Clone (your fork) of the repository
-cd Continuous-Claude-v3/opc
+cd Continuous-Code/opc
 
 # Install Python dependencies
 uv sync
 
-# Install hook dependencies (TypeScript; legacy transport, see notes)
-cd ../.claude/hooks && npm install && npm run build && cd ../../opc
-
 # Verify installation
-claude
-> /help
+# For opencode:
+opencode
+# For codex:
+codex login
+# For cline:
+cline --version
 ```
 
 ---
@@ -201,32 +202,24 @@ else
 fi
 ```
 
-### TypeScript Hook Template
+### Python Hook Template
 
-```typescript
-// .claude/hooks/src/my-hook.ts
-interface HookInput {
-  tool_name?: string;
-  tool_input?: Record<string, unknown>;
-  session_id?: string;
-}
+```python
+# harness/lifecycle/hooks/my-hook.py
+"""My custom hook (Python, launched via hook_launcher.py)."""
+import json
+import sys
 
-interface HookOutput {
-  result?: string;
-  permissionDecision?: 'allow' | 'deny';
-  reason?: string;
-}
 
-async function hook(input: HookInput): Promise<HookOutput> {
-  // Your logic here
-  return { result: 'success' };
-}
+def main() -> None:
+    """Read payload from stdin, process, write JSON to stdout."""
+    payload = json.loads(sys.stdin.read())
+    # Your logic here
+    print(json.dumps({"result": "success"}))
 
-// Entry point
-const input: HookInput = JSON.parse(
-  require('fs').readFileSync(0, 'utf-8')
-);
-hook(input).then(output => console.log(JSON.stringify(output)));
+
+if __name__ == "__main__":
+    main()
 ```
 
 ### Registering Hooks
@@ -334,8 +327,8 @@ python -m pytest tests/ -v
 # TLDR tests
 cd opc/packages/tldr-code && pytest tests/ -v
 
-# Hook tests (TypeScript; legacy transport until dist re-home)
-cd .claude/hooks && npm test
+# Hook tests (Python hooks in harness/lifecycle/hooks/)
+cd ../harness/lifecycle/hooks && python -m py_compile *.py && python -m py_compile _lib/*.py
 ```
 
 ### Testing Skills

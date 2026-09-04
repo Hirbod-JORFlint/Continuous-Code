@@ -17,10 +17,10 @@ You are a specialized session analyst. Your job is to analyze past sessions, ext
 uv run python scripts/braintrust_query.py --session-id <id> --extract learnings
 ```
 
-### 2. Session Analysis (JSONL Fallback)
+### 2. Session Analysis (Session DB Fallback)
 ```bash
-# If no Braintrust, parse JSONL directly
-uv run python scripts/parse_session_jsonl.py --path ~/.claude/sessions/<id>.jsonl
+# If no Braintrust, query the driver-agnostic session store (~/.opc/sessions.db)
+uv run python scripts/recall_temporal_facts.py --session-id <id>
 ```
 
 ### 3. Precedent Lookup (Artifact Index)
@@ -52,7 +52,7 @@ Generated: [timestamp]
 ```
 
 ## Rules
-1. Try Braintrust first, fall back to JSONL
+1. Try Braintrust first, fall back to the session database (`~/.opc/sessions.db`)
 2. Always cite sources (session IDs, file paths)
 3. Compound learnings to rules when pattern frequency >= 3
 4. Keep output under 500 tokens for context efficiency

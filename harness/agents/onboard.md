@@ -14,10 +14,10 @@ You are an onboarding agent that analyzes existing codebases and creates initial
 
 ```bash
 # Verify thoughts/ structure exists
-ls thoughts/ledgers/ 2>/dev/null || echo "ERROR: Run ~/.claude/scripts/init-project.sh first"
+ls thoughts/ledgers/ 2>/dev/null || echo "ERROR: Run /onboard (the onboard skill) to initialize the continuity structure"
 ```
 
-If thoughts/ doesn't exist, tell the user to run `init-project.sh` and stop.
+If thoughts/ doesn't exist, tell the user to run `/onboard` and stop.
 
 ### Step 2: Codebase Analysis
 

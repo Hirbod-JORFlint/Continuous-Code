@@ -39,7 +39,7 @@ Query memory proactively when:
 | Backend | Location | Status |
 |---------|----------|--------|
 | **PostgreSQL** (primary) | Via DATABASE_URL | Has 100+ real learnings with BGE embeddings |
-| SQLite (fallback) | ~/.claude/cache/memory.db | May be empty - don't rely on it |
+| SQLite (fallback) | ~/.opc/cache/memory.db | May be empty - don't rely on it |
 
 **DO NOT manually inspect databases** - just use the recall script. It auto-selects the correct backend.
 
@@ -107,7 +107,7 @@ cd $OPC_ROOT && PYTHONPATH=. uv run python scripts/core/store_learning.py \
 cd $OPC_ROOT && PYTHONPATH=. uv run python scripts/core/store_learning.py \
   --session-id "hook-debugging" \
   --type WORKING_SOLUTION \
-  --content "TypeScript hooks require npm install in .claude/hooks/ before they work. The build.sh script compiles TS to JS in dist/." \
+  --content "TypeScript hooks are declared in harness/lifecycle/hooks.toml and run via the hook_launcher.py." \
   --context "hook development and building" \
   --tags "hooks,typescript,build" \
   --confidence high

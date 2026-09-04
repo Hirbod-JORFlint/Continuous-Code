@@ -9,7 +9,7 @@ user-invocable: false
 
 Create and use user-triggered prompts with `/command-name` syntax.
 
-> **Transport note (Step 8c decision):** No legacy command definition files exist in this repo (`.claude/commands/` was never materialized; `/build` `/fix` `/explore` are workflow-convention tokens documented inside skill bodies, not command files), so there is nothing to port. The sections below document Claude Code's native `.claude/commands/` format as the **legacy command transport (until Step 11)**. The harness-neutral target is opencode's native command files — `.opencode/commands/<name>.md` (see "Harness Target" below) — where wrapper commands would be authored if ever wanted. No emitter (`harness/commands/` -> drivers) is implemented.
+> **Transport note:** The legacy Claude Code `.claude/commands/` format was never materialized in this repo (`/build` `/fix` `/explore` are workflow-convention tokens documented inside skill bodies, not command files), so there is nothing to port. The harness-neutral target is opencode's native command files — `.opencode/commands/<name>.md` (see "Harness Target" below) — where wrapper commands would be authored if ever wanted. No emitter (`harness/commands/` -> drivers) is implemented.
 
 ## When to Use
 
@@ -54,36 +54,6 @@ Focus on failing tests and suggest fixes.
 
 Same prompt syntax as the legacy format: `$ARGUMENTS` / `$1`..`$n` for arguments, `` !`bash` `` for
 injected shell output, `@file` references. Commands run in the project root.
-
-### Project Commands (legacy transport, until Step 11)
-```bash
-mkdir -p .claude/commands
-cat > .claude/commands/optimize.md << 'EOF'
----
-description: Analyze code for performance issues
----
-
-Review this code for:
-- Performance bottlenecks
-- Memory leaks
-- Caching opportunities
-EOF
-```
-
-### Personal Commands (legacy user-global, Tier-3 until Step 9)
-```bash
-mkdir -p ~/.claude/commands
-cat > ~/.claude/commands/review.md << 'EOF'
----
-description: Security-focused code review
----
-
-Check for vulnerabilities:
-- Input validation
-- SQL injection
-- XSS risks
-EOF
-```
 
 ## Command File Format
 
@@ -155,10 +125,10 @@ Fix issue #$ARGUMENTS
 
 ## Namespacing
 
-Organize with subdirectories:
+Organize with subdirectories (opencode's `.opencode/commands/`):
 
 ```
-.claude/commands/
+.opencode/commands/
 ├── frontend/
 │   └── component.md    → /component (project:frontend)
 └── backend/

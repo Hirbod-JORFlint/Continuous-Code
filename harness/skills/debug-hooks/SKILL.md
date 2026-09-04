@@ -30,8 +30,8 @@ ls -la $OPC_PROJECT_DIR/.opc/cache/learnings/
 # Check for debug logs
 tail $OPC_PROJECT_DIR/.opc/cache/*.log 2>/dev/null
 
-# Also check global state (Tier-3 user-global, re-homed in Step 9)
-ls -la ~/.claude/cache/ 2>/dev/null
+# Also check global state (user-global, under ~/.opc)
+ls -la ~/.opc/cache/ 2>/dev/null
 ```
 
 ### 2. Verify Hook Registration
@@ -51,9 +51,6 @@ grep -E '^id = "|hook_launcher.py ' $OPC_PROJECT_DIR/harness/lifecycle/hooks.tom
 ```bash
 # Re-homed Python handlers
 ls -la $OPC_PROJECT_DIR/harness/lifecycle/hooks/*.py
-
-# Legacy bridge bundles (until Step 11)
-ls -la $OPC_PROJECT_DIR/.claude/hooks/dist/*.mjs
 ```
 
 ### 4. Test Hook Manually
@@ -62,10 +59,6 @@ ls -la $OPC_PROJECT_DIR/.claude/hooks/dist/*.mjs
 # Re-homed handler through the canonical launcher
 echo '{"project_dir": "'"$OPC_PROJECT_DIR"'", "session_id": "test-123"}' | \
   uv run $HOME/.opc/hooks/hook_launcher.py post-tool-use-tracker
-
-# Legacy bridge handler (until Step 11)
-echo '{"tool_name": "Write", "tool_input": {"file_path": "test.md"}, "session_id": "test-123"}' | \
-  $OPC_PROJECT_DIR/.claude/hooks/handoff-index.sh
 ```
 
 ### 5. Check for Silent Failures
@@ -89,15 +82,8 @@ spawn(cmd, args, {
 
 ### 6. Rebuild After Edits
 
-Re-homed Python handlers run directly (no build step). Only legacy
-TypeScript-based hooks need a rebuild (until Step 11):
-
-```bash
-cd $OPC_PROJECT_DIR/.claude/hooks
-npx esbuild src/session-end-cleanup.ts \
-  --bundle --platform=node --format=esm \
-  --outfile=dist/session-end-cleanup.mjs
-```
+Re-homed Python handlers run directly via the launcher — no build step is required. Edit the handler in
+`harness/lifecycle/hooks/<name>.py` and regenerate driver configs only if you changed the manifest.
 
 ## Common Issues
 
@@ -108,7 +94,7 @@ npx esbuild src/session-end-cleanup.ts \
 | Hook runs but no output | Detached spawn hiding errors | Add logging, check manually |
 | Wrong session ID | Using "most recent" query | Pass ID explicitly |
 | Works locally, not in CI | Missing deps (uv run / node) | Check uv/npx availability |
-| Runs twice | Registered in both manifest and legacy settings.json | Remove duplicate / legacy entry |
+| Runs twice | Registered in both manifest and driver config | Remove duplicate / regenerate driver config |
 
 ## Debug Checklist
 

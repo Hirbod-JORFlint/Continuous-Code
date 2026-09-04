@@ -155,7 +155,7 @@ Debugging process:
 | Type | Location | Priority |
 |------|----------|----------|
 | Harness project | `harness/agents/` | Highest |
-| User-global (Tier-3, until Step 9) | `~/.claude/agents/` | Lower |
+| User-global | `~/.opc/agents/` | Lower |
 
 ## Advanced Patterns
 

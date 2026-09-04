@@ -1,19 +1,18 @@
 ---
 name: hook-developer
-description: Legacy hooks transport reference (until Step 11) - input/output schemas, registration, testing. For manifest-first development see the `hooks` skill.
+description: Historical hooks transport reference (superseded) - input/output schemas, legacy registration. For current manifest-first development see the `hooks` skill.
 ---
 
 # Hook Developer
 
-Legacy-transport reference for the current `.claude/settings.json` + `.claude/hooks/` bridge. Use this while the legacy bridge is live; it is superseded by the manifest-first `hooks` skill once the bridge is re-homed (Step 11).
+Historical reference for the legacy `.claude/settings.json` + `.claude/hooks/` bridge, fully re-homed in Step 11.
 
-> **Prefer `hooks` skill for new work:** New hooks should be Python handlers in `harness/lifecycle/hooks/`, registered in `harness/lifecycle/hooks.toml`, and activated by regenerating driver configs. This file documents the legacy transport that still drives the current runtime.
+> **For all current work, use the `hooks` skill.** New hooks are Python handlers in `harness/lifecycle/hooks/`, registered in `harness/lifecycle/hooks.toml`, and activated by regenerating driver configs. This file documents the legacy payload schemas and registration patterns for reference.
 
 ## When to Use
 
-- Debugging a hook that currently runs through the legacy bridge
-- Reading legacy `settings.json` / `.claude/hooks` wiring (pre-Step-11)
-- Understanding the existing runtime payload contract
+- Understanding the existing hook payload contract (historical reference)
+- Debugging hook payload format differences across legacy drivers
 - **For new hooks:** use the `hooks` skill instead
 
 ## Quick Reference

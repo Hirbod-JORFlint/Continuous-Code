@@ -84,6 +84,4 @@ python opc/scripts/harness/gen_codex.py
 python opc/scripts/harness/gen_cline.py
 ```
 
-Hooks that still need the legacy TS/bash transport carry a
-`transport = "legacy $HOME/.claude path until dist re-home (Step 11)"` key —
-extend re-homed hooks via the Python launcher path instead.
+All hooks are dispatched through the Python launcher via `~/.opc/hooks/hook_launcher.py`; no legacy TS/bash transport is used. Extend hooks via the launcher path.

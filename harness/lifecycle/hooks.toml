@@ -6,8 +6,6 @@
 #     config-level hooks key, so hooks surface as an auto-loaded plugin.
 #   - gen_cline.py    -> .clinerules/hooks/ executable hooks (macOS/Linux
 #     extensionless, Windows *.ps1).
-# Claude Code's own settings.json is generated from this manifest by
-# gen_claude (live wiring today); see Step 8.
 #
 # Schema: each event under [hooks.*] is an array of handler tables. Handler
 # keys consumed by gen_codex: command, matcher, statusMessage, timeout, async,
@@ -19,17 +17,13 @@
 #     `uv run $HOME/.opc/hooks/hook_launcher.py <name>` where ~/.opc/hooks is
 #     the neutral install root (junction -> harness/lifecycle/hooks today,
 #     copied by the Step 9 installer on other machines).
-#   - All hook handlers now run through the neutral launcher above; the
-#     legacy `$HOME/.claude/hooks/dist` handlers were fully re-homed in
-#     Step 11 Phase D/E.
+#   - All hook handlers now run through the neutral launcher above.
 
 [meta]
 version = 1
-source_claude = ".claude/settings.json"
 install_root = "$HOME/.opc/hooks"
 canonical_hooks_dir = "harness/lifecycle/hooks"
 python_transport = "uv run $HOME/.opc/hooks/hook_launcher.py <name>"
-legacy_transport = "legacy $HOME/.claude path until dist re-home (Step 11)"
 
 [[hooks.session_start]]
 id = "persist-project-dir"

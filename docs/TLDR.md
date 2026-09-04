@@ -583,17 +583,12 @@ TLDR integrates via TypeScript hooks that query the daemon for zero-overhead cod
 
 ### Hook Implementation Pattern
 
-```typescript
-// .claude/hooks/src/any-hook.ts
-import { queryDaemonSync } from './daemon-client.js';
+```python
+# harness/lifecycle/hooks/<name>.py (Python, re-homed from legacy .claude/hooks/src/)
+from _lib.opc_path import get_opc_dir  # noqa: E402
 
-// Query daemon (100ms, in-memory indexes)
-const result = queryDaemonSync(projectDir, {
-  cmd: 'dead',
-  language: 'python'
-});
-
-// Fallback: If daemon not running, client auto-spawns CLI
+# Query daemon (100ms, in-memory indexes)
+# ...
 ```
 
 **Result:** The agent gets code understanding automatically, without manual commands, without 30-second waits.

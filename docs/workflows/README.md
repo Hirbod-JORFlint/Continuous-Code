@@ -1008,7 +1008,7 @@ See existing workflows for patterns and conventions.
 
 ### Agent failing?
 - Check if the right model is available (Opus/Sonnet)
-- Review agent logs in `.claude/cache/agents/`
+- Review agent logs in `.opc/cache/agents/`
 
 ### Tests not running?
 - Ensure test commands are configured in project

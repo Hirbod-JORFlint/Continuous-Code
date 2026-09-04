@@ -69,19 +69,23 @@ Just say these phrases to the agent:
 ## Directory Structure
 
 ```
-~/.claude/
+~/.opc/
+├── cache/            # Local cache
+│   └── agents/       # Agent outputs
+└── state/            # Runtime state
+
+harness/
 ├── agents/           # 32 specialized agents
 ├── skills/           # 108 skills
-├── hooks/            # 36 lifecycle hooks
-├── rules/            # System policies
-└── settings.json     # Hook configuration
+├── lifecycle/hooks/  # Python hooks (no build step)
+└── rules/            # System policies
 
 your-project/
 ├── thoughts/
 │   ├── ledgers/      # Continuity ledgers
 │   └── shared/
 │       └── handoffs/ # Session handoffs
-└── .claude/
+└── .opc/
     └── cache/        # Local cache
 ```
 
@@ -109,9 +113,8 @@ cd opc && uv sync
 
 ### "Hooks not working"
 ```bash
-# Check hooks are built
-ls ~/.claude/hooks/dist/*.mjs
+# Check Python hooks are present
+ls harness/lifecycle/hooks/*.py
 
-# Rebuild if needed
-cd ~/.claude/hooks && ./build.sh
+# Python handlers run via uv run $HOME/.opc/hooks/hook_launcher.py <name> — no build step required
 ```
