@@ -87,11 +87,11 @@
       }
     },
     "qlty": {
-      "command": "$HOME/.claude/venv/bin/python",
+      "command": "$HOME/.opc/venv/bin/python",
       "disabled": false,
       "autoApprove": [],
       "args": [
-        "$HOME/.claude/servers/qlty/server.py"
+        "$HOME/.opc/servers/qlty/server.py"
       ]
     },
     "repoprompt": {

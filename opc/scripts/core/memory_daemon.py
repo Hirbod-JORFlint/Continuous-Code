@@ -16,7 +16,7 @@ USAGE:
     uv run python scripts/core/memory_daemon.py stop
 
 ARCHITECTURE:
-    - Single global instance (PID file at ~/.claude/memory-daemon.pid)
+    - Single global instance (PID file at ~/.opc/memory-daemon.pid)
     - Works with PostgreSQL or SQLite
     - Polls every 60 seconds for stale sessions (heartbeat > 5 min)
     - Runs headless memory extraction through the harness driver registry (OPC_DRIVER)

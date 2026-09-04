@@ -180,44 +180,13 @@ uv run python -m scripts.setup.wizard
 
 | Step | What It Does |
 |------|--------------|
-| 1 | Backup existing .claude/ config (if present) |
-| 2 | Check prerequisites (Docker, Python, uv) |
-| 3-5 | Database + API key configuration |
-| 6-7 | Start Docker stack, run migrations |
-| 8 | Install harness integration (32 agents, 108 skills, 36 hooks) |
+| 1 | Check prerequisites (Docker, Python, uv) |
+| 2-4 | Database + embedding + API key configuration |
+| 5-7 | Generate config, start container stack, run migrations |
+| 8 | Generate harness integration (opencode / codex / cline) |
 | 9 | Math features (SymPy, Z3, Pint - optional) |
 | 10 | TLDR code analysis tool |
 | 11-12 | Diagnostics tools + Loogle (optional) |
-
-
-#### To Uninstall:
-
-```
-cd Continuous-Code/opc
-  uv run python -m scripts.setup.wizard --uninstall
-```
-
-**What it does**
-
-1. Archives your current setup → Moves ~/.claude to ~/.claude-v3.archived.<timestamp>
-2. Restores your backup → Finds the most recent ~/.claude.backup.* (created during install) and restores it
-3. Preserves user data → Copies these back from the archive:
-
-  - history.jsonl (your command history)
-  - mcp_config.json (MCP servers)
-  - .env (API keys)
-  - projects.json (project configs)
-  - file-history/ directory
-  - projects/ directory
-4. Removes Continuous Code additions → Everything else (hooks, skills, agents, rules)
-
-
-**Safety Features**
-
-- Your current setup is archived with timestamp - nothing gets deleted
-- The wizard asks for confirmation before proceeding
-- It restores from the backup that was made during installation
-- All your Claude Code settings stay intact
 
 
 ### Remote Database Setup
@@ -244,21 +213,17 @@ psql -h hostname -U user -d continuous_claude -f docker/init-schema.sql
 
 #### 2. Connection Configuration
 
-Set `DATABASE_URL` in `~/.claude/settings.json`:
+Set `DATABASE_URL` in `~/.opc/.env` (the neutral global config root):
 
-```json
-{
-  "env": {
-    "DATABASE_URL": "postgresql://user:password@hostname:5432/continuous_claude"
-  }
-}
+```bash
+DATABASE_URL=postgresql://user:password@hostname:5432/continuous_claude
 ```
 
 Or export before running the agent:
 
 ```bash
 export DATABASE_URL="postgresql://user:password@hostname:5432/continuous_claude"
-claude
+opencode
 ```
 
 You can also run `opencode`, `codex`, or `cline` instead of `claude`.
@@ -1030,126 +995,35 @@ The wizard walks you through all configuration options interactively.
 
 ## Updating
 
-Pull latest changes and sync your installation:
+This repo is harness-neutral: the canonical source lives in `harness/` (skills, agents, rules, lifecycle,
+mcp servers) and per-harness configs are **generated** into `.opencode/`, `.codex/`, and `.clinerules/`.
+
+To pull updates and regenerate configs:
 
 ```bash
-cd Continuous-Code/opc
-uv run python -m scripts.setup.update
+git pull
+# From the repo root
+uv run --no-project --with pyyaml python opc/scripts/harness/gen_opencode.py
+uv run --no-project --with pyyaml python opc/scripts/harness/gen_codex.py
+uv run --no-project --with pyyaml python opc/scripts/harness/gen_cline.py
 ```
 
-This will:
-- Pull latest from GitHub
-- Update hooks, skills, rules, agents
-- Upgrade TLDR if installed
-- Rebuild TypeScript hooks if changed
+There is no separate "update" script — configs are always generated from the canonical `harness/` tree, so
+pulling + regenerating keeps everything in sync.
 
 ### What Gets Installed
 
 | Component | Location |
 |-----------|----------|
-| Agents (32) | ~/.claude/agents/ |
-| Skills (108) | ~/.claude/skills/ |
-| Hooks (36) | ~/.claude/hooks/ |
-| Rules | ~/.claude/rules/ |
-| Scripts | ~/.claude/scripts/ |
-| PostgreSQL | Docker container |
+| Canonical source | `harness/` (skills, agents, rules, lifecycle, mcp) |
+| opencode config | `.opencode/` (generated) |
+| codex config | `.codex/config.toml` (generated) |
+| cline config | `.clinerules/` (generated) |
+| Global runtime (`~/.opc`) | Junction/symlink to `harness/lifecycle/hooks/` + MCP servers |
+| PostgreSQL | Docker container (optional) |
 
-### Installation Mode: Copy vs Symlink
+> Vector/(memory/skills) and rules are consumable from `~/.opc` regardless of harness.
 
-The wizard offers two installation modes:
-
-> **Note:** Canonical source moved to `harness/` (skills, agents, rules, lifecycle). The Step 9 installer re-work re-targets these paths; until then, source references below (`.claude/...`) reflect the legacy Claude Code wiring.
-
-| Mode | How It Works | Best For |
-|------|--------------|----------|
-| **Copy** (default) | Copies files from repo to `~/.claude/` | End users, stable setup |
-| **Symlink** | Creates symlinks to repo files | Contributors, development |
-
-#### Copy Mode (Default)
-
-Files are copied from `Continuous-Code/.claude/` to `~/.claude/`. Changes you make in `~/.claude/` are **local only** and will be overwritten on next update.
-
-```text
-Continuous-Code/.claude/  ──COPY──>  ~/.claude/
-     (source)                          (user config)
-```
-
-**Pros:** Stable, isolated from repo changes
-**Cons:** Local changes lost on update, manual sync needed
-
-#### Symlink Mode (Recommended for Contributors)
-
-Creates symlinks so `~/.claude/` points directly to repo files. Changes in either location affect the same files.
-
-```text
-~/.claude/rules  ──SYMLINK──>  Continuous-Code/.claude/rules
-~/.claude/skills ──SYMLINK──>  Continuous-Code/.claude/skills
-~/.claude/hooks  ──SYMLINK──>  Continuous-Code/.claude/hooks
-~/.claude/agents ──SYMLINK──>  Continuous-Code/.claude/agents
-```
-
-**Pros:**
-- Changes auto-sync to repo (can `git commit` improvements)
-- No re-installation needed after `git pull`
-- Contribute back easily
-
-**Cons:**
-- Breaking changes in repo affect your setup immediately
-- Need to manage git workflow
-
-#### Switching to Symlink Mode
-
-If you installed with copy mode and want to switch:
-
-```bash
-# Backup current config
-mkdir -p ~/.claude/backups/$(date +%Y%m%d)
-cp -r ~/.claude/{rules,skills,hooks,agents} ~/.claude/backups/$(date +%Y%m%d)/
-
-# Verify backup succeeded before proceeding
-ls -la ~/.claude/backups/$(date +%Y%m%d)/
-
-# Remove copies (only after verifying backup above)
-rm -rf ~/.claude/{rules,skills,hooks,agents}
-
-# Create symlinks (adjust path to your repo location)
-REPO="$HOME/Continuous-Code"  # or wherever you cloned
-ln -s "$REPO/.claude/rules" ~/.claude/rules
-ln -s "$REPO/.claude/skills" ~/.claude/skills
-ln -s "$REPO/.claude/hooks" ~/.claude/hooks
-ln -s "$REPO/.claude/agents" ~/.claude/agents
-
-# Verify
-ls -la ~/.claude | grep -E "rules|skills|hooks|agents"
-```
-
-**Windows users:** Use PowerShell (as Administrator or with Developer Mode enabled):
-
-```powershell
-# Enable Developer Mode first (Settings → Privacy & security → For developers)
-# Or run PowerShell as Administrator
-
-# Backup current config
-$BackupDir = "$HOME\.claude\backups\$(Get-Date -Format 'yyyyMMdd')"
-New-Item -ItemType Directory -Path $BackupDir -Force
-Copy-Item -Recurse "$HOME\.claude\rules","$HOME\.claude\skills","$HOME\.claude\hooks","$HOME\.claude\agents" $BackupDir
-
-# Verify backup succeeded before proceeding
-Get-ChildItem $BackupDir
-
-# Remove copies (only after verifying backup above)
-Remove-Item -Recurse "$HOME\.claude\rules","$HOME\.claude\skills","$HOME\.claude\hooks","$HOME\.claude\agents"
-
-# Create symlinks (adjust path to your repo location)
-$REPO = "$HOME\Continuous-Code"  # or wherever you cloned
-New-Item -ItemType SymbolicLink -Path "$HOME\.claude\rules" -Target "$REPO\.claude\rules"
-New-Item -ItemType SymbolicLink -Path "$HOME\.claude\skills" -Target "$REPO\.claude\skills"
-New-Item -ItemType SymbolicLink -Path "$HOME\.claude\hooks" -Target "$REPO\.claude\hooks"
-New-Item -ItemType SymbolicLink -Path "$HOME\.claude\agents" -Target "$REPO\.claude\agents"
-
-# Verify
-Get-ChildItem "$HOME\.claude" | Where-Object { $_.LinkType -eq "SymbolicLink" }
-```
 
 ### For Brownfield Projects
 
@@ -1164,19 +1038,16 @@ This analyzes the codebase and creates an initial continuity ledger.
 
 ## Configuration
 
-### .claude/settings.json
+### harness/lifecycle/hooks.toml
 
-Central configuration for hooks, tools, and workflows.
+Central hook manifest. The generators translate this single TOML into each harness's
+lifecycle hook wiring (opencode hooks, codex `[hooks]`, cline hook scripts).
 
-```json
-{
-  "hooks": {
-    "SessionStart": [...],
-    "PreToolUse": [...],
-    "PostToolUse": [...],
-    "UserPromptSubmit": [...]
-  }
-}
+```toml
+[[hooks]]
+name = "session_start"
+event = "SessionStart"
+command = "uv run --no-project harness/lifecycle/hooks/hook_launcher.py"
 ```
 
 ### harness/skills/skill-rules.json

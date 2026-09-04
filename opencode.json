@@ -103,8 +103,8 @@
     "qlty": {
       "type": "local",
       "command": [
-        "$HOME/.claude/venv/bin/python",
-        "$HOME/.claude/servers/qlty/server.py"
+        "$HOME/.opc/venv/bin/python",
+        "$HOME/.opc/servers/qlty/server.py"
       ],
       "enabled": true
     },

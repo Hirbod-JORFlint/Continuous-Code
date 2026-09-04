@@ -69,8 +69,8 @@
     },
     "qlty": {
       "type": "stdio",
-      "command": "$HOME/.claude/venv/bin/python",
-      "args": ["$HOME/.claude/servers/qlty/server.py"],
+      "command": "$HOME/.opc/venv/bin/python",
+      "args": ["$HOME/.opc/servers/qlty/server.py"],
       "disabled": false
     }
   }

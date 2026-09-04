@@ -13,7 +13,6 @@ Or run as a standalone script:
 """
 
 import asyncio
-import json
 import os
 import platform
 import shutil
@@ -516,31 +515,14 @@ async def run_setup_wizard() -> None:
     4. Generate .env file
     5. Start Docker stack
     6. Run migrations
-    7. Install Claude Code integration (hooks, skills, rules)
+    7. Generate harness integration (hooks, skills, rules)
     """
     console.print(
         Panel.fit("[bold]CLAUDE CONTINUITY KIT v3 - SETUP WIZARD[/bold]", border_style="blue")
     )
 
-    # Step 0: Backup global ~/.claude (safety first)
-    console.print("\n[bold]Step 0/14: Backing up global Claude configuration...[/bold]")
-    from scripts.setup.claude_integration import (
-        backup_global_claude_dir,
-        get_global_claude_dir,
-    )
-
-    global_claude = get_global_claude_dir()
-    if global_claude.exists():
-        backup_path = backup_global_claude_dir()
-        if backup_path:
-            console.print(f"  [green]OK[/green] Backed up ~/.claude to {backup_path.name}")
-        else:
-            console.print("  [yellow]WARN[/yellow] Could not create backup")
-    else:
-        console.print("  [dim]No existing ~/.claude found (clean install)[/dim]")
-
     # Step 1: Check prerequisites (with installation offers)
-    console.print("\n[bold]Step 1/14: Checking system requirements...[/bold]")
+    console.print("\n[bold]Step 1/13: Checking system requirements...[/bold]")
     prereqs = await check_prerequisites_with_install_offers()
 
     if prereqs["docker"]:
@@ -565,7 +547,7 @@ async def run_setup_wizard() -> None:
         sys.exit(1)
 
     # Step 2: Database config
-    console.print("\n[bold]Step 2/14: Database Configuration[/bold]")
+    console.print("\n[bold]Step 2/13: Database Configuration[/bold]")
     console.print("  Choose your database backend:")
     console.print("    [bold]docker[/bold]    - PostgreSQL in Docker (recommended)")
     console.print("    [bold]embedded[/bold]  - Embedded PostgreSQL (no Docker needed)")
@@ -605,21 +587,21 @@ async def run_setup_wizard() -> None:
         db_config["mode"] = "docker"
 
     # Step 3: Embedding configuration
-    console.print("\n[bold]Step 3/14: Embedding Configuration[/bold]")
+    console.print("\n[bold]Step 3/13: Embedding Configuration[/bold]")
     if Confirm.ask("Configure embedding provider?", default=True):
         embeddings = await prompt_embedding_config()
     else:
         embeddings = {"provider": "local"}
 
     # Step 4: API keys
-    console.print("\n[bold]Step 4/14: API Keys (Optional)[/bold]")
+    console.print("\n[bold]Step 4/13: API Keys (Optional)[/bold]")
     if Confirm.ask("Configure API keys?", default=False):
         api_keys = await prompt_api_keys()
     else:
         api_keys = {"perplexity": "", "nia": "", "braintrust": ""}
 
     # Step 5: Generate .env
-    console.print("\n[bold]Step 5/14: Generating configuration...[/bold]")
+    console.print("\n[bold]Step 5/13: Generating configuration...[/bold]")
     config = {"database": db_config, "embeddings": embeddings, "api_keys": api_keys}
     env_path = Path.cwd() / ".env"
     generate_env_file(config, env_path)
@@ -627,7 +609,7 @@ async def run_setup_wizard() -> None:
 
     # Step 5: Container stack (Sandbox Infrastructure)
     runtime = prereqs.get("container_runtime", "docker")
-    console.print(f"\n[bold]Step 6/14: Container Stack (Sandbox Infrastructure)[/bold]")
+    console.print(f"\n[bold]Step 6/13: Container Stack (Sandbox Infrastructure)[/bold]")
     console.print("  The sandbox requires PostgreSQL and Redis for:")
     console.print("  - Agent coordination and scheduling")
     console.print("  - Build cache and LSP index storage")
@@ -655,7 +637,7 @@ async def run_setup_wizard() -> None:
             console.print(f"  You can start manually with: {runtime} compose up -d")
 
     # Step 6: Migrations
-    console.print("\n[bold]Step 7/14: Database Setup[/bold]")
+    console.print("\n[bold]Step 7/13: Database Setup[/bold]")
     if Confirm.ask("Run database migrations?", default=True):
         from scripts.setup.docker_setup import run_migrations, set_container_runtime
 
@@ -667,20 +649,18 @@ async def run_setup_wizard() -> None:
         else:
             console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
 
-    # Step 8: Target Harness Integration (Step 9 requirement)
-    console.print("\n[bold]Step 8/14: Target Harness Integration[/bold]")
+    # Step 8: Target Harness Integration
+    console.print("\n[bold]Step 8/13: Target Harness Integration[/bold]")
     console.print("  Choose which harness(es) to target and at which scope.")
     console.print("  [dim]opencode -> .opencode/ + opencode.json (project)  |  ~/.config/opencode (user)[/dim]")
     console.print("  [dim]codex    -> .codex/ (project)                      |  ~/.codex (user)[/dim]")
     console.print("  [dim]cline    -> .clinerules/ + mcp settings (project)  |  ~/.clinerules + ~/.cline (user)[/dim]")
-    console.print("  [dim]claude   -> legacy ~/.claude integration (installed in Step 9 until Step 11)[/dim]")
     harness_targets: dict[str, dict[str, bool]] = {}
     for harness in ("opencode", "codex", "cline"):
         if Confirm.ask(f"  Target {harness}?", default=False):
             user_level = Confirm.ask(f"    {harness}: user-level (global)?", default=False)
             project_level = Confirm.ask(f"    {harness}: project-level?", default=True)
             harness_targets[harness] = {"user": user_level, "project": project_level}
-    want_claude = Confirm.ask("  Target claude (legacy)?", default=False)
 
     if harness_targets:
         from scripts.harness import gen_cline, gen_codex, gen_opencode
@@ -720,179 +700,6 @@ async def run_setup_wizard() -> None:
     else:
         console.print("  No harness selected (project files left unchanged)")
 
-    # Step 9: Legacy Claude Code Integration
-    console.print("\n[bold]Step 9/14: Legacy Claude Code Integration[/bold]")
-    from scripts.setup.claude_integration import (
-        analyze_conflicts,
-        backup_claude_dir,
-        detect_existing_setup,
-        generate_migration_guidance,
-        get_global_claude_dir,
-        get_opc_integration_source,
-        install_opc_integration,
-        install_opc_integration_symlink,
-    )
-
-    claude_dir = get_global_claude_dir()  # Use global ~/.claude, not project-local
-    existing = detect_existing_setup(claude_dir)
-
-    if existing.has_existing:
-        console.print("  Found existing configuration:")
-        console.print(f"    - Hooks: {len(existing.hooks)}")
-        console.print(f"    - Skills: {len(existing.skills)}")
-        console.print(f"    - Rules: {len(existing.rules)}")
-        console.print(f"    - MCPs: {len(existing.mcps)}")
-
-        opc_source = get_opc_integration_source()
-        conflicts = analyze_conflicts(existing, opc_source)
-
-        if conflicts.has_conflicts:
-            console.print("\n  [yellow]Conflicts detected:[/yellow]")
-            if conflicts.hook_conflicts:
-                console.print(f"    - Hook conflicts: {', '.join(conflicts.hook_conflicts)}")
-            if conflicts.skill_conflicts:
-                console.print(f"    - Skill conflicts: {', '.join(conflicts.skill_conflicts)}")
-            if conflicts.mcp_conflicts:
-                console.print(f"    - MCP conflicts: {', '.join(conflicts.mcp_conflicts)}")
-
-        # Show migration guidance
-        guidance = generate_migration_guidance(existing, conflicts)
-        console.print(f"\n{guidance}")
-
-        # Offer choices
-        console.print("\n[bold]Installation Options:[/bold]")
-        console.print("  1. Full install (backup existing, copy OPC, merge non-conflicting)")
-        console.print("  2. Fresh install (backup existing, copy OPC only)")
-        console.print("  3. [cyan]Symlink install[/cyan] (link to repo - best for contributors)")
-        console.print("  4. Skip (keep existing configuration)")
-        console.print("")
-        console.print("  [dim]Symlink mode links rules/skills/hooks/agents to the repo.[/dim]")
-        console.print("  [dim]Changes sync automatically; great for contributing back.[/dim]")
-
-        choice = (
-            "4" if not want_claude else Prompt.ask("Choose option", choices=["1", "2", "3", "4"], default="1")
-        )
-
-        if choice in ("1", "2"):
-            # Backup first
-            backup_path = backup_claude_dir(claude_dir)
-            if backup_path:
-                console.print(f"  [green]OK[/green] Backup created: {backup_path.name}")
-
-            # Install (copy mode)
-            merge = choice == "1"
-            result = install_opc_integration(
-                claude_dir,
-                opc_source,
-                merge_user_items=merge,
-                existing=existing if merge else None,
-                conflicts=conflicts if merge else None,
-            )
-
-            if result["success"]:
-                console.print(f"  [green]OK[/green] Installed {result['installed_hooks']} hooks")
-                console.print(f"  [green]OK[/green] Installed {result['installed_skills']} skills")
-                console.print(f"  [green]OK[/green] Installed {result['installed_rules']} rules")
-                console.print(f"  [green]OK[/green] Installed {result['installed_agents']} agents")
-                console.print(f"  [green]OK[/green] Installed {result['installed_servers']} MCP servers")
-                if result["merged_items"]:
-                    console.print(
-                        f"  [green]OK[/green] Merged {len(result['merged_items'])} custom items"
-                    )
-
-                # Build TypeScript hooks
-                console.print("  Building TypeScript hooks...")
-                hooks_dir = claude_dir / "hooks"
-                build_success, build_msg = build_typescript_hooks(hooks_dir)
-                if build_success:
-                    console.print(f"  [green]OK[/green] {build_msg}")
-                else:
-                    console.print(f"  [yellow]WARN[/yellow] {build_msg}")
-                    console.print("  [dim]You can build manually: cd ~/.claude/hooks && npm install && npm run build[/dim]")
-            else:
-                console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
-        elif choice == "3":
-            # Symlink mode
-            result = install_opc_integration_symlink(claude_dir, opc_source)
-
-            if result["success"]:
-                console.print(f"  [green]OK[/green] Symlinked: {', '.join(result['symlinked_dirs'])}")
-                if result["backed_up_dirs"]:
-                    console.print(f"  [green]OK[/green] Backed up: {', '.join(result['backed_up_dirs'])}")
-                console.print("  [dim]Changes in ~/.claude/ now sync to repo automatically[/dim]")
-
-                # Build TypeScript hooks
-                console.print("  Building TypeScript hooks...")
-                hooks_dir = claude_dir / "hooks"
-                build_success, build_msg = build_typescript_hooks(hooks_dir)
-                if build_success:
-                    console.print(f"  [green]OK[/green] {build_msg}")
-                else:
-                    console.print(f"  [yellow]WARN[/yellow] {build_msg}")
-                    console.print("  [dim]You can build manually: cd ~/.claude/hooks && npm install && npm run build[/dim]")
-            else:
-                console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
-        else:
-            console.print("  Skipped integration installation")
-    else:
-        # Clean install - offer copy vs symlink
-        console.print("  No existing configuration found.")
-        console.print("\n[bold]Installation Mode:[/bold]")
-        console.print("  1. Copy install (default - copies files to ~/.claude/)")
-        console.print("  2. [cyan]Symlink install[/cyan] (links to repo - best for contributors)")
-        console.print("  3. Skip")
-        console.print("")
-        console.print("  [dim]Symlink mode links rules/skills/hooks/agents to the repo.[/dim]")
-        console.print("  [dim]Changes sync automatically; great for contributing back.[/dim]")
-
-        choice = (
-            "3" if not want_claude else Prompt.ask("Choose mode", choices=["1", "2", "3"], default="1")
-        )
-
-        if choice == "1":
-            opc_source = get_opc_integration_source()
-            result = install_opc_integration(claude_dir, opc_source)
-
-            if result["success"]:
-                console.print(f"  [green]OK[/green] Installed {result['installed_hooks']} hooks")
-                console.print(f"  [green]OK[/green] Installed {result['installed_skills']} skills")
-                console.print(f"  [green]OK[/green] Installed {result['installed_rules']} rules")
-                console.print(f"  [green]OK[/green] Installed {result['installed_agents']} agents")
-                console.print(f"  [green]OK[/green] Installed {result['installed_servers']} MCP servers")
-
-                # Build TypeScript hooks
-                console.print("  Building TypeScript hooks...")
-                hooks_dir = claude_dir / "hooks"
-                build_success, build_msg = build_typescript_hooks(hooks_dir)
-                if build_success:
-                    console.print(f"  [green]OK[/green] {build_msg}")
-                else:
-                    console.print(f"  [yellow]WARN[/yellow] {build_msg}")
-                    console.print("  [dim]You can build manually: cd ~/.claude/hooks && npm install && npm run build[/dim]")
-            else:
-                console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
-        elif choice == "2":
-            opc_source = get_opc_integration_source()
-            result = install_opc_integration_symlink(claude_dir, opc_source)
-
-            if result["success"]:
-                console.print(f"  [green]OK[/green] Symlinked: {', '.join(result['symlinked_dirs'])}")
-                console.print("  [dim]Changes in ~/.claude/ now sync to repo automatically[/dim]")
-
-                # Build TypeScript hooks
-                console.print("  Building TypeScript hooks...")
-                hooks_dir = claude_dir / "hooks"
-                build_success, build_msg = build_typescript_hooks(hooks_dir)
-                if build_success:
-                    console.print(f"  [green]OK[/green] {build_msg}")
-                else:
-                    console.print(f"  [yellow]WARN[/yellow] {build_msg}")
-                    console.print("  [dim]You can build manually: cd ~/.claude/hooks && npm install && npm run build[/dim]")
-            else:
-                console.print(f"  [red]ERROR[/red] {result.get('error', 'Unknown error')}")
-        else:
-            console.print("  Skipped integration installation")
-
     # Set OPC_ROOT environment variable for skills to find scripts
     console.print("  Setting OPC_ROOT environment variable...")
     shell_config = None
@@ -920,7 +727,7 @@ async def run_setup_wizard() -> None:
         console.print(f'       export OPC_ROOT="{opc_dir}"')
 
     # Step 8: Math Features (Optional)
-    console.print("\n[bold]Step 10/14: Math Features (Optional)[/bold]")
+    console.print("\n[bold]Step 9/13: Math Features (Optional)[/bold]")
     console.print("  Math features include:")
     console.print("    - SymPy: symbolic algebra, calculus, equation solving")
     console.print("    - Z3: SMT solver for constraint satisfaction & proofs")
@@ -979,7 +786,7 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]Install later with: uv sync --extra math[/dim]")
 
     # Step 9: TLDR Code Analysis Tool
-    console.print("\n[bold]Step 11/14: TLDR Code Analysis Tool[/bold]")
+    console.print("\n[bold]Step 10/13: TLDR Code Analysis Tool[/bold]")
     console.print("  TLDR provides token-efficient code analysis for LLMs:")
     console.print("    - 95% token savings vs reading raw files")
     console.print("    - 155x faster queries with daemon mode")
@@ -1038,25 +845,6 @@ async def run_setup_wizard() -> None:
                     console.print("  [dim]Auto-reindexes in background when files change.[/dim]")
 
                     if Confirm.ask("\n  Enable semantic search?", default=True):
-                        # Get threshold
-                        threshold_str = Prompt.ask(
-                            "  Auto-reindex after how many file changes?",
-                            default="20"
-                        )
-                        try:
-                            threshold = int(threshold_str)
-                        except ValueError:
-                            threshold = 20
-
-                        # Save config to global ~/.claude/settings.json
-                        settings_path = get_global_claude_dir() / "settings.json"
-                        settings = {}
-                        if settings_path.exists():
-                            try:
-                                settings = json.loads(settings_path.read_text())
-                            except Exception:
-                                pass
-
                         # Detect GPU for model selection
                         # BGE-large (1.3GB) needs GPU, MiniLM (80MB) works on CPU
                         has_gpu = False
@@ -1074,15 +862,7 @@ async def run_setup_wizard() -> None:
                             timeout = 300  # 5 min for small model
                             console.print("  [dim]No GPU detected, using lightweight model[/dim]")
 
-                        settings["semantic_search"] = {
-                            "enabled": True,
-                            "auto_reindex_threshold": threshold,
-                            "model": model,
-                        }
-
-                        settings_path.parent.mkdir(parents=True, exist_ok=True)
-                        settings_path.write_text(json.dumps(settings, indent=2))
-                        console.print(f"  [green]OK[/green] Semantic search enabled (threshold: {threshold})")
+                        console.print(f"  [green]OK[/green] Semantic search enabled (model: {model})")
 
                         # Offer to pre-download embedding model
                         # Note: We only download the model here, not index any directory.
@@ -1112,7 +892,6 @@ async def run_setup_wizard() -> None:
                             console.print("  [dim]Model downloads on first use of: tldr semantic index .[/dim]")
                     else:
                         console.print("  Semantic search disabled")
-                        console.print("  [dim]Enable later in .claude/settings.json[/dim]")
                 else:
                     console.print("  [yellow]WARN[/yellow] TLDR installed but not on PATH")
             else:
@@ -1129,17 +908,9 @@ async def run_setup_wizard() -> None:
         console.print("  Skipped TLDR installation")
         console.print("  [dim]Install later with: uv tool install llm-tldr[/dim]")
 
-        # Ask to disable hooks since they are pre-configured in settings.json
-        if Confirm.ask("\n  Disable TLDR hooks in settings.json? (Avoids crashes if TLDR missing)", default=False):
-            settings_path = get_global_claude_dir() / "settings.json"
-            if settings_path.exists():
-                from scripts.setup.claude_integration import strip_tldr_hooks_from_settings
-                if strip_tldr_hooks_from_settings(settings_path):
-                    console.print("  [green]OK[/green] TLDR hooks disabled")
-
     # Step 10: Diagnostics Tools (Shift-Left Feedback)
-    console.print("\n[bold]Step 12/14: Diagnostics Tools (Shift-Left Feedback)[/bold]")
-    console.print("  Claude gets immediate type/lint feedback after editing files.")
+    console.print("\n[bold]Step 11/13: Diagnostics Tools (Shift-Left Feedback)[/bold]")
+    console.print("  Your agent gets immediate type/lint feedback after editing files.")
     console.print("  This catches errors before tests run (shift-left).")
     console.print("")
 
@@ -1176,7 +947,7 @@ async def run_setup_wizard() -> None:
     console.print("  [dim]TypeScript, Go, Rust coming soon.[/dim]")
 
     # Step 11: Loogle (Lean 4 type search for /prove skill)
-    console.print("\n[bold]Step 13/14: Loogle (Lean 4 Type Search)[/bold]")
+    console.print("\n[bold]Step 12/13: Loogle (Lean 4 Type Search)[/bold]")
     console.print("  Loogle enables type-aware search of Mathlib theorems:")
     console.print("    - Used by /prove skill for theorem proving")
     console.print("    - Search by type signature (e.g., 'Nontrivial _ ↔ _')")
@@ -1318,7 +1089,7 @@ async def run_setup_wizard() -> None:
         console.print("  [dim]Install later by re-running the wizard[/dim]")
 
     # Step 14: Summary
-    console.print("\n[bold]Step 14/14: Summary[/bold]")
+    console.print("\n[bold]Step 13/13: Summary[/bold]")
     if harness_targets:
         for harness, scope in harness_targets.items():
             scopes = ", ".join(
@@ -1327,8 +1098,6 @@ async def run_setup_wizard() -> None:
             console.print(f"  - {harness}: {scopes}")
     else:
         console.print("  - No target harness configured (opencode project config not generated)")
-    if want_claude:
-        console.print("  - claude: legacy integration target (removed at Step 11)")
 
     # Done!
     console.print("\n" + "=" * 60)
@@ -1338,67 +1107,8 @@ async def run_setup_wizard() -> None:
     console.print("  [bold]tldr daemon start[/bold] - Start daemon (155x faster)")
     console.print("  [bold]tldr --help[/bold]       - See all commands")
     console.print("\nNext steps:")
-    console.print("  1. Start your target harness (opencode / codex / cline / claude)")
+    console.print("  1. Start your target harness (opencode / codex / cline)")
     console.print("  2. View docs: [bold]docs/QUICKSTART.md[/bold]")
-
-
-async def run_uninstall_wizard() -> None:
-    """Run the uninstall wizard to remove OPC and restore backup."""
-    from scripts.setup.claude_integration import (
-        find_latest_backup,
-        get_global_claude_dir,
-        uninstall_opc_integration,
-        PRESERVE_FILES,
-        PRESERVE_DIRS,
-    )
-
-    console.print(
-        Panel.fit("[bold]CLAUDE CONTINUITY KIT v3 - UNINSTALL[/bold]", border_style="red")
-    )
-
-    global_claude = get_global_claude_dir()
-    backup = find_latest_backup(global_claude) if global_claude.exists() else None
-
-    console.print("\n[bold]Current state:[/bold]")
-    if global_claude.exists():
-        console.print(f"  ~/.claude exists at: {global_claude}")
-    else:
-        console.print("  [dim]No ~/.claude found[/dim]")
-
-    if backup:
-        console.print(f"  Backup available: {backup.name}")
-    else:
-        console.print("  [yellow]No backup found[/yellow] - uninstall will be clean (no restore)")
-
-    # Show what user data will be preserved
-    existing_preserve = []
-    if global_claude.exists():
-        for f in PRESERVE_FILES:
-            if (global_claude / f).exists():
-                existing_preserve.append(f)
-        for d in PRESERVE_DIRS:
-            if (global_claude / d).exists():
-                existing_preserve.append(f"{d}/")
-
-    console.print("\n[bold]This will:[/bold]")
-    console.print("  1. Move current ~/.claude to ~/.claude-v3.archived.<timestamp>")
-    if backup:
-        console.print(f"  2. Restore from {backup.name}")
-    else:
-        console.print("  2. Create empty ~/.claude")
-    if existing_preserve:
-        console.print(f"  3. [green]Preserve your data:[/green] {', '.join(existing_preserve)}")
-
-    if not Confirm.ask("\nProceed with uninstall?", default=False):
-        console.print("[yellow]Uninstall cancelled.[/yellow]")
-        return
-
-    result = uninstall_opc_integration(is_global=True)
-
-    if result["success"]:
-        console.print(f"\n[green]SUCCESS[/green]\n{result['message']}")
-    else:
-        console.print(f"\n[red]FAILED[/red]\n{result['message']}")
 
 
 def _codex_login_trust(harness_targets: dict[str, dict[str, bool]]) -> None:
@@ -1432,15 +1142,6 @@ def _codex_login_trust(harness_targets: dict[str, dict[str, bool]]) -> None:
 
 async def main():
     """Entry point for the setup wizard."""
-    # Check for --uninstall flag
-    if len(sys.argv) > 1 and sys.argv[1] in ("--uninstall", "-u", "uninstall"):
-        try:
-            await run_uninstall_wizard()
-        except KeyboardInterrupt:
-            console.print("\n\n[yellow]Uninstall cancelled.[/yellow]")
-            sys.exit(130)
-        return
-
     # Show menu if no args
     if len(sys.argv) == 1:
         console.print(
@@ -1448,16 +1149,12 @@ async def main():
         )
         console.print("\n[bold]Options:[/bold]")
         console.print("  [bold]1[/bold] - Install / Update")
-        console.print("  [bold]2[/bold] - Uninstall (restore backup)")
         console.print("  [bold]q[/bold] - Quit")
 
-        choice = Prompt.ask("\nChoice", choices=["1", "2", "q"], default="1")
+        choice = Prompt.ask("\nChoice", choices=["1", "q"], default="1")
 
         if choice == "q":
             console.print("[dim]Goodbye![/dim]")
-            return
-        elif choice == "2":
-            await run_uninstall_wizard()
             return
         # choice == "1" falls through to install
 

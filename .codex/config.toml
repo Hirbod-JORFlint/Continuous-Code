@@ -63,8 +63,8 @@ PERPLEXITY_API_KEY = "${PERPLEXITY_API_KEY}"
 
 
 [mcp_servers.qlty]
-args = ["$HOME/.claude/servers/qlty/server.py"]
-command = "$HOME/.claude/venv/bin/python"
+args = ["$HOME/.opc/servers/qlty/server.py"]
+command = "$HOME/.opc/venv/bin/python"
 enabled = true
 
 [mcp_servers.repoprompt]
