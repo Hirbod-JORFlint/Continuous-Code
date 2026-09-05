@@ -10,6 +10,9 @@ __pycache__/
 !.codex/rules/**
 !.codex/skills/
 !.codex/skills/**
+!.clinerules/
+!.clinerules/**
+!cline_mcp_settings.json
 !.opencode/agents/
 !.opencode/agents/**
 !.opencode/commands/

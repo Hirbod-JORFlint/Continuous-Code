@@ -26,7 +26,7 @@
         "firecrawl-mcp"
       ],
       "env": {
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+        "FIRECRAWL_API_KEY": "${env:FIRECRAWL_API_KEY}"
       }
     },
     "git": {
@@ -45,7 +45,7 @@
       "disabled": true,
       "autoApprove": [],
       "headers": {
-        "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}"
+        "Authorization": "Bearer ${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
     },
     "morph": {
@@ -57,7 +57,7 @@
         "@morphllm/morphmcp"
       ],
       "env": {
-        "MORPH_API_KEY": "${MORPH_API_KEY}"
+        "MORPH_API_KEY": "${env:MORPH_API_KEY}"
       }
     },
     "nia": {
@@ -70,7 +70,7 @@
         "nia-mcp-server"
       ],
       "env": {
-        "NIA_API_KEY": "${NIA_API_KEY}",
+        "NIA_API_KEY": "${env:NIA_API_KEY}",
         "NIA_API_URL": "https://apigcp.trynia.ai/"
       }
     },
@@ -83,15 +83,15 @@
         "@perplexity-ai/mcp-server"
       ],
       "env": {
-        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+        "PERPLEXITY_API_KEY": "${env:PERPLEXITY_API_KEY}"
       }
     },
     "qlty": {
-      "command": "$HOME/.opc/venv/bin/python",
+      "command": "C:\\Users\\Hirbod/.opc/venv/bin/python",
       "disabled": false,
       "autoApprove": [],
       "args": [
-        "$HOME/.opc/servers/qlty/server.py"
+        "C:\\Users\\Hirbod/.opc/servers/qlty/server.py"
       ]
     },
     "repoprompt": {

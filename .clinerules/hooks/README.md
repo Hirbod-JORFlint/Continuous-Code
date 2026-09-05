@@ -13,19 +13,21 @@ payload adapter (`_payload.py`) understands the Cline field naming.
 
 - Windows: `HookType.ps1` is the only supported form. Hook discovery ignores
   any other name; on Windows hooks run whenever the file exists (no toggle).
-- macOS/Linux: extensionless executable named exactly `HookType`. Rename these
-  files and `chmod +x`. Enable/disable each hook in the Cline UI (Hooks tab).
+- macOS/Linux: extensionless executable named exactly `HookType`. The generator
+  emits both `.ps1` and extensionless versions; the extensionless scripts are
+  Python with a `#!/usr/bin/env python3` shebang and `chmod +x`. Enable/disable
+  each hook in the Cline UI (Hooks tab).
 
 ## Coverage
 
-| Hook file        | Neutral events forwarded                    |
-| ---------------- | ------------------------------------------- |
-| `PostToolUse.ps1` | typescript-preflight, compiler-in-the-loop, post-edit-notify, post-edit-diagnostics, handoff-index, post-tool-use-tracker, braintrust-post-tool-use, import-validator, import-error-detector |
-| `PreCompact.ps1` | pre-compact-continuity |
-| `PreToolUse.ps1` | pre-tool-use-broadcast, path-rules, tldr-read-enforcer, smart-search-router, tldr-context-inject, arch-context-inject, file-claims, edit-context-inject, signature-helper |
-| `TaskComplete.ps1` | auto-handoff-stop, braintrust-stop, compiler-in-the-loop-stop |
-| `TaskStart.ps1` | persist-project-dir, braintrust-session-start, session-register, session-symbol-index, session-start-continuity, session-start-tldr-cache |
-| `UserPromptSubmit.ps1` | skill-activation-prompt, premortem-suggest, memory-awareness, impact-refactor, braintrust-user-prompt-submit |
+| Hook file                              | Neutral events forwarded                    |
+| -------------------------------------- | ------------------------------------------- |
+| `PostToolUse.ps1` + `PostToolUse` | typescript-preflight, compiler-in-the-loop, post-edit-notify, post-edit-diagnostics, handoff-index, post-tool-use-tracker, braintrust-post-tool-use, import-validator, import-error-detector |
+| `PreCompact.ps1` + `PreCompact` | pre-compact-continuity |
+| `PreToolUse.ps1` + `PreToolUse` | pre-tool-use-broadcast, path-rules, tldr-read-enforcer, smart-search-router, tldr-context-inject, arch-context-inject, file-claims, edit-context-inject, signature-helper |
+| `TaskComplete.ps1` + `TaskComplete` | auto-handoff-stop, braintrust-stop, compiler-in-the-loop-stop |
+| `TaskStart.ps1` + `TaskStart` | persist-project-dir, braintrust-session-start, session-register, session-symbol-index, session-start-continuity, session-start-tldr-cache |
+| `UserPromptSubmit.ps1` + `UserPromptSubmit` | skill-activation-prompt, premortem-suggest, memory-awareness, impact-refactor, braintrust-user-prompt-submit |
 
 ## Caveats
 

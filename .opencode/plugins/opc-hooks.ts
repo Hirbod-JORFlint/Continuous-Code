@@ -7,12 +7,17 @@
 // auto-loaded plugin (opencode auto-loads every file under .opencode/plugins/).
 //
 // Event mapping (neutral -> opencode):
-//   session_start -> session.created
+//   session_start -> session.created  (routed via the generic `event` hook,
+//                                      keyed on event.type; opencode exposes
+//                                      no top-level session.created hook key)
 //   pre_tool_use  -> tool.execute.before  (tool names lowercased)
 //   post_tool_use -> tool.execute.after
 //   pre_compact   -> experimental.session.compacting
-//   session_stop  -> session.idle  (approximation: opencode has NO
-//                                   session.closed/stop event)
+//   session_stop  -> session.idle  (routed via the `event` hook; fires once
+//                                   per session on the first idle event after
+//                                   session start, approximating session end
+//                                   because `session.idle` itself fires
+//                                   per turn)
 //   prompt_submit -> unmappable (no clean equivalent; skipped)
 //
 // Commands spawn via Bun.spawn with NO shell, so `$HOME` is expanded at
@@ -95,10 +100,29 @@ export const OpcHooksPlugin: Plugin = async ({ directory, project }) => {
       OPC_TOOL: input?.tool ?? "",
     };
   };
+  const sessionEndFired: Record<string, boolean> = {};
   return {
-    "session.created": async (input) => {
-      for (const hook of HOOKS["session.created"] ?? []) {
-        spawnHook(hook, baseEnv("session.created", input), cwd);
+    // opencode exposes no top-level `session.created`/`session.idle` hook
+    // keys, so session lifecycle events are routed here via the generic
+    // `event` hook and dispatched on event.type.
+    event: async ({ event }) => {
+      const ev = event as any;
+      const type = ev?.type ?? "";
+      const sessionID =
+        ev?.properties?.sessionID ??
+        ev?.properties?.info?.id ??
+        process.env.OPC_SESSION_ID ??
+        "";
+      if (type === "session.created") {
+        for (const hook of HOOKS["session.created"] ?? []) {
+          spawnHook(hook, baseEnv("session.created", { sessionID }), cwd);
+        }
+      }
+      if (type === "session.idle" && !sessionEndFired[sessionID]) {
+        sessionEndFired[sessionID] = true;
+        for (const hook of HOOKS["session.idle"] ?? []) {
+          spawnHook(hook, baseEnv("session.idle", { sessionID }), cwd);
+        }
       }
     },
     "tool.execute.before": async (input) => {
@@ -122,11 +146,6 @@ export const OpcHooksPlugin: Plugin = async ({ directory, project }) => {
     "experimental.session.compacting": async (input) => {
       for (const hook of HOOKS["experimental.session.compacting"] ?? []) {
         spawnHook(hook, baseEnv("experimental.session.compacting", input), cwd);
-      }
-    },
-    "session.idle": async (input) => {
-      for (const hook of HOOKS["session.idle"] ?? []) {
-        spawnHook(hook, baseEnv("session.idle", input), cwd);
       }
     },
   };

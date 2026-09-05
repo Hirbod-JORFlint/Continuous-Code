@@ -29,9 +29,14 @@ REGISTRY_PATH = HARNESS_DIR / "mcp" / "registry.json"
 CODEX_DIR = REPO_ROOT / ".codex"
 CONFIG_PATH = CODEX_DIR / "config.toml"
 AGENTS_MD_PATH = CODEX_DIR / "AGENTS.md"
+CODEX_SKILLS_DIR = CODEX_DIR / "skills"
+ROOT_AGENTS_MD_PATH = REPO_ROOT / "AGENTS.md"
 
 # User-level (global) config root for Codex CLI: ~/.codex
 USER_CONFIG_DIR = Path.home() / ".codex"
+# Reusable user-level skills moved to the current recommended location;
+# ~/.codex/skills is deprecated.
+AGENTS_SKILLS_DIR = Path.home() / ".agents" / "skills"
 _SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 MODEL_ID = ""
 MODEL_PROVIDER = ""
@@ -106,22 +111,37 @@ def _translate_server(cfg: object) -> dict[str, object] | None:
         url = cfg.get("url")
         if not isinstance(url, str) or not url:
             return None
-        entry: dict[str, object] = {"url": url, "enabled": enabled}
+        entry: dict[str, object] = {"url": _codex_expand(url), "enabled": enabled}
         headers = cfg.get("headers")
         if isinstance(headers, dict):
-            entry["http_headers"] = {str(k): str(v) for k, v in headers.items()}
+            entry["http_headers"] = {
+                str(k): _codex_expand(str(v)) for k, v in headers.items()
+            }
         return entry
     command = cfg.get("command")
     if not isinstance(command, str) or not command:
         return None
-    entry: dict[str, object] = {"command": command, "enabled": enabled}
+    entry: dict[str, object] = {"command": _codex_expand(command), "enabled": enabled}
     args = cfg.get("args")
     if isinstance(args, list) and args:
-        entry["args"] = [str(x) for x in args]
+        entry["args"] = [_codex_expand(str(x)) for x in args]
     env = cfg.get("env")
     if isinstance(env, dict):
-        entry["env"] = {str(k): str(v) for k, v in env.items()}
+        entry["env"] = {
+            str(k): _codex_expand(str(v)) for k, v in env.items()
+        }
     return entry
+
+
+def _codex_expand(value: str) -> str:
+    """Resolve $HOME so MCP servers spawn despite Codex spawning without a shell.
+
+    Codex passes config values to the process env/argv literally (no shell
+    expansion), so a bare ``$HOME`` would be sent as a literal string and the
+    server would fail to start. Env references of the form ``${VAR}`` are left
+    verbatim: Codex emits them into the spawned server's environment itself.
+    """
+    return value.replace("$HOME", str(Path.home()))
 
 
 def _load_hooks() -> dict[str, object]:
@@ -138,30 +158,41 @@ def _load_hooks() -> dict[str, object]:
 
 
 def _emit_hooks() -> dict[str, object]:
+    """Emit hooks in Codex's nested MatcherGroup format.
+
+    Codex expects each event to deserialize into ``Vec<MatcherGroup>`` where a
+    group is ``{ matcher?: string, hooks: [ {type, command, timeout, async} ] }``.
+    A flat ``When = [{command, matcher, type}]`` file deserializes as groups with
+    ``hooks = []`` and every hook silently never runs, so handlers are grouped by
+    matcher and their parameters moved onto the inner ``hooks`` entries.
+    """
     hooks = _load_hooks()
     out: dict[str, object] = {}
     for event, handlers in sorted(hooks.items()):
         codex_event = _NEUTRAL_TO_CODEX_EVENT.get(event, event)
-        entries = []
         values = handlers if isinstance(handlers, list) else [handlers]
+        groups: dict[str, list[dict[str, object]]] = {}
         for handler in values:
-            if not isinstance(handler, dict):
+            if not isinstance(handler, dict) or bool(handler.get("disabled")):
                 continue
-            if bool(handler.get("disabled")):
+            command = handler.get("command")
+            if not isinstance(command, str) or not command:
                 continue
-            entry: dict[str, object] = {
-                "type": "command",
-                "command": str(handler.get("command", "")),
-            }
-            if not entry["command"]:
-                continue
-            for key in ("matcher", "statusMessage", "timeout", "async", "additionalContextLimit"):
+            matcher = handler.get("matcher")
+            group_key = str(matcher) if isinstance(matcher, str) and matcher else ""
+            hook_entry: dict[str, object] = {"type": "command", "command": command}
+            for key in ("timeout", "async", "additionalContextLimit"):
                 if key in handler and handler[key] is not None:
-                    if key == "statusMessage":
-                        entry["statusMessage"] = str(handler[key])
-                    else:
-                        entry[key] = handler[key]
-            entries.append(entry)
+                    hook_entry[key] = handler[key]
+            if "statusMessage" in handler and handler["statusMessage"] is not None:
+                hook_entry["statusMessage"] = str(handler["statusMessage"])
+            groups.setdefault(group_key, []).append(hook_entry)
+        entries: list[dict[str, object]] = []
+        for group_key in sorted(groups):
+            group: dict[str, object] = {"hooks": groups[group_key]}
+            if group_key:
+                group["matcher"] = group_key
+            entries.append(group)
         if entries:
             out[codex_event] = entries
     return out
@@ -196,6 +227,12 @@ def _agenda() -> str:
         "This file is generated by `opc/scripts/harness/gen_codex.py` from the canonical",
         "tree under `harness/`. Edit the canonical sources, not this file.",
         "",
+        "## Loading",
+        "",
+        "Codex auto-discovers a repository-root `AGENTS.md`, so the root copy of this",
+        "guide is always read. The `.codex/AGENTS.md` twin is additionally loaded when",
+        "Codex runs with `CODEX_HOME=$(pwd)/.codex`.",
+        "",
         "## Rules",
         "",
         "Global rules injected into every harness. Canonical copies:",
@@ -224,7 +261,7 @@ def _agenda() -> str:
         "",
         "- Rules: `harness/rules/`",
         "- Agents: `harness/agents/`",
-        "- Skills: `harness/skills/` (user-level install merges into `~/.codex/skills/`)",
+        "- Skills: `harness/skills/` (user-level install merges into `~/.agents/skills/`)",
         "- MCP: `harness/mcp/registry.json` "
         "(emitted into `.codex/config.toml` as `[mcp_servers.*]`)",
         "",
@@ -273,9 +310,25 @@ def _validate(toml_text: str) -> int:
                 print(f"mcp_servers.{name} is malformed: {entry!r}")
                 return 1
     hooks = parsed.get("hooks", {})
+    if isinstance(hooks, dict):
+        for event, groups in hooks.items():
+            if not isinstance(groups, list) or not groups:
+                print(f"hooks.{event} is not a non-empty MatcherGroup array")
+                return 1
+            for group in groups:
+                if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
+                    print(f"hooks.{event} group is missing its nested `hooks` array: {group!r}")
+                    return 1
+    skills_count = (
+        len(list(CODEX_SKILLS_DIR.glob("*/SKILL.md")))
+        if CODEX_SKILLS_DIR.is_dir() else 0
+    )
+    rules_count = len(list(RULES_DIR.glob("*.md")))
+    agents_count = len(list(AGENTS_SRC_DIR.glob("*.md")))
     print(
-        f"config.toml parses; mcp_servers={len(servers)} hooks_events={len(hooks)} "
-        f"rules={len(list(RULES_DIR.glob('*.md')))} agents={len(list(AGENTS_SRC_DIR.glob('*.md')))}"
+        f"config.toml parses; mcp_servers={len(servers)} "
+        f"hooks_events={len(hooks)} rules={rules_count} "
+        f"agents={agents_count} skills={skills_count}"
     )
     return 0
 
@@ -310,6 +363,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.user_level:
         _repoint(USER_CONFIG_DIR)
     globals().update({"MODEL_ID": args.model, "MODEL_PROVIDER": args.model_provider})
+    if MODEL_PROVIDER and not args.user_level:
+        print(
+            "warning: model_provider is ignored in a project-local config.toml; "
+            "re-run with --user-level or set it in ~/.codex/config.toml"
+        )
     cfg = _config()
     toml_text = _dump_toml(cfg)
     agenda = _agenda()
@@ -317,21 +375,36 @@ def main(argv: list[str] | None = None) -> int:
         print(toml_text)
         print("--- AGENTS.md ---")
         print(agenda)
+        print("--- AGENTS.md (repo root) ---")
+        print("same content as .codex/AGENTS.md (auto-discovered by Codex)")
+        print("--- .codex/skills/ ---")
+        copied, _ = _copy_skills_to(CODEX_SKILLS_DIR, dry_run=True)
+        print(f"{len(copied)} skills (project scope)")
         if args.user_level:
-            print("--- ~/.codex/skills/ ---")
-            print(_copy_user_skills(USER_CONFIG_DIR / "skills", dry_run=True))
+            print("--- ~/.agents/skills/ ---")
+            copied2, _ = _copy_user_skills(AGENTS_SKILLS_DIR, dry_run=True)
+            print(f"{len(copied2)} skills (user scope)")
         return 0
     CODEX_DIR.mkdir(parents=True, exist_ok=True)
     CONFIG_PATH.write_text(toml_text, encoding="utf-8")
     AGENTS_MD_PATH.write_text(agenda, encoding="utf-8")
     print(f"wrote {CONFIG_PATH.relative_to(REPO_ROOT)}")
     print(f"wrote {AGENTS_MD_PATH.relative_to(REPO_ROOT)}")
+    if not args.user_level:
+        ROOT_AGENTS_MD_PATH.write_text(agenda, encoding="utf-8")
+        print(f"wrote {ROOT_AGENTS_MD_PATH.relative_to(REPO_ROOT)}")
     if MODEL_ID or MODEL_PROVIDER:
         print(f"  model={MODEL_ID} model_provider={MODEL_PROVIDER}")
-    if args.user_level:
-        copied, skipped = _copy_user_skills(CODEX_DIR / "skills")
+    if not args.user_level:
+        copied, skipped = _copy_project_skills()
         if copied:
-            print(f"copied {len(copied)} skills to {CODEX_DIR / 'skills'}")
+            print(f"copied {len(copied)} skills to {CODEX_SKILLS_DIR.relative_to(REPO_ROOT)}")
+        if skipped:
+            print(f"skipped skills: {', '.join(skipped)}")
+    if args.user_level:
+        copied, skipped = _copy_user_skills(AGENTS_SKILLS_DIR)
+        if copied:
+            print(f"copied {len(copied)} skills to {AGENTS_SKILLS_DIR}")
         if skipped:
             print(f"skipped skills: {', '.join(skipped)}")
     return _validate(toml_text)
@@ -352,10 +425,20 @@ def _repoint(root: Path) -> None:
 def _copy_user_skills(dst_dir: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
     """Copy canonical skills into a user-level (global) skills directory.
 
-    Codex keeps reusable skills at the user level (~/.codex/skills) rather
-    than per project. Mirror the harness/skills layout, pruning stale dirs and
-    skipping entries whose frontmatter name is missing or invalid.
+    Codex keeps reusable skills at the user level (~/.agents/skills, the
+    current location; ~/.codex/skills is deprecated) rather than per project.
+    Mirror the harness/skills layout, pruning stale dirs and skipping entries
+    whose frontmatter name is missing or invalid.
     """
+    return _copy_skills_to(dst_dir, dry_run)
+
+
+def _copy_project_skills() -> tuple[list[str], list[str]]:
+    """Copy canonical skills into the project-level .codex/skills/ directory."""
+    return _copy_skills_to(CODEX_SKILLS_DIR, dry_run=False)
+
+
+def _copy_skills_to(dst_dir: Path, dry_run: bool = False) -> tuple[list[str], list[str]]:
     copied: list[str] = []
     skipped: list[str] = []
     seen: set[str] = set()

@@ -26,14 +26,18 @@ Generated, committed outputs (written by `opc harness gen`):
 | Target | Generated artifact |
 |---|---|
 | Opencode | `opencode.json`, `.opencode/{agents,commands,skills,plugins}` (hook bridge: `.opencode/plugins/opc-hooks.ts`) |
-| Codex | `.codex/config.toml` (MCP `[mcp_servers.*]` + inline `[hooks]`), `.codex/AGENTS.md` |
-| Cline | `.clinerules/*.md`, `.clinerules/hooks/*` (real executable hooks, §3), `cline_mcp_settings.json` (project `mcpServers`; CLI reads `~/.cline/mcp.json`) |
+| Codex | `.codex/config.toml` (MCP `[mcp_servers.*]` + nested `[hooks]` MatcherGroups), `.codex/AGENTS.md`, repo-root `AGENTS.md` |
+| Cline | `.clinerules/*.md`, `.clinerules/hooks/*` (real executable hooks, §3), `cline_mcp_settings.json` (install-source template, see below) |
 
-User-level installs (merging, never clobbering): `~/.codex/skills/` + optional
-`~/.codex/config.toml` `[mcp_servers.*]` merge, `~/.config/opencode/skills/`, and for Cline
-`~/.cline/skills/` plus CLI MCP `~/.cline/mcp.json` (the project `cline_mcp_settings.json` covers the
-IDE extension; the wizard merges it into `~/.cline/mcp.json` for the CLI in Step 9). Global Cline
-rules resolve from the OS `Documents/Cline/Rules` dir.
+User-level installs (merging, never clobbering): `~/.agents/skills/` (Codex's current location;
+`~/.codex/skills/` is deprecated) + optional `~/.codex/config.toml` `[mcp_servers.*]` merge,
+`~/.config/opencode/skills/`, and for Cline `~/.cline/skills/` plus CLI MCP `~/.cline/mcp.json`.
+Note that Cline does NOT read a project-root `cline_mcp_settings.json` at runtime — the generated
+file is an install source; the Step 9 wizard merges it into the real location (VS Code
+`globalStorage/*/settings/cline_mcp_settings.json` for the IDE, `~/.cline/data/settings/` or
+`~/.cline/mcp.json` for the CLI). Global Cline rules resolve from the OS `Documents/Cline/Rules`
+dir. Codex auto-discovers the repo-root `AGENTS.md`; the `.codex/AGENTS.md` twin only loads when
+Codex runs with `CODEX_HOME=$(pwd)/.codex`.
 
 Neutral install root for re-homed hooks: `~/.opc/hooks` — a junction to
 `harness/lifecycle/hooks` on the canonical machine (created in Step 7 verification), copied by the
@@ -76,7 +80,7 @@ Hooks/plugins are declared against this taxonomy. Harness translates to its nati
 | `pre_tool_use` | tool invocation about to run (can block) | codex `PreToolUse` (tool-filtered); opencode plugin `tool.execute.before`; cline `PreToolUse` |
 | `post_tool_use` | tool invocation finished (non-blocking) | codex `PostToolUse`; opencode plugin `tool.execute.after`; cline `PostToolUse` |
 | `pre_compact` | context compaction imminent (may persist state) | codex `PreCompact`; opencode plugin `experimental.session.compacting`; cline `PreCompact` |
-| `session_stop` | session ending (must save state/handoff) | codex `SessionEnd`; opencode plugin `session.idle` (approximation — there is no `session.closed`/stop event); cline n/a (`TaskComplete` maps to `stop`, not `session_stop`) |
+| `session_stop` | session ending (must save state/handoff) | codex `SessionEnd`; opencode plugin `event` hook routing `session.idle` (approximation — there is no `session.closed`/stop event; fire-once-per-session debounce); cline n/a (`TaskComplete` maps to `stop`, not `session_stop`) |
 | `status_line` | footer status text (harness-specific sugar, optional) | codex n/a, opencode plugin `status`, cline n/a |
 
 Cline hooks are **real executable scripts** (since v3.36+), not model-executed markdown: each hook
@@ -119,7 +123,9 @@ Event payload contract (JSON on stdin to the hook/plugin body):
 ## 5. MCP registry schema (`harness/mcp/registry.json`)
 
 Harness-neutral; generators emit native formats (opencode `mcp`, codex `[mcp_servers.*]`,
-cline `mcpServers`).
+cline `mcpServers`). Environment references in registry values are rewritten per driver at
+generation: opencode `{env:VAR}`, cline `${env:VAR}`, codex `${VAR}` verbatim; `$HOME` is always
+resolved to an absolute path (bare `$HOME` is not expanded by any of the three spawners).
 
 ```json
 {
@@ -158,13 +164,18 @@ mode: normal              # opencode mode; mapped only there
 ## 8. Parity tiers
 
 - **Opencode** — parity except `prompt_submit`/`session_stop` (no native events; the bridge maps
-  `session_stop`→`session.idle` as an approximation and skips `prompt_submit`): plugins (TS)
-  covering all neutral events, skills/agents/commands natively, provider-agnostic models. The only
-  real re-platform (Python+TS hooks -> TS plugin wrappers, keeping heavy logic in neutral Python
-  invoked by thin plugin wrappers under `.opencode/plugins/opc-hooks.ts`).
+  `session_stop`→`session.idle` via the generic `event` hook — opencode has no top-level
+  `session.created`/`session.idle` hook keys — with a per-session debounce, and skips
+  `prompt_submit`): plugins (TS) covering all neutral events, skills/agents/commands natively,
+  provider-agnostic models. The only real re-platform (Python+TS hooks -> TS plugin wrappers,
+  keeping heavy logic in neutral Python invoked by thin plugin wrappers under
+  `.opencode/plugins/opc-hooks.ts`).
 - **Codex** — full parity where its schema allows: inline `[hooks]` in `.codex/config.toml` covers the
-  neutral set except where noted; skills/AGENTS.md native; subagents not emitted (documented mechanism
-  is `agents.<name>.config_file` / user `~/.codex/agents/`; wired at smoke in Step 13).
+  neutral set except where noted; hook handlers are emitted as nested `MatcherGroup` entries
+  (`{matcher, hooks:[{type,command,...}]}` — a flat entry deserializes to `hooks: []` and never
+  runs); skills root `AGENTS.md` native (repo-root `AGENTS.md` plus a `.codex/AGENTS.md` twin);
+  subagents not emitted (documented mechanism is `agents.<name>.config_file` / user
+  `~/.codex/agents/`; wired at smoke in Step 13).
 - **Cline** — **thin client + real hooks** (experimental): surface = `.clinerules/*.md` (every
   `.md`/`.txt` loaded, numeric prefixes fine), real executable hooks in `.clinerules/hooks/*` (§3),
   `cline_mcp_settings.json` (project MCP), and repo-root `AGENTS.md` (read natively). No config-file
