@@ -188,3 +188,32 @@ mode: normal              # opencode mode; mapped only there
 All headless orchestration goes through `opc/scripts/core/spawn.py` + the driver registry.
 Adapters for thinking-block extraction, continuity, and event observation consume
 `run_prompt(json=True)` and never construct harness command lines in application code.
+
+## 10. Introspection & coordination
+
+Continuity/event-observation adapters discover the current session, its transcript, and running
+agents through driver-agnostic modules in the packaged runtime — never by constructing
+driver-specific commands or reading driver paths ad hoc.
+
+| Module | Role |
+|---|---|
+| `runtime.introspect` | `resolve_driver()` (OPC_DRIVER or auto), `current_session()` → `{driver, session_id, transcript_path}`, `resolve_transcript()` (per-driver path resolution), `running_agents()`, `available_agents()` (driver `list_agents()`), `list_sessions()`, `observe()` |
+| `runtime.coordination` | Agent coordination store: PostgreSQL (`DATABASE_URL`, `continuous_claude`, `agents` table — same DB the hooks' `_lib/db_utils_pg.py` manages for `sessions`/`file_claims`) with append-only JSONL fallback (`registry.jsonl` under `OPC_RUNTIME_DIR`). Sync helpers `register_agent()` / `update_agent_status()` / `running_agents()` / `list_sessions()` return `False`/`[]` on DB unavailability — callers never need `try/except` |
+
+**Transcript resolution by driver:**
+
+| Driver | Session id | Transcript |
+|---|---|---|
+| opencode | `session list --format json` (last session) | best-effort probe of opencode storage roots for the session id (None on miss) |
+| codex | newest `$CODEX_HOME/sessions/rollout-*.jsonl` (matches regex) | the rollout JSONL itself |
+| cline | None (no reliable CLI source) | None (documented limitation) |
+
+**Consumers (wired in Step 14):**
+
+- `opc/scripts/observe_agents.py` — observer CLI: `--what session|agents|sessions|memory|blackboard|tasks|outputs|all`, memory queried via `archival_memory` on `DATABASE_URL` (sqlite `~/.opc/cache/memory.db` fallback).
+- `opc/scripts/core/memory_daemon.py` — falls back to `introspect.resolve_transcript()` when no
+  `~/.opc/projects/*/*.jsonl` transcript exists for the session.
+- `opc/scripts/core/extract_thinking_blocks.py` — `--format anthropic|codex|opencode|auto`
+  (auto = anthropic shape first, generic `thinking`/`reasoning` walker fallback).
+- `opc/scripts/core/spawn.py` — registers spawned agents via `runtime.coordination.register_agent`
+  (SQLite/legacy `scripts.agentica_patterns` superseded).

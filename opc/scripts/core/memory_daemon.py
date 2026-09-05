@@ -218,6 +218,36 @@ def mark_extracted(session_id: str):
         sqlite_mark_extracted(session_id)
 
 
+def resolve_driver_transcript(session_id: str) -> str | None:
+    """Resolve the session transcript via the harness driver registry.
+
+    Tries each installed driver (opencode, codex, cline) and returns the first
+    transcript found. Returns None when no readable transcript exists.
+    """
+    try:
+        import sys
+        from pathlib import Path
+
+        src = Path(__file__).resolve().parent.parent.parent / "src"
+        if str(src) in sys.path:
+            sys.path.remove(str(src))
+        sys.path.insert(0, str(src))
+
+        from runtime import introspect
+
+        for name in ("opencode", "codex", "cline"):
+            driver = introspect.resolve_driver(name)
+            if driver is None or not driver.installed():
+                continue
+            path = introspect.resolve_transcript(driver)
+            if path is not None:
+                log(f"Resolved transcript via driver {name}: {path}")
+                return str(path)
+    except Exception as e:
+        log(f"Driver transcript resolution failed: {e}")
+    return None
+
+
 def extract_memories(session_id: str, project_dir: str):
     """Run memory extraction for a session."""
     log(f"Extracting memories for session {session_id} in {project_dir}")
@@ -246,6 +276,11 @@ def extract_memories(session_id: str, project_dir: str):
                 jsonl_path = f
                 log(f"Using recent JSONL {f.name} for session {session_id} (no ID match)")
                 break
+
+    # Fallback: driver-agnostic transcript discovery (opencode/codex transcripts
+    # live outside ~/.opc/projects).
+    if not jsonl_path:
+        jsonl_path = resolve_driver_transcript(session_id)
 
     if not jsonl_path:
         log(f"No JSONL found for session {session_id}, skipping")

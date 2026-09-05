@@ -1,18 +1,27 @@
 #!/usr/bin/env python3
 """
-Observe running agents - query memory, blackboard, tasks, and outputs.
+Observe running agents and sessions - harness-neutral adapter.
 
 USAGE:
-    # Query PostgreSQL memory tables
+    # Current session + transcript (driver-agnostic introspection)
+    uv run python scripts/observe_agents.py --what session
+
+    # Running agents (coordination store: PostgreSQL + JSONL registry)
+    uv run python scripts/observe_agents.py --what agents
+    uv run python scripts/observe_agents.py --what agents --session-id abc123
+
+    # Sessions known to the coordination layer
+    uv run python scripts/observe_agents.py --what sessions
+
+    # Query PostgreSQL memory tables (DATABASE_URL)
     uv run python scripts/observe_agents.py --what memory --query "API"
     uv run python scripts/observe_agents.py --what memory --session-id abc123
 
-    # Read blackboard HOT tier
+    # Read blackboard HOT tier (JSON files under ~/.opc/blackboard)
     uv run python scripts/observe_agents.py --what blackboard
 
-    # Query task graph
+    # Coordination state (near-term activity: sessions + running agents)
     uv run python scripts/observe_agents.py --what tasks
-    uv run python scripts/observe_agents.py --what tasks --session-id abc123
 
     # List agent output files
     uv run python scripts/observe_agents.py --what outputs
@@ -25,10 +34,14 @@ USAGE:
     uv run python scripts/observe_agents.py --what all --json
 
 This script provides unified observation of agent activity across:
-1. PostgreSQL (archival_memory table) - persistent memory storage
+1. PostgreSQL (archival_memory table) - persistent memory storage (DATABASE_URL)
 2. Blackboard HOT tier (JSON files) - inter-agent communication
-3. Task graph (SQLite) - task coordination state
-4. Agent outputs (markdown files) - agent work products
+3. Coordination store (agents + sessions) - task coordination state
+4. Agent outputs (markdown files under .opc/cache/agents/) - agent work products
+
+Observation sources are harness-neutral: session/agent discovery goes through
+`runtime.introspect` (driver registry) and `runtime.coordination` (PG + JSONL),
+never through driver-specific command construction.
 """
 
 import argparse
@@ -36,31 +49,30 @@ import asyncio
 import json
 import os
 import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# PostgreSQL connection
-POSTGRES_URL = os.environ.get(
-    "AGENTICA_POSTGRES_URL", "postgresql://agentica:agentica_dev@localhost:5433/agentica_memory"
-)
+_OPC_SRC = Path(__file__).resolve().parent.parent / "src"
+if str(_OPC_SRC) in sys.path:
+    sys.path.remove(str(_OPC_SRC))
+sys.path.insert(0, str(_OPC_SRC))
 
-# Paths - use project-relative paths
-PROJECT_DIR = Path(
-    os.environ.get(
-        "OPC_PROJECT_DIR",
-        "/Users/example/workspace/opc-continuity-kit",
-    )
-)
-BLACKBOARD_DIR = Path("/tmp/opc-blackboard")
-TASKS_DB = PROJECT_DIR / ".opc" / "cache" / "agentica-coordination" / "tasks.db"
+from runtime import coordination, introspect  # noqa: E402
+
+# Paths - use config-derived defaults (OPC_CONFIG_DIR canonical)
+CONFIG_DIR = Path(os.environ.get("OPC_CONFIG_DIR") or str(Path.home() / ".opc"))
+PROJECT_DIR = Path(os.environ.get("OPC_PROJECT_DIR") or os.getcwd())
+BLACKBOARD_DIR = Path(os.environ.get("OPC_BLACKBOARD_DIR") or str(CONFIG_DIR / "blackboard"))
 AGENTS_DIR = PROJECT_DIR / ".opc" / "cache" / "agents"
+MEMORY_DB = CONFIG_DIR / "cache" / "memory.db"
 
 
 async def query_memory(
     query: str | None = None, session_id: str | None = None, limit: int = 20
 ) -> list[dict]:
-    """Query PostgreSQL memory tables.
+    """Query PostgreSQL memory tables (archival_memory via DATABASE_URL).
 
     Args:
         query: Text search query (searches content with ILIKE)
@@ -73,11 +85,16 @@ async def query_memory(
     try:
         import asyncpg
     except ImportError:
-        print("Warning: asyncpg not installed, skipping memory query")
-        return []
+        return query_memory_sqlite(query, session_id, limit)
 
     try:
-        conn = await asyncpg.connect(POSTGRES_URL)
+        conn = await asyncpg.connect(
+            os.environ.get(
+                "DATABASE_URL",
+                "postgresql://claude:claude_dev@localhost:5432/continuous_claude",
+            ),
+            timeout=3,
+        )
         try:
             sql = """
                 SELECT id, session_id, agent_id, content, created_at
@@ -91,23 +108,66 @@ async def query_memory(
             return [dict(r) for r in rows]
         finally:
             await conn.close()
-    except Exception as e:
-        print(f"Warning: Memory query failed: {e}")
+    except Exception:
+        return query_memory_sqlite(query, session_id, limit)
+
+
+def query_memory_sqlite(
+    query: str | None = None, session_id: str | None = None, limit: int = 20
+) -> list[dict]:
+    """SQLite fallback for memory query (OPC_CONFIG_DIR/cache/memory.db)."""
+    if not MEMORY_DB.exists():
+        return []
+    try:
+        conn = sqlite3.connect(MEMORY_DB)
+        conn.row_factory = sqlite3.Row
+        try:
+            sql = "SELECT * FROM archival_memory"
+            where: list[str] = []
+            params: list[Any] = []
+            if query:
+                where.append("content LIKE ?")
+                params.append(f"%{query}%")
+            if session_id:
+                where.append("session_id = ?")
+                params.append(session_id)
+            if where:
+                sql += " WHERE " + " AND ".join(where)
+            sql += " ORDER BY created_at DESC LIMIT ?"
+            params.append(limit)
+            rows = conn.execute(sql, params).fetchall()
+            return [dict(r) for r in rows]
+        except sqlite3.OperationalError:
+            return []
+        finally:
+            conn.close()
+    except Exception:
         return []
 
 
-def read_blackboard() -> dict[str, Any]:
-    """Read all blackboard HOT tier JSON files.
+def current_session() -> dict:
+    """Driver-agnostic current session via the driver registry."""
+    return introspect.current_session()
 
-    Returns:
-        Dictionary mapping board names to their contents
-    """
+
+def running_agents(session_id: str | None = None) -> list[dict]:
+    """Running agents from the coordination store (PG + JSONL registry)."""
+    return introspect.running_agents(session_id=session_id)
+
+
+def list_sessions() -> list[dict]:
+    """Sessions from the coordination layer."""
+    return introspect.list_sessions()
+
+
+def read_blackboard() -> dict[str, Any]:
+    """Read all blackboard HOT tier JSON files."""
     results: dict[str, Any] = {}
 
     if not BLACKBOARD_DIR.exists():
         return results
 
-    for f in BLACKBOARD_DIR.glob("*.json"):
+    for f in sorted(BLACKBOARD_DIR.glob("*.json")):
         try:
             results[f.stem] = json.loads(f.read_text())
         except json.JSONDecodeError:
@@ -118,40 +178,13 @@ def read_blackboard() -> dict[str, Any]:
     return results
 
 
-def query_task_graph(session_id: str | None = None) -> list[dict]:
-    """Query task graph SQLite database.
-
-    Args:
-        session_id: Filter by session ID
-
-    Returns:
-        List of task records as dictionaries
-    """
-    if not TASKS_DB.exists():
-        return []
-
-    try:
-        conn = sqlite3.connect(TASKS_DB)
-        conn.row_factory = sqlite3.Row
-        try:
-            if session_id:
-                rows = conn.execute(
-                    "SELECT * FROM tasks WHERE session_id = ? ORDER BY created_at DESC LIMIT 50",
-                    (session_id,),
-                ).fetchall()
-            else:
-                rows = conn.execute(
-                    "SELECT * FROM tasks ORDER BY created_at DESC LIMIT 50"
-                ).fetchall()
-            return [dict(r) for r in rows]
-        except sqlite3.OperationalError:
-            # Table doesn't exist
-            return []
-        finally:
-            conn.close()
-    except Exception as e:
-        print(f"Warning: Task graph query failed: {e}")
-        return []
+def coordination_state() -> dict[str, Any]:
+    """Near-term activity: sessions + running agents + registry path."""
+    return {
+        "sessions": list_sessions(),
+        "running_agents": running_agents(),
+        "registry_path": str(coordination.registry_path()),
+    }
 
 
 def list_agent_outputs() -> list[dict]:
@@ -165,9 +198,9 @@ def list_agent_outputs() -> list[dict]:
     if not AGENTS_DIR.exists():
         return results
 
-    for agent_dir in AGENTS_DIR.iterdir():
+    for agent_dir in sorted(AGENTS_DIR.iterdir()):
         if agent_dir.is_dir():
-            for f in agent_dir.glob("*.md"):
+            for f in sorted(agent_dir.glob("*.md")):
                 try:
                     stat = f.stat()
                     results.append(
@@ -197,15 +230,18 @@ async def observe_all(query: str | None = None, session_id: str | None = None) -
 
     Args:
         query: Text search query for memory
-        session_id: Filter by session ID for memory and tasks
+        session_id: Filter by session ID for memory and running agents
 
     Returns:
         Dictionary with all observation results and metadata
     """
     memory = await query_memory(query, session_id)
     blackboard = read_blackboard()
-    tasks = query_task_graph(session_id)
+    coordination = coordination_state()
     outputs = list_agent_outputs()
+    session = current_session()
+
+    agent_items = running_agents(session_id)
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -213,9 +249,15 @@ async def observe_all(query: str | None = None, session_id: str | None = None) -
             "query": query,
             "session_id": session_id,
         },
+        "session": session,
         "memory": {"count": len(memory), "items": memory},
         "blackboard": {"count": len(blackboard), "boards": blackboard},
-        "tasks": {"count": len(tasks), "items": tasks},
+        "coordination": {
+            "count": len(agent_items),
+            "sessions": coordination["sessions"],
+            "agents": agent_items,
+            "registry_path": coordination["registry_path"],
+        },
         "outputs": {"count": len(outputs), "items": outputs},
     }
 
@@ -236,6 +278,52 @@ def format_memory_output(items: list[dict]) -> str:
         if len(content) > 200:
             content = content[:200] + "..."
         lines.append(f"Content: {content}")
+        lines.append("-" * 40)
+    return "\n".join(lines)
+
+
+def format_current_session(session: dict) -> str:
+    """Format the current session info."""
+    if not session or not session.get("driver"):
+        return "No harness driver installed / no current session."
+
+    lines = ["=== Current Session ===", ""]
+    lines.append(f"Driver: {session.get('driver', 'unknown')}")
+    lines.append(f"Session ID: {session.get('session_id') or 'unknown'}")
+    lines.append(f"Transcript: {session.get('transcript_path') or 'not found'}")
+    return "\n".join(lines)
+
+
+def format_agents_output(items: list[dict]) -> str:
+    """Format running-agent items for human-readable output."""
+    if not items:
+        return "No running agents found."
+
+    lines = ["=== Running Agents ===", ""]
+    for item in items:
+        lines.append(f"Agent: {item.get('agent_id', 'unknown')}")
+        lines.append(f"Session: {item.get('session_id', 'unknown')}")
+        lines.append(f"Status: {item.get('status', 'unknown')}")
+        lines.append(f"Pattern: {item.get('pattern') or 'none'}")
+        lines.append(f"DB: {item.get('db', 'jsonl')}")
+        lines.append(f"Spawned: {item.get('spawned_at') or item.get('timestamp') or 'unknown'}")
+        lines.append("-" * 40)
+    return "\n".join(lines)
+
+
+def format_sessions_output(items: list[dict]) -> str:
+    """Format session items for human-readable output."""
+    if not items:
+        return "No sessions found in the coordination layer."
+
+    lines = ["=== Sessions ===", ""]
+    for item in items:
+        lines.append(f"ID: {item.get('id', 'unknown')}")
+        lines.append(f"Project: {item.get('project', 'unknown')}")
+        lines.append(f"Working on: {item.get('working_on') or 'working...'}")
+        lines.append(f"Heartbeat: {item.get('last_heartbeat', 'unknown')}")
+        if item.get("agent_count") is not None:
+            lines.append(f"Agents: {item.get('agent_count')}")
         lines.append("-" * 40)
     return "\n".join(lines)
 
@@ -262,18 +350,16 @@ def format_blackboard_output(boards: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def format_tasks_output(items: list[dict]) -> str:
-    """Format task items for human-readable output."""
-    if not items:
-        return "No tasks found."
-
-    lines = ["=== Task Graph ===", ""]
-    for item in items:
-        lines.append(f"ID: {item.get('id', 'unknown')}")
-        lines.append(f"Session: {item.get('session_id', 'unknown')}")
-        lines.append(f"Status: {item.get('status', 'unknown')}")
-        lines.append(f"Created: {item.get('created_at', 'unknown')}")
-        lines.append("-" * 40)
+def format_coordination_output(state: dict[str, Any]) -> str:
+    """Format coordination state (near-term activity) for human-readable output."""
+    lines = ["=== Coordination State ===", ""]
+    lines.append(f"Sessions: {len(state.get('sessions', []))}")
+    lines.append(f"Running Agents: {len(state.get('running_agents', []))}")
+    lines.append(f"Registry: {state.get('registry_path', 'unknown')}")
+    lines.append("")
+    lines.append(format_sessions_output(state.get("sessions", [])))
+    lines.append("")
+    lines.append(format_agents_output(state.get("running_agents", [])))
     return "\n".join(lines)
 
 
@@ -299,16 +385,21 @@ def format_outputs_output(items: list[dict]) -> str:
 
 def format_all_output(result: dict[str, Any]) -> str:
     """Format combined observation for human-readable output."""
+    coordination = result.get("coordination", {})
     lines = [
         "=" * 60,
         "AGENT OBSERVATION REPORT",
         f"Timestamp: {result['timestamp']}",
-        f"Filters: query={result['filters']['query']}, session_id={result['filters']['session_id']}",
+        f"Filters: query={result['filters']['query']}, "
+        f"session_id={result['filters']['session_id']}",
         "=" * 60,
+        "",
+        format_current_session(result.get("session", {})),
         "",
         f"Memory Records: {result['memory']['count']}",
         f"Blackboard Boards: {result['blackboard']['count']}",
-        f"Tasks: {result['tasks']['count']}",
+        f"Sessions: {len(coordination.get('sessions', []))}",
+        f"Running Agents: {len(coordination.get('agents', []))}",
         f"Output Files: {result['outputs']['count']}",
         "",
     ]
@@ -321,8 +412,10 @@ def format_all_output(result: dict[str, Any]) -> str:
         lines.append(format_blackboard_output(result["blackboard"]["boards"]))
         lines.append("")
 
-    if result["tasks"]["items"]:
-        lines.append(format_tasks_output(result["tasks"]["items"]))
+    if coordination.get("sessions") or coordination.get("agents"):
+        lines.append(format_sessions_output(coordination.get("sessions", [])))
+        lines.append("")
+        lines.append(format_agents_output(coordination.get("agents", [])))
         lines.append("")
 
     if result["outputs"]["items"]:
@@ -333,18 +426,24 @@ def format_all_output(result: dict[str, Any]) -> str:
 
 async def main():
     parser = argparse.ArgumentParser(
-        description="Observe running agents - query memory, blackboard, tasks, and outputs",
+        description="Observe running agents - query memory, blackboard, sessions, and outputs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Current session + transcript (driver-agnostic)
+  %(prog)s --what session
+
+  # Running agents from the coordination store
+  %(prog)s --what agents
+
+  # Sessions known to the coordination layer
+  %(prog)s --what sessions
+
   # Query memory for API-related content
   %(prog)s --what memory --query "API"
 
-  # Read all blackboard files
-  %(prog)s --what blackboard
-
-  # List tasks for a specific session
-  %(prog)s --what tasks --session-id abc123
+  # List tasks (coordination state: sessions + running agents)
+  %(prog)s --what tasks
 
   # Combined observation with JSON output
   %(prog)s --what all --json
@@ -352,14 +451,18 @@ Examples:
     )
     parser.add_argument(
         "--what",
-        choices=["memory", "blackboard", "tasks", "outputs", "all"],
+        choices=["session", "agents", "sessions", "memory", "blackboard",
+                 "tasks", "outputs", "all"],
         required=True,
-        help="What to observe: memory (PostgreSQL), blackboard (JSON files), tasks (SQLite), outputs (markdown files), or all",
+        help=(
+            "What to observe: session, agents, sessions, memory (PostgreSQL), "
+            "blackboard (JSON files), tasks (coordination), outputs (markdown files), or all"
+        ),
     )
     parser.add_argument(
         "--query", "-q", help="Search query for memory content (uses ILIKE pattern matching)"
     )
-    parser.add_argument("--session-id", "-s", help="Filter by session ID (for memory and tasks)")
+    parser.add_argument("--session-id", "-s", help="Filter by session ID (for memory and agents)")
     parser.add_argument(
         "--json", action="store_true", help="Output as JSON (default: human-readable format)"
     )
@@ -372,7 +475,28 @@ Examples:
 
     args = parser.parse_args()
 
-    if args.what == "memory":
+    if args.what == "session":
+        result = current_session()
+        if args.json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(format_current_session(result))
+
+    elif args.what == "agents":
+        result = running_agents(args.session_id)
+        if args.json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(format_agents_output(result))
+
+    elif args.what == "sessions":
+        result = list_sessions()
+        if args.json:
+            print(json.dumps(result, indent=2, default=str))
+        else:
+            print(format_sessions_output(result))
+
+    elif args.what == "memory":
         result = await query_memory(args.query, args.session_id, args.limit)
         if args.json:
             print(json.dumps(result, indent=2, default=str))
@@ -387,11 +511,11 @@ Examples:
             print(format_blackboard_output(result))
 
     elif args.what == "tasks":
-        result = query_task_graph(args.session_id)
+        result = coordination_state()
         if args.json:
             print(json.dumps(result, indent=2, default=str))
         else:
-            print(format_tasks_output(result))
+            print(format_coordination_output(result))
 
     elif args.what == "outputs":
         result = list_agent_outputs()

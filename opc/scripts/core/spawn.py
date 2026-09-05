@@ -42,8 +42,9 @@ import yaml
 # directly (`uv run python scripts/core/spawn.py ...`) rather than through the
 # packaged runtime.
 _OPC_SRC = Path(__file__).resolve().parent.parent.parent / "src"
-if str(_OPC_SRC) not in sys.path:
-    sys.path.insert(0, str(_OPC_SRC))
+if str(_OPC_SRC) in sys.path:
+    sys.path.remove(str(_OPC_SRC))
+sys.path.insert(0, str(_OPC_SRC))
 
 from harness.base import (  # noqa: E402
     DriverRegistry,
@@ -51,6 +52,7 @@ from harness.base import (  # noqa: E402
     HarnessOutput,
     register_drivers,
 )
+from runtime import coordination as _coordination  # noqa: E402
 
 register_drivers()
 
@@ -736,29 +738,23 @@ def register_agent_in_db(
         "status": "running",
     }
 
-    # Try PostgreSQL first
-    try:
-        import asyncio
-
-        from scripts.agentica_patterns.coordination_pg import CoordinationDBPg
-
-        async def _register():
-            async with CoordinationDBPg() as db:
-                await db.register_agent(
-                    agent_id=agent_id,
-                    session_id=session_id,
-                    pid=pid,
-                    parent_agent_id=parent if parent != "orchestrator" else None,
-                    pattern=pattern,
-                    premise=premise,
-                    depth_level=depth_level,
-                    swarm_id=effective_swarm_id,
-                )
-
-        asyncio.run(_register())
+    # Try PostgreSQL first (CoordnDB via runtime.coordination); JSONL fallback below.
+    if _coordination.register_agent(
+        agent_id=agent_id,
+        session_id=session_id,
+        pid=pid,
+        parent_agent_id=parent if parent != "orchestrator" else None,
+        pattern=pattern,
+        premise=premise,
+        depth_level=depth_level,
+        swarm_id=effective_swarm_id,
+        driver=record["driver"],
+    ):
         record["db"] = "postgres"
-    except Exception:
-        pass  # Fall back to file-based tracking
+    else:
+        logger.warning(
+            f"CoordinationDB (PostgreSQL) unreachable; agent {agent_id} tracked via JSONL registry"
+        )
 
     runtime_dir = _runtime_dir()
     runtime_dir.mkdir(parents=True, exist_ok=True)
@@ -781,21 +777,12 @@ def update_agent_status(
         "result_summary": result_summary,
         "completed_at": datetime.now(UTC).isoformat(),
     }
-    try:
-        import asyncio
-
-        from scripts.agentica_patterns.coordination_pg import CoordinationDBPg
-
-        async def _update():
-            async with CoordinationDBPg() as db:
-                await db.update_agent_status(
-                    agent_id=agent_id, status=status, result_summary=result_summary
-                )
-
-        asyncio.run(_update())
+    if _coordination.update_agent_status(
+        agent_id=agent_id, status=status, result_summary=result_summary
+    ):
         record["db"] = "postgres"
-    except Exception:
-        pass  # Appendix-JSONL fallback below
+    else:
+        logger.debug(f"CoordinationDB unreachable for {agent_id}; JSONL status fallback")
 
     runtime_dir = _runtime_dir()
     runtime_dir.mkdir(parents=True, exist_ok=True)

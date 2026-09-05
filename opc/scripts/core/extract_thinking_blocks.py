@@ -1,15 +1,27 @@
 #!/usr/bin/env python3
 """
-Extract thinking blocks from session JSONL files.
+Extract thinking blocks from session transcripts (driver-agnostic).
 
 Two-phase extraction:
-1. Deterministic: Extract all thinking blocks (grep-like)
+1. Deterministic: Extract all thinking blocks (grep-like) from the transcript
 2. Filter: Keep only blocks with perception change signals
 
+Transcript formats:
+- anthropic (Claude-Code style JSONL): ``type: assistant|user`` with
+  ``message.content[]`` entries of ``type: thinking`` (legacy shape).
+- codex: rollout JSONL — tolerant recursive scan for ``thinking``/``reasoning``
+  keys inside any event payload.
+- opencode: event JSONL shaped like anthropic content blocks plus a generic
+  ``thinking``/``reasoning`` walker fallback.
+- auto: anthropic shape first, generic walker as fallback (default).
+
 Usage:
-    python extract_thinking_blocks.py --jsonl path/to/session.jsonl
-    python extract_thinking_blocks.py --jsonl path/to/session.jsonl --filter  # only perception signals
-    python extract_thinking_blocks.py --jsonl path/to/session.jsonl --output /tmp/blocks.txt
+    uv run python scripts/core/extract_thinking_blocks.py --jsonl path/to/session.jsonl
+    uv run python scripts/core/extract_thinking_blocks.py --jsonl path/to/session.jsonl \
+        --format codex
+    uv run python scripts/core/extract_thinking_blocks.py --jsonl path/to/session.jsonl --filter
+    uv run python scripts/core/extract_thinking_blocks.py --jsonl path/to/session.jsonl \
+        --output /tmp/blocks.txt
 """
 
 import argparse
@@ -47,67 +59,163 @@ PERCEPTION_SIGNALS = [
 
 PERCEPTION_PATTERN = re.compile("|".join(PERCEPTION_SIGNALS), re.IGNORECASE)
 
+THINKING_KEYS = ("thinking", "reasoning", "chain_of_thought")
 
-def extract_thinking_blocks(jsonl_path: Path, filter_perception: bool = False) -> list[dict]:
-    """
-    Stream through JSONL and extract thinking blocks.
+_FORMATS = ("anthropic", "codex", "opencode", "auto")
 
-    Args:
-        jsonl_path: Path to session JSONL file
-        filter_perception: If True, only return blocks with perception signals
 
-    Yields:
-        Dict with 'thinking', 'timestamp', 'line_num', 'has_perception_signal'
-    """
-    blocks = []
+def _block(text: str, timestamp: str | None, line_num: int) -> dict:
+    return {
+        "thinking": text,
+        "timestamp": timestamp,
+        "line_num": line_num,
+        "has_perception_signal": bool(PERCEPTION_PATTERN.search(text)),
+    }
 
-    with open(jsonl_path, 'r') as f:
+
+def _iter_json_lines(jsonl_path: Path):
+    """Yield (line_num, parsed dict) for each parseable JSONL line."""
+    with open(jsonl_path) as f:
         for line_num, line in enumerate(f, 1):
             try:
                 data = json.loads(line.strip())
             except json.JSONDecodeError:
                 continue
+            if isinstance(data, dict):
+                yield line_num, data
 
-            # Skip non-message types
-            if data.get('type') not in ('assistant', 'user'):
-                continue
 
-            message = data.get('message', {})
-            content = message.get('content')
+def _parse_anthropic(jsonl_path: Path) -> list[dict]:
+    """Anthropic/Claude-Code JSONL shape: message.content[] type==thinking."""
+    blocks: list[dict] = []
+    for line_num, data in _iter_json_lines(jsonl_path):
+        # Skip non-message types
+        if data.get("type") not in ("assistant", "user"):
+            continue
 
-            # Content can be string or array
-            if not isinstance(content, list):
-                continue
+        message = data.get("message", {})
+        content = message.get("content")
 
-            # Extract thinking blocks from content array
-            for item in content:
-                if isinstance(item, dict) and item.get('type') == 'thinking':
-                    thinking_text = item.get('thinking', '')
-                    if not thinking_text:
-                        continue
+        # Content can be string or array
+        if not isinstance(content, list):
+            continue
 
-                    has_signal = bool(PERCEPTION_PATTERN.search(thinking_text))
+        # Extract thinking blocks from content array
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "thinking":
+                thinking_text = item.get("thinking", "")
+                if not thinking_text:
+                    continue
+                blocks.append(_block(thinking_text, data.get("timestamp"), line_num))
+    return blocks
 
-                    if filter_perception and not has_signal:
-                        continue
 
-                    blocks.append({
-                        'thinking': thinking_text,
-                        'timestamp': data.get('timestamp'),
-                        'line_num': line_num,
-                        'has_perception_signal': has_signal,
-                    })
+def _walk_dict(value, line_num: int, blocks: list[dict], depth: int = 0) -> None:
+    """Recursively find dicts with a ``thinking``/``reasoning`` key (codex/opencode)."""
+    if depth > 12:
+        return
+    if isinstance(value, dict):
+        for key, val in value.items():
+            if key in THINKING_KEYS:
+                nested = isinstance(val, dict) and isinstance(val.get("text"), str)
+                text = val if isinstance(val, str) else (
+                    val.get("text") if nested else None
+                )
+                if isinstance(text, str) and text.strip():
+                    blocks.append(_block(text, None, line_num))
+            _walk_dict(val, line_num, blocks, depth + 1)
+    elif isinstance(value, list):
+        for item in value:
+            _walk_dict(item, line_num, blocks, depth + 1)
+
+
+def _parse_generic(jsonl_path: Path) -> list[dict]:
+    """Tolerant recursive scan for thinking/reasoning across any event shape."""
+    blocks: list[dict] = []
+    for line_num, data in _iter_json_lines(jsonl_path):
+        _walk_dict(data, line_num, blocks)
+    return blocks
+
+
+def _parse_codex(jsonl_path: Path) -> list[dict]:
+    """Codex rollout JSONL: ``agent_reasoning`` events carry content in payload.content."""
+    blocks: list[dict] = []
+    for line_num, data in _iter_json_lines(jsonl_path):
+        if data.get("kind") != "agent_reasoning":
+            continue
+        payload = data.get("payload")
+        text = payload.get("content") if isinstance(payload, dict) else None
+        if isinstance(text, str) and text.strip():
+            blocks.append(_block(text, data.get("timestamp"), line_num))
+    return blocks
+
+
+def _dedup(blocks: list[dict]) -> list[dict]:
+    """Remove duplicate blocks by (line_num, thinking) — keeps first occurrence."""
+    seen: set[tuple[int, str]] = set()
+    unique: list[dict] = []
+    for b in blocks:
+        key = (b["line_num"], b["thinking"])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(b)
+    return unique
+
+
+def extract_thinking_blocks(
+    jsonl_path: Path, filter_perception: bool = False, fmt: str = "auto"
+) -> list[dict]:
+    """
+    Stream through a transcript and extract thinking blocks.
+
+    Args:
+        jsonl_path: Path to session transcript (JSONL)
+        filter_perception: If True, only return blocks with perception signals
+        fmt: Transcript format - anthropic | codex | opencode | auto
+
+    Returns:
+        List of blocks with 'thinking', 'timestamp', 'line_num',
+        'has_perception_signal'
+    """
+    if fmt == "anthropic":
+        blocks = _parse_anthropic(jsonl_path)
+    elif fmt == "codex":
+        blocks = _parse_codex(jsonl_path)
+        if not blocks:
+            blocks = _parse_generic(jsonl_path)
+    elif fmt == "opencode":
+        combined = _parse_anthropic(jsonl_path) + _parse_codex(jsonl_path)
+        blocks = _dedup(combined + _parse_generic(jsonl_path))
+    else:  # auto
+        blocks = _parse_anthropic(jsonl_path)
+        if not blocks:
+            blocks = _parse_codex(jsonl_path)
+        if not blocks:
+            blocks = _parse_generic(jsonl_path)
+        blocks = _dedup(blocks)
+
+    if filter_perception:
+        blocks = [b for b in blocks if b["has_perception_signal"]]
 
     return blocks
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Extract thinking blocks from session JSONL')
-    parser.add_argument('--jsonl', required=True, help='Path to session JSONL file')
-    parser.add_argument('--filter', action='store_true', help='Only extract blocks with perception signals')
-    parser.add_argument('--output', help='Output file (default: stdout)')
-    parser.add_argument('--format', choices=['text', 'json'], default='text', help='Output format')
-    parser.add_argument('--stats', action='store_true', help='Show statistics only')
+    parser = argparse.ArgumentParser(description="Extract thinking blocks from session transcripts")
+    parser.add_argument("--jsonl", required=True, help="Path to session JSONL file")
+    parser.add_argument(
+        "--format",
+        choices=list(_FORMATS),
+        default="auto",
+        help="Transcript format (auto detects anthropic shape first)",
+    )
+    parser.add_argument("--filter", action="store_true",
+                        help="Only extract blocks with perception signals")
+    parser.add_argument("--output", help="Output file (default: stdout)")
+    parser.add_argument("--format-out", choices=["text", "json"], default="text",
+                        help="Output format")
+    parser.add_argument("--stats", action="store_true", help="Show statistics only")
 
     args = parser.parse_args()
 
@@ -117,18 +225,20 @@ def main():
         sys.exit(1)
 
     # Extract blocks
-    blocks = extract_thinking_blocks(jsonl_path, filter_perception=args.filter)
+    blocks = extract_thinking_blocks(
+        jsonl_path, filter_perception=args.filter, fmt=args.format
+    )
 
     if args.stats:
         total = len(blocks)
-        with_signal = sum(1 for b in blocks if b['has_perception_signal'])
+        with_signal = sum(1 for b in blocks if b["has_perception_signal"])
         print(f"Total thinking blocks: {total}")
         print(f"With perception signals: {with_signal}")
         print(f"Ratio: {with_signal/total*100:.1f}%" if total > 0 else "Ratio: N/A")
         return
 
     # Format output
-    if args.format == 'json':
+    if args.format_out == "json":
         output = json.dumps(blocks, indent=2)
     else:
         output = '\n\n---\n\n'.join(
