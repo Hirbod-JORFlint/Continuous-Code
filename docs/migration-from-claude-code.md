@@ -57,16 +57,16 @@ records the *why* behind the notable decisions.
 
 - Steps 1–9 (harness skeleton → installer wizard: re-home, model/auth pinning, user-level merges,
   neutral MCP CLI config). See `instructions.md` for the per-step commit log.
+- Steps 10–14 (brand scrub → delete `.claude/` → parity audit → conformance → introspection
+  adapters). See `instructions.md` Step 11–14 notes + commit log.
+- Step 15: live driver smoke — opencode 1.18.30 on this machine. Found + fixed 3 driver/extractor
+  conformance bugs (`session list` newest-first, headless-unsafe `agent list` dump, current Codex
+  `response_item/reasoning` rollouts); codex/cline graceful absence verified; git identity
+  re-authored to `Hirbod-JORFlint <hirbod_99@gmx.com>`. See `instructions.md` Step 15 Notes.
+  (opencode transcripts are SQLite-backed in `~/.local/share/opencode/opencode.db`, not JSONL.)
 
 ## ⏳ Pending
 
-- Step 10 (this doc): brand scrub of user-facing docs.
-- Step 11: delete `.claude/` (hooks shim, `dist/`, settings, live couplings).
-- Step 12: codex/cline driver parity audit vs opencode.
-- Step 13: external conformance check (verify each target harness's requirements match online
-  sources).
-- Step 14: continuity/event-observation adapters onto driver-agnostic session introspection.
-- Step 15: live driver smoke.
 - Step 16: knowledge-graph integration verification.
 
 ## Protection list (do not edit before their step)

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 from .base import DriverRegistry, HarnessOutput
 
@@ -11,10 +12,10 @@ from .base import DriverRegistry, HarnessOutput
 class OpencodeDriver:
     name = "opencode"
 
-    def __init__(self, executable: Optional[str] = None) -> None:
+    def __init__(self, executable: str | None = None) -> None:
         self._executable = executable
 
-    def _binary(self) -> Optional[str]:
+    def _binary(self) -> str | None:
         if self._executable is not None:
             return self._executable
         return shutil.which("opencode") or shutil.which("op")
@@ -22,18 +23,18 @@ class OpencodeDriver:
     def installed(self) -> bool:
         return self._binary() is not None
 
-    def start(self, cwd: Optional[str] = None) -> None:
+    def start(self, cwd: str | None = None) -> None:
         return None
 
     def run_prompt(
         self,
         prompt: str,
         *,
-        cwd: Optional[str] = None,
-        agent: Optional[str] = None,
-        model: Optional[str] = None,
-        session_id: Optional[str] = None,
-        timeout: Optional[float] = None,
+        cwd: str | None = None,
+        agent: str | None = None,
+        model: str | None = None,
+        session_id: str | None = None,
+        timeout: float | None = None,
     ) -> HarnessOutput:
         binary = self._binary()
         if binary is None:
@@ -59,7 +60,7 @@ class OpencodeDriver:
         return self.capture_output(process)
 
     def capture_output(self, process: object) -> HarnessOutput:
-        events: list[Dict] = []
+        events: list[dict] = []
         text: list[str] = []
         for line in process.stdout.splitlines():
             line = line.strip()
@@ -82,7 +83,7 @@ class OpencodeDriver:
             events=tuple(events),
         )
 
-    def session_id(self, cwd: Optional[str] = None) -> Optional[str]:
+    def session_id(self, cwd: str | None = None) -> str | None:
         binary = self._binary()
         if binary is None:
             return None
@@ -102,12 +103,13 @@ class OpencodeDriver:
             data = data.get("sessions") or data.get("data") or []
         if not isinstance(data, list) or not data:
             return None
-        last = data[-1]
-        if isinstance(last, dict):
-            return str(last.get("id") or last.get("session_id") or "")
-        return None
+        entries = [e for e in data if isinstance(e, dict)]
+        if not entries:
+            return None
+        last: dict = max(entries, key=lambda e: e.get("updated") or 0)
+        return str(last.get("id") or last.get("session_id") or "")
 
-    def list_agents(self, cwd: Optional[str] = None) -> Sequence[str]:
+    def list_agents(self, cwd: str | None = None) -> Sequence[str]:
         binary = self._binary()
         if binary is None:
             return ()
@@ -119,7 +121,12 @@ class OpencodeDriver:
             encoding="utf-8",
             errors="replace",
         )
-        return tuple(line.strip() for line in process.stdout.splitlines() if line.strip())
+        name_re = re.compile(r"^[\w.-]+\s*\((?:primary|subagent)\)?$")
+        return tuple(
+            line.strip()
+            for line in process.stdout.splitlines()
+            if name_re.match(line.strip())
+        )
 
 
 def register() -> None:

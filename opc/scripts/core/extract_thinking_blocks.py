@@ -61,6 +61,29 @@ PERCEPTION_PATTERN = re.compile("|".join(PERCEPTION_SIGNALS), re.IGNORECASE)
 
 THINKING_KEYS = ("thinking", "reasoning", "chain_of_thought")
 
+
+def _reasoning_text(payload: dict) -> str | None:
+    """Extract thinking text from a modern codex reasoning payload.
+
+    Current codex CLI writes ``payload.type == "reasoning"`` with a
+    ``summary`` array of ``{"type": "summary_text", "text": ...}`` entries.
+    """
+    if not isinstance(payload, dict):
+        return None
+    summary = payload.get("summary")
+    if isinstance(summary, list):
+        texts = [
+            item.get("text", "")
+            for item in summary
+            if isinstance(item, dict) and isinstance(item.get("text"), str)
+        ]
+        if texts:
+            return "\n".join(t for t in texts if t.strip())
+    content = payload.get("content")
+    if isinstance(content, str) and content.strip():
+        return content
+    return None
+
 _FORMATS = ("anthropic", "codex", "opencode", "auto")
 
 
@@ -115,6 +138,10 @@ def _walk_dict(value, line_num: int, blocks: list[dict], depth: int = 0) -> None
     if depth > 12:
         return
     if isinstance(value, dict):
+        if value.get("type") in THINKING_KEYS:
+            text = _reasoning_text(value)
+            if isinstance(text, str) and text.strip():
+                blocks.append(_block(text, None, line_num))
         for key, val in value.items():
             if key in THINKING_KEYS:
                 nested = isinstance(val, dict) and isinstance(val.get("text"), str)
@@ -138,13 +165,25 @@ def _parse_generic(jsonl_path: Path) -> list[dict]:
 
 
 def _parse_codex(jsonl_path: Path) -> list[dict]:
-    """Codex rollout JSONL: ``agent_reasoning`` events carry content in payload.content."""
+    """Codex rollout JSONL.
+
+    Legacy: ``kind == "agent_reasoning"`` with content in payload.content.
+    Current CLI: ``type == "response_item"`` with ``payload.type == "reasoning"``
+    and thinking text in ``payload.summary[].text``.
+    """
     blocks: list[dict] = []
     for line_num, data in _iter_json_lines(jsonl_path):
+        payload = data.get("payload")
+        if not isinstance(payload, dict):
+            continue
+        if data.get("type") == "response_item" and payload.get("type") == "reasoning":
+            text = _reasoning_text(payload)
+            if isinstance(text, str) and text.strip():
+                blocks.append(_block(text, data.get("timestamp"), line_num))
+            continue
         if data.get("kind") != "agent_reasoning":
             continue
-        payload = data.get("payload")
-        text = payload.get("content") if isinstance(payload, dict) else None
+        text = payload.get("content")
         if isinstance(text, str) and text.strip():
             blocks.append(_block(text, data.get("timestamp"), line_num))
     return blocks
